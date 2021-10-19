@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html lang="en-us">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='最近在準備升級client 的作業系統，從 ubuntu 14.04 準備升級到 18.04 或明年的 20.04
+因為公司政策的關係，所以現在要連接internet ，需要申請
+然後 user 再去系統的proxy 設定新增一個 PAC 檔
+但是這個動作其實是去叫NetworkManager 這個服務
+可是在18.04 上，我會把這個服務關掉，因為他會干擾我的DNS設定
+所以想試試看有沒有辦法不使用 NetworkManager 服務
+又能夠在 user level 修改 proxy 參數
+就想到了用 dconf 來做
+'><title>[筆記] ubuntu 18.04 透過 dconf 修改系統 proxy / modify system proxy with dconf in ubuntu 18.04</title>
+
+<link rel='canonical' href='https://hu.mc4.us/p/%E7%AD%86%E8%A8%98-ubuntu-18.04-%E9%80%8F%E9%81%8E-dconf-%E4%BF%AE%E6%94%B9%E7%B3%BB%E7%B5%B1-proxy-/-modify-system-proxy-with-dconf-in-ubuntu-18.04/'>
+
+<link rel="stylesheet" href="/scss/style.min.css"><meta property='og:title' content='[筆記] ubuntu 18.04 透過 dconf 修改系統 proxy / modify system proxy with dconf in ubuntu 18.04'>
+<meta property='og:description' content='最近在準備升級client 的作業系統，從 ubuntu 14.04 準備升級到 18.04 或明年的 20.04
+因為公司政策的關係，所以現在要連接internet ，需要申請
+然後 user 再去系統的proxy 設定新增一個 PAC 檔
+但是這個動作其實是去叫NetworkManager 這個服務
+可是在18.04 上，我會把這個服務關掉，因為他會干擾我的DNS設定
+所以想試試看有沒有辦法不使用 NetworkManager 服務
+又能夠在 user level 修改 proxy 參數
+就想到了用 dconf 來做
+'>
+<meta property='og:url' content='https://hu.mc4.us/p/%E7%AD%86%E8%A8%98-ubuntu-18.04-%E9%80%8F%E9%81%8E-dconf-%E4%BF%AE%E6%94%B9%E7%B3%BB%E7%B5%B1-proxy-/-modify-system-proxy-with-dconf-in-ubuntu-18.04/'>
+<meta property='og:site_name' content='MC-stack'>
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='dconf' /><meta property='article:published_time' content='2019-10-31T11:08:54&#43;08:00'/><meta property='article:modified_time' content='2019-10-31T11:08:54&#43;08:00'/><meta property='og:image' content='https://h.cowbay.org/images/post-default-7.jpg' />
+<meta name="twitter:title" content="[筆記] ubuntu 18.04 透過 dconf 修改系統 proxy / modify system proxy with dconf in ubuntu 18.04">
+<meta name="twitter:description" content="最近在準備升級client 的作業系統，從 ubuntu 14.04 準備升級到 18.04 或明年的 20.04
+因為公司政策的關係，所以現在要連接internet ，需要申請
+然後 user 再去系統的proxy 設定新增一個 PAC 檔
+但是這個動作其實是去叫NetworkManager 這個服務
+可是在18.04 上，我會把這個服務關掉，因為他會干擾我的DNS設定
+所以想試試看有沒有辦法不使用 NetworkManager 服務
+又能夠在 user level 修改 proxy 參數
+就想到了用 dconf 來做
+"><meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:image" content='https://h.cowbay.org/images/post-default-7.jpg' />
+    </head>
+    <body class="
+    article-page 
+">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "auto");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.documentElement.dataset.scheme = 'dark';
+        } else {
+            document.documentElement.dataset.scheme = 'light';
+        }
+    })();
+</script>
+<div class="container main-container flex 
+    
+        on-phone--column extended
+    
+">
+    
+        <aside class="sidebar left-sidebar sticky">
+    <button class="hamburger hamburger--spin" type="button" id="toggle-menu" aria-label="Toggle Menu">
+        <span class="hamburger-box">
+            <span class="hamburger-inner"></span>
+        </span>
+    </button>
+
+    <header class="site-info">
+        
+            
+            <figure class="site-avatar">
+                
+                    
+                    
+                    
+                        
+                        <img src="/img/avatar_huda2458f72ce188392d75c5d51cd8e24e_373_300x0_resize_box_3.png" width="300"
+                            height="300" class="site-logo" loading="lazy" alt="Avatar">
+                    
+                
+
+                
+                    <span class="emoji">🍥</span>
+                
+            </figure>
+            
+        
+        <h1 class="site-name"><a href="/">MC-stack</a></h1>
+        <h2 class="site-description">Lorem ipsum dolor sit amet, consectetur adipiscing elit.</h2>
+    </header>
+
+    <ol class="menu" id="main-menu">
+        
+        
+        
+
+        <li >
+            <a href='/' target="_blank">
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-home" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="5 12 3 12 12 3 21 12 19 12" />
+  <path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-7" />
+  <path d="M9 21v-6a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v6" />
+</svg>
+
+
+
+                
+                <span>Home</span>
+            </a>
+        </li>
+        
+
+        
+            <li id="dark-mode-toggle">
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="8" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="16" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                <span>Dark Mode</span>
+            </li>
+        
+    </ol>
+</aside>
+
+    
+<main class="main full-width">
+    <article class="has-image main-article">
+    <header class="article-header">
+        <div class="article-image">
+            <a href="/p/%E7%AD%86%E8%A8%98-ubuntu-18.04-%E9%80%8F%E9%81%8E-dconf-%E4%BF%AE%E6%94%B9%E7%B3%BB%E7%B5%B1-proxy-/-modify-system-proxy-with-dconf-in-ubuntu-18.04/">
+                
+                    <img src="https://h.cowbay.org/images/post-default-7.jpg" loading="lazy" alt="Featured image of post [筆記] ubuntu 18.04 透過 dconf 修改系統 proxy / modify system proxy with dconf in ubuntu 18.04" />
+                
+            </a>
+        </div>
+    
+
+    <div class="article-details">
+    
+    <header class="article-category">
+        
+            <a href="/categories/%E7%AD%86%E8%A8%98/" >
+                筆記
+            </a>
+        
+    </header>
+    
+
+    <h2 class="article-title">
+        <a href="/p/%E7%AD%86%E8%A8%98-ubuntu-18.04-%E9%80%8F%E9%81%8E-dconf-%E4%BF%AE%E6%94%B9%E7%B3%BB%E7%B5%B1-proxy-/-modify-system-proxy-with-dconf-in-ubuntu-18.04/">[筆記] ubuntu 18.04 透過 dconf 修改系統 proxy / modify system proxy with dconf in ubuntu 18.04</a>
+    </h2>
+
+    
+
+    
+    <footer class="article-time">
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M11.795 21h-6.795a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
+  <circle cx="18" cy="18" r="4" />
+  <path d="M15 3v4" />
+  <path d="M7 3v4" />
+  <path d="M3 11h16" />
+  <path d="M18 16.496v1.504l1 1" />
+</svg>
+                <time class="article-time--published">Oct 31, 2019</time>
+            </div>
+        
+
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+                <time class="article-time--reading">
+                    1 minute read
+                </time>
+            </div>
+        
+    </footer>
+    
+</div>
+</header>
+
+    <section class="article-content">
+    <p>最近在準備升級client 的作業系統，從 ubuntu 14.04 準備升級到 18.04 或明年的 20.04</p>
+<p>因為公司政策的關係，所以現在要連接internet ，需要申請</p>
+<p>然後 user 再去系統的proxy 設定新增一個 PAC 檔</p>
+<p>但是這個動作其實是去叫NetworkManager 這個服務</p>
+<p>可是在18.04 上，我會把這個服務關掉，因為他會干擾我的DNS設定</p>
+<p>所以想試試看有沒有辦法不使用 NetworkManager 服務</p>
+<p>又能夠在 user level 修改 proxy 參數</p>
+<p>就想到了用 dconf 來做</p>
+<p>dconf 是在 ubuntu 底下很好用的工具</p>
+<p>可以用來觀察、修改使用者層級(user level)的系統設定\</p>
+<p>不過有一些語法要注意</p>
+<p>簡單說一下用法</p>
+<p>觀察user level 系統變數的變化</p>
+<p>開啟terminal 輸入以下指令</p>
+<pre><code>dconf watch /
+</code></pre><p>這個可以觀察user到底修改了些什麼</p>
+<p>只要是透過右上角的系統設定修改的值</p>
+<p>這個指令都可以觀察到，非常好用</p>
+<p>當找到了要修改的 KEY</p>
+<p>就可以用</p>
+<pre><code>dconf read/write KEY
+</code></pre><p>比如說我要修改proxy</p>
+<p>我先用 dconf watch / 抓到了KEY是 /system/proxy/host</p>
+<p>那我就可以用</p>
+<pre><code>dconf write /system/proxy/http/host &quot;'192.168.1.7'&quot;
+dconf write /system/proxy/http/port '3128'
+</code></pre><p>來把系統的http proxy 改成 192.168.1.7:3128</p>
+<p>要注意的是，上面的 host 是字串，要用<code>&quot;''&quot;</code>包起來</p>
+<p>下面的只是數字，就不用外面的<code>&quot;&quot;</code> 了</p>
+<p>不過這修改好像還是必須要NetworkManager 生效才行</p>
+<p>還需要再測試看看</p>
+</section>
+
+
+    <footer class="article-footer">
+    
+    <section class="article-tags">
+        
+            <a href="/tags/dconf/">dconf</a>
+        
+    </section>
+
+
+    
+    <section class="article-copyright">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <path d="M14.5 9a3.5 4 0 1 0 0 6" />
+</svg>
+
+
+
+        <span>Licensed under CC BY-NC-SA 4.0</span>
+    </section>
+    </footer>
+
+
+    
+</article>
+
+    <aside class="related-contents--wrapper">
+    
+    
+        <h2 class="section-title">Related contents</h2>
+        <div class="related-contents">
+            <div class="flex article-list--tile">
+                
+                    
+<article class="has-image">
+    <a href="/p/%E5%9C%A8ubuntu-18.04%E4%B8%AD%E9%80%8F%E9%81%8E-dconf-%E8%A8%AD%E5%AE%9A%E7%B3%BB%E7%B5%B1%E5%B1%A4%E7%B4%9A%E7%9A%84%E6%88%91%E7%9A%84%E6%9C%80%E6%84%9B/-add-system-wide-favorite-apps-in-dock-with-dconf-in-ubuntu-18.04/">
+        
+        
+            <div class="article-image">
+                
+                    <img src="https://h.cowbay.org/images/post-default-2.jpg" loading="lazy" data-key="" data-hash="https://h.cowbay.org/images/post-default-2.jpg"/>
+                
+            </div>
+        
+
+        <div class="article-details">
+            <h2 class="article-title">在ubuntu 18.04中，透過 dconf 設定系統層級的「我的最愛」/ Add System Wide Favorite Apps in dock with Dconf in ubuntu 18.04</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="has-image">
+    <a href="/p/init-script-in-openwrt-to-start-leproxy/%E5%9C%A8openwrt-%E6%96%B0%E5%A2%9E%E8%87%AA%E5%8B%95%E5%95%9F%E5%8B%95leproxy%E7%9A%84script/">
+        
+        
+            <div class="article-image">
+                
+                    <img src="https://h.cowbay.org/images/post-default-8.jpg" loading="lazy" data-key="" data-hash="https://h.cowbay.org/images/post-default-8.jpg"/>
+                
+            </div>
+        
+
+        <div class="article-details">
+            <h2 class="article-title">Init Script in Openwrt to Start Leproxy/在openwrt 新增自動啟動leproxy的script</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="has-image">
+    <a href="/p/auto-fetch-wildcard-ssl-certs-with-lego-acme-dns-domain-register-namecheap/">
+        
+        
+            <div class="article-image">
+                
+                    <img src="https://h.cowbay.org/images/post-default-8.jpg" loading="lazy" data-key="" data-hash="https://h.cowbay.org/images/post-default-8.jpg"/>
+                
+            </div>
+        
+
+        <div class="article-details">
+            <h2 class="article-title">auto fetch  Wildcard ssl certs with lego &#43; acme-dns ( Domain Register : Namecheap)</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="has-image">
+    <a href="/p/%E7%AD%86%E8%A8%98-web-%E6%AA%94%E6%A1%88%E7%AE%A1%E7%90%86-cloudcmd-web-file-manager/">
+        
+        
+            <div class="article-image">
+                
+                    <img src="https://h.cowbay.org/images/post-default-2.jpg" loading="lazy" data-key="" data-hash="https://h.cowbay.org/images/post-default-2.jpg"/>
+                
+            </div>
+        
+
+        <div class="article-details">
+            <h2 class="article-title">[筆記] WEB 檔案管理 Cloudcmd Web File Manager</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="has-image">
+    <a href="/p/%E7%AD%86%E8%A8%98-%E5%B9%BE%E7%A8%AE%E5%8F%AF%E4%BB%A5%E8%87%AA%E5%BB%BA%E6%9C%8D%E5%8B%99%E7%9A%84-file-sharing-%E7%B3%BB%E7%B5%B1%E6%AF%94%E8%BC%83/">
+        
+        
+            <div class="article-image">
+                
+                    <img src="/images/post-default-18.jpg" loading="lazy" data-key="" data-hash="/images/post-default-18.jpg"/>
+                
+            </div>
+        
+
+        <div class="article-details">
+            <h2 class="article-title">[筆記] 幾種可以自建服務的 File Sharing 系統比較</h2>
+        </div>
+    </a>
+</article>
+                
+            </div>
+        </div>
+    
+</aside>
+
+     
+    
+        
+    <div class="disqus-container">
+    <div id="disqus_thread"></div>
+<script type="application/javascript">
+    var disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "hugo-theme-stack" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+</div>
+
+<style>
+    .disqus-container {
+        background-color: var(--card-background);
+        border-radius: var(--card-border-radius);
+        box-shadow: var(--shadow-l1);
+        padding: var(--card-padding);
+    }
+</style>
+
+<script>
+    window.addEventListener('onColorSchemeChange', (e) => {
+        if (DISQUS) {
+            DISQUS.reset({
+                reload: true
+            });
+        }
+    })
+</script>
+
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+            2020 - 
+        
+        2021 MC-stack
+    </section>
+    
+    <section class="powerby">
+        Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
+        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.2.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+    </section>
+</footer>
+
+
+    
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer="true"
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer="true"
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.css"integrity="sha256-c0uckgykQ9v5k&#43;IqViZOZKc47Jn7KQil4/MP3ySA3F8="crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.css"integrity="sha256-SBLU4vv6CA6lHsZ1XyTdhyjJxCjPif/TRkjnsyGAGnE="crossorigin="anonymous"
+            >
+
+            </main>
+    
+
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.5/dist/vibrant.min.js"integrity="sha256-5NovOZc4iwiAWTYIFiIM7DxKUXKWvpVEuMEPLzcm5/g="crossorigin="anonymous"
+                defer="false"
+                >
+            </script><script type="text/javascript" src="/ts/main.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>

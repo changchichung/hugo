@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>acme on MC-stack</title>
+    <link>https://hu.mc4.us/tags/acme/</link>
+    <description>Recent content in acme on MC-stack</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Thu, 26 Aug 2021 12:08:43 +0800</lastBuildDate><atom:link href="https://hu.mc4.us/tags/acme/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>auto fetch  Wildcard ssl certs with lego &#43; acme-dns ( Domain Register : Namecheap)</title>
+      <link>https://hu.mc4.us/p/auto-fetch-wildcard-ssl-certs-with-lego-acme-dns-domain-register-namecheap/</link>
+      <pubDate>Thu, 26 Aug 2021 12:08:43 +0800</pubDate>
+      
+      <guid>https://hu.mc4.us/p/auto-fetch-wildcard-ssl-certs-with-lego-acme-dns-domain-register-namecheap/</guid>
+      <description>&lt;p&gt;自從用了 &lt;a class=&#34;link&#34; href=&#34;https://github.com/artyom/leproxy&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;leproxy&lt;/a&gt; 之後，其實就很少在管ssl 憑證的問題，反正&lt;a class=&#34;link&#34; href=&#34;https://github.com/artyom/leproxy&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;leproxy &lt;/a&gt;都會自動處理好&lt;/p&gt;
+&lt;p&gt;不過LAN裡面的機器越來越多，每次看到警告說沒有加密的訊息就有點不爽，之前用了很多方式去申請全域憑證，申請倒是還好，沒太多問題。但是一碰到要更新，就都無法自動，因為都會要求去修改DNS 的 TXT 或者是 CNAME 記錄。&lt;/p&gt;
+&lt;p&gt;一般來說，如果是其他DNS 供應商，大部分都會提供API，那就還好。 BUT !! (對，然生就是離不開這個BUT &amp;hellip;) 我們的域名是老闆在 iwantmyname 買的，一開始是給 webfaction 代管，後來webfaction 被godaddy 買走，就轉到 namecheap 去(我也不知道為什麼不在godaddy 就好)。&lt;/p&gt;</description>
+    </item>
+    
+  </channel>
+</rss>

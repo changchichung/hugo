@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>雜念 on MC-stack</title>
+    <link>https://hu.mc4.us/categories/%E9%9B%9C%E5%BF%B5/</link>
+    <description>Recent content in 雜念 on MC-stack</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Fri, 03 Jan 2020 11:45:56 +0800</lastBuildDate><atom:link href="https://hu.mc4.us/categories/%E9%9B%9C%E5%BF%B5/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>[碎念] Synology 群暉的文件不知道在工三小 / what a piss in synology document</title>
+      <link>https://hu.mc4.us/p/%E7%A2%8E%E5%BF%B5-synology-%E7%BE%A4%E6%9A%89%E7%9A%84%E6%96%87%E4%BB%B6%E4%B8%8D%E7%9F%A5%E9%81%93%E5%9C%A8%E5%B7%A5%E4%B8%89%E5%B0%8F-/-what-a-piss-in-synology-document/</link>
+      <pubDate>Fri, 03 Jan 2020 11:45:56 +0800</pubDate>
+      
+      <guid>https://hu.mc4.us/p/%E7%A2%8E%E5%BF%B5-synology-%E7%BE%A4%E6%9A%89%E7%9A%84%E6%96%87%E4%BB%B6%E4%B8%8D%E7%9F%A5%E9%81%93%E5%9C%A8%E5%B7%A5%E4%B8%89%E5%B0%8F-/-what-a-piss-in-synology-document/</guid>
+      <description>&lt;p&gt;2020/01/02  2020 上工的第一天，公司碩果僅存的唯一一台 Synology DS415+ 也終於掛了&lt;/p&gt;
+&lt;p&gt;開機沒多久就連不上，反覆幾次之後，出現了開機時所有燈號都狂閃的狀況&lt;/p&gt;
+&lt;p&gt;終於宣告不治&lt;/p&gt;
+&lt;p&gt;問題很明顯的就是Intel C2000 系列 CPU 的瑕疵&lt;/p&gt;</description>
+    </item>
+    
+  </channel>
+</rss>

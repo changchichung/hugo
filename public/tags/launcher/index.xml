@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>launcher on MC-stack</title>
+    <link>https://hu.mc4.us/tags/launcher/</link>
+    <description>Recent content in launcher on MC-stack</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Fri, 04 Oct 2019 14:12:15 +0800</lastBuildDate><atom:link href="https://hu.mc4.us/tags/launcher/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>[推薦] ulauncher ubuntu 18.04 底下，好用的 app launcher / Recommended Ulauncher in Ubuntu 1804</title>
+      <link>https://hu.mc4.us/p/%E6%8E%A8%E8%96%A6-ulauncher-ubuntu-18.04-%E5%BA%95%E4%B8%8B%E5%A5%BD%E7%94%A8%E7%9A%84-app-launcher-/-recommended-ulauncher-in-ubuntu-1804/</link>
+      <pubDate>Fri, 04 Oct 2019 14:12:15 +0800</pubDate>
+      
+      <guid>https://hu.mc4.us/p/%E6%8E%A8%E8%96%A6-ulauncher-ubuntu-18.04-%E5%BA%95%E4%B8%8B%E5%A5%BD%E7%94%A8%E7%9A%84-app-launcher-/-recommended-ulauncher-in-ubuntu-1804/</guid>
+      <description>&lt;p&gt;這兩天在找關於在 ubuntu 中做搜尋的軟體&lt;/p&gt;
+&lt;p&gt;意外找到一個非常好用的工具 ulauncher&lt;/p&gt;</description>
+    </item>
+    
+  </channel>
+</rss>

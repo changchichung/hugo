@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>openwrt on MC-stack</title>
+    <link>https://hu.mc4.us/tags/openwrt/</link>
+    <description>Recent content in openwrt on MC-stack</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Wed, 29 Sep 2021 14:38:10 +0800</lastBuildDate><atom:link href="https://hu.mc4.us/tags/openwrt/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Init Script in Openwrt to Start Leproxy/在openwrt 新增自動啟動leproxy的script</title>
+      <link>https://hu.mc4.us/p/init-script-in-openwrt-to-start-leproxy/%E5%9C%A8openwrt-%E6%96%B0%E5%A2%9E%E8%87%AA%E5%8B%95%E5%95%9F%E5%8B%95leproxy%E7%9A%84script/</link>
+      <pubDate>Wed, 29 Sep 2021 14:38:10 +0800</pubDate>
+      
+      <guid>https://hu.mc4.us/p/init-script-in-openwrt-to-start-leproxy/%E5%9C%A8openwrt-%E6%96%B0%E5%A2%9E%E8%87%AA%E5%8B%95%E5%95%9F%E5%8B%95leproxy%E7%9A%84script/</guid>
+      <description>&lt;p&gt;最近在逐步的把舊有的VPN Router 汰換掉，改用wireguard 來作 full mesh site-to-site VPN&lt;/p&gt;
+&lt;p&gt;不過這是另外的故事了&amp;hellip;&lt;/p&gt;
+&lt;p&gt;在把wireguard VPN 都搞定之後，才發現原來 openwrt 的 uhttpd 要加上 letsencrypt 的免費憑證有點難搞&lt;/p&gt;
+&lt;p&gt;網路上大部分都介紹用 acme.sh ，我是有測試出來啦&lt;/p&gt;
+&lt;p&gt;但是跟網路上的方法不太一樣了，新增了滿多步驟的，覺得很麻煩&lt;/p&gt;
+&lt;p&gt;想到向來愛用的 leproxy ，既然是 golang 開發的，又是open source&lt;/p&gt;
+&lt;p&gt;就拿來compile 給openwrt router 用用看&lt;/p&gt;
+&lt;p&gt;想不到還真的可以， golang 真是棒！&lt;/p&gt;
+&lt;p&gt;不過也還是要順手改一些openwrt 東西才行&lt;/p&gt;
+&lt;p&gt;還是簡單作個筆記好了&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>[筆記] 在openwrt 中檢查網路埠的連接速度/ Check Port Speed in Openwrt</title>
+      <link>https://hu.mc4.us/p/%E7%AD%86%E8%A8%98-%E5%9C%A8openwrt-%E4%B8%AD%E6%AA%A2%E6%9F%A5%E7%B6%B2%E8%B7%AF%E5%9F%A0%E7%9A%84%E9%80%A3%E6%8E%A5%E9%80%9F%E5%BA%A6/-check-port-speed-in-openwrt/</link>
+      <pubDate>Wed, 15 Jul 2020 10:35:01 +0800</pubDate>
+      
+      <guid>https://hu.mc4.us/p/%E7%AD%86%E8%A8%98-%E5%9C%A8openwrt-%E4%B8%AD%E6%AA%A2%E6%9F%A5%E7%B6%B2%E8%B7%AF%E5%9F%A0%E7%9A%84%E9%80%A3%E6%8E%A5%E9%80%9F%E5%BA%A6/-check-port-speed-in-openwrt/</guid>
+      <description>&lt;p&gt;最近在玩ansible + openwrt + wireguard&lt;/p&gt;
+&lt;p&gt;ansible 腳本寫好之後，可以把config 佈署到 openwrt 上&lt;/p&gt;
+&lt;p&gt;當然前提是最好用同樣的機器，不同的機器在config 上會有一些差異&lt;/p&gt;
+&lt;p&gt;但是這些差異常常就會造成無法連線、無法使用的狀況&lt;/p&gt;
+&lt;p&gt;BTW 我是用 ubiquiti 的 edgerouter X 來做&lt;/p&gt;
+&lt;p&gt;都弄好之後，就想說來跑個iperf3 測試一下連線速度&lt;/p&gt;
+&lt;p&gt;也好和之前做的 IPSEC 比較一下&lt;/p&gt;
+&lt;p&gt;結果很奇怪的是，明明一樣的機器、一樣用ansible 跑出來的config&lt;/p&gt;
+&lt;p&gt;但是有一台edgerouter X 的VPN 連接速度就是特別慢&lt;/p&gt;
+&lt;p&gt;而且速度都剛好卡在 99.X Mb 左右&lt;/p&gt;
+&lt;p&gt;就讓我很納悶了&amp;hellip;&lt;/p&gt;</description>
+    </item>
+    
+  </channel>
+</rss>

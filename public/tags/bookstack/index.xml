@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Bookstack on MC-stack</title>
+    <link>https://hu.mc4.us/tags/bookstack/</link>
+    <description>Recent content in Bookstack on MC-stack</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Tue, 06 Nov 2018 14:57:14 +0800</lastBuildDate><atom:link href="https://hu.mc4.us/tags/bookstack/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Bookstack Docker</title>
+      <link>https://hu.mc4.us/p/bookstack-docker/</link>
+      <pubDate>Tue, 06 Nov 2018 14:57:14 +0800</pubDate>
+      
+      <guid>https://hu.mc4.us/p/bookstack-docker/</guid>
+      <description>&lt;p&gt;Bookstack 是一套非常好用的線上&amp;quot;筆記&amp;quot;系統&lt;/p&gt;
+&lt;p&gt;他用圖書館/書本的概念，讓使用者可以建立自己的&amp;quot;圖書館&amp;quot;&lt;/p&gt;
+&lt;p&gt;同時在圖書館內建立不同的&amp;quot;書籍&amp;quot;&lt;/p&gt;
+&lt;p&gt;而且支援 Markdown 語法&lt;/p&gt;
+&lt;p&gt;其他的方式像是在nextcloud上編輯 md檔案(字體太小)&lt;/p&gt;
+&lt;p&gt;或者是boostnote(只能在本機)&lt;/p&gt;
+&lt;p&gt;都或多或少有點小缺點&lt;/p&gt;
+&lt;p&gt;Bookstack則是沒有這些問題，不過就是系統「大」了點&amp;hellip;&lt;/p&gt;
+&lt;p&gt;不過還好有人做成docker的方式來啟動，大大的降低了建置的難度(其實也沒有很難啦，只是要裝個PHP、弄個DB而已)&lt;/p&gt;</description>
+    </item>
+    
+  </channel>
+</rss>

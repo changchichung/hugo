@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>linux on MC-stack</title>
+    <link>https://hu.mc4.us/tags/linux/</link>
+    <description>Recent content in linux on MC-stack</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Wed, 31 Jul 2019 11:06:33 +0800</lastBuildDate><atom:link href="https://hu.mc4.us/tags/linux/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>[筆記] 用pxe 安裝系統，完成後送出郵件通知 / send mail notification after pxe install</title>
+      <link>https://hu.mc4.us/p/%E7%AD%86%E8%A8%98-%E7%94%A8pxe-%E5%AE%89%E8%A3%9D%E7%B3%BB%E7%B5%B1%E5%AE%8C%E6%88%90%E5%BE%8C%E9%80%81%E5%87%BA%E9%83%B5%E4%BB%B6%E9%80%9A%E7%9F%A5-/-send-mail-notification-after-pxe-install/</link>
+      <pubDate>Wed, 31 Jul 2019 11:06:33 +0800</pubDate>
+      
+      <guid>https://hu.mc4.us/p/%E7%AD%86%E8%A8%98-%E7%94%A8pxe-%E5%AE%89%E8%A3%9D%E7%B3%BB%E7%B5%B1%E5%AE%8C%E6%88%90%E5%BE%8C%E9%80%81%E5%87%BA%E9%83%B5%E4%BB%B6%E9%80%9A%E7%9F%A5-/-send-mail-notification-after-pxe-install/</guid>
+      <description>&lt;p&gt;最近有個任務，需要大量安裝client&lt;/p&gt;
+&lt;p&gt;想用PXE來處理，只要user開機按F12(acer 桌機) 選擇PXE Boot&lt;/p&gt;
+&lt;p&gt;然後選擇OS版本，就可以自動進行安裝&lt;/p&gt;
+&lt;p&gt;安裝完成後，會自動重新開機，接著就用ansible來做user環境設定&lt;/p&gt;
+&lt;p&gt;PXE的部份本來是沒有什麼問題，自動安裝系統的部份都做好了&lt;/p&gt;
+&lt;p&gt;可是因為這次的量比較多，想說讓每一台在完成PXE安裝後的第一次重開機&lt;/p&gt;
+&lt;p&gt;就送出一封郵件來通知我，說已經完成安裝，可以執行ansible 了&lt;/p&gt;
+&lt;p&gt;看似很簡單的一件事情，卻搞了我兩天&amp;hellip;.&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>linux底下遠端遙控&amp;管理的好用系統 Meshcentral / Remote Management &amp; control system Meshcentral</title>
+      <link>https://hu.mc4.us/p/linux%E5%BA%95%E4%B8%8B%E9%81%A0%E7%AB%AF%E9%81%99%E6%8E%A7%E7%AE%A1%E7%90%86%E7%9A%84%E5%A5%BD%E7%94%A8%E7%B3%BB%E7%B5%B1-meshcentral-/-remote-management-control-system-meshcentral/</link>
+      <pubDate>Thu, 20 Jun 2019 11:03:12 +0800</pubDate>
+      
+      <guid>https://hu.mc4.us/p/linux%E5%BA%95%E4%B8%8B%E9%81%A0%E7%AB%AF%E9%81%99%E6%8E%A7%E7%AE%A1%E7%90%86%E7%9A%84%E5%A5%BD%E7%94%A8%E7%B3%BB%E7%B5%B1-meshcentral-/-remote-management-control-system-meshcentral/</guid>
+      <description>&lt;p&gt;之前在LAN/windows環境下，一直都是用ultravnc/winvnc/tigervnc之類的VNC軟體&lt;/p&gt;
+&lt;p&gt;但是如果要過 internet ，就會碰到各種開port的問題&lt;/p&gt;
+&lt;p&gt;在這種環境下，就有了當時 teamviewer 的橫空出世&lt;/p&gt;
+&lt;p&gt;解決了開PORT的問題，讓被控端(通常是資訊技術相對弱勢，需要接受幫助的一方)不需要懂太多&lt;/p&gt;
+&lt;p&gt;只要下載teamviewer被控端，開啟後報ID 給協助者就好了&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>Transfer File Content Using Xclip in Terminal</title>
+      <link>https://hu.mc4.us/p/transfer-file-content-using-xclip-in-terminal/</link>
+      <pubDate>Fri, 17 May 2019 12:18:54 +0800</pubDate>
+      
+      <guid>https://hu.mc4.us/p/transfer-file-content-using-xclip-in-terminal/</guid>
+      <description>&lt;p&gt;工作上常會需要用ssh登入遠端主機檢查LOG，有必要的時候，還要把log複製回本機來處理。&lt;/p&gt;
+&lt;p&gt;以前都是傻傻的用 scp 傳檔案&lt;/p&gt;
+&lt;p&gt;之前就記得有這個xclip/xsel 可以用，但是一直沒有弄清楚怎麼執行&lt;/p&gt;
+&lt;p&gt;早上研究了一下，順便做個筆記。&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>[筆記] inxi 蒐集詳盡的硬體資訊 / inxi Collect Detail Hardware Info</title>
+      <link>https://hu.mc4.us/p/%E7%AD%86%E8%A8%98-inxi-%E8%92%90%E9%9B%86%E8%A9%B3%E7%9B%A1%E7%9A%84%E7%A1%AC%E9%AB%94%E8%B3%87%E8%A8%8A-/-inxi-collect-detail-hardware-info/</link>
+      <pubDate>Tue, 23 Apr 2019 15:28:56 +0800</pubDate>
+      
+      <guid>https://hu.mc4.us/p/%E7%AD%86%E8%A8%98-inxi-%E8%92%90%E9%9B%86%E8%A9%B3%E7%9B%A1%E7%9A%84%E7%A1%AC%E9%AB%94%E8%B3%87%E8%A8%8A-/-inxi-collect-detail-hardware-info/</guid>
+      <description>&lt;p&gt;最近因為一直碰到硬碟故障的問題，算起來那一批同時購買的5X顆 seagate 2T硬碟，已經有一半以上故障返修了&amp;hellip;.&lt;/p&gt;
+&lt;p&gt;然後又因為一直沒有添購新的硬碟，只能用這些快過保/已過保的撐著&lt;/p&gt;
+&lt;p&gt;所以最近不斷的在更換機器內的硬碟，而且還沒有熱插拔！&lt;/p&gt;
+&lt;p&gt;也導致原本負責處理盤點資產的同事困擾，因為跟手邊的紀錄已經對不起來了&lt;/p&gt;
+&lt;p&gt;然後就變成要對資產的時候，需要一台一台登入，然後去下不同的指令，取得想要的硬體資訊，超級麻煩的！&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>[筆記] 用rsync 移轉 centos 6.2的老機器 Transfer Cent6.2 using rsync</title>
+      <link>https://hu.mc4.us/p/%E7%AD%86%E8%A8%98-%E7%94%A8rsync-%E7%A7%BB%E8%BD%89-centos-6.2%E7%9A%84%E8%80%81%E6%A9%9F%E5%99%A8-transfer-cent6.2-using-rsync/</link>
+      <pubDate>Wed, 27 Mar 2019 17:44:49 +0800</pubDate>
+      
+      <guid>https://hu.mc4.us/p/%E7%AD%86%E8%A8%98-%E7%94%A8rsync-%E7%A7%BB%E8%BD%89-centos-6.2%E7%9A%84%E8%80%81%E6%A9%9F%E5%99%A8-transfer-cent6.2-using-rsync/</guid>
+      <description>&lt;p&gt;公司的一台老伺服器空間不足了，要執行指令都會中斷，所以想要擴充空間。&lt;/p&gt;
+&lt;p&gt;看起來不難搞，事實上&amp;hellip;..&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>[筆記] Ansible how to use &#39;list&#39; in yaml file </title>
+      <link>https://hu.mc4.us/p/%E7%AD%86%E8%A8%98-ansible-how-to-use-list-in-yaml-file/</link>
+      <pubDate>Tue, 27 Nov 2018 16:50:53 +0800</pubDate>
+      
+      <guid>https://hu.mc4.us/p/%E7%AD%86%E8%A8%98-ansible-how-to-use-list-in-yaml-file/</guid>
+      <description>&lt;p&gt;這幾天在玩ansible 時，碰到一個問題&lt;/p&gt;
+&lt;p&gt;假如我有個yaml檔作為資料來源，檔名是 abc.yml&lt;/p&gt;
+&lt;p&gt;大概長這樣&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;    &amp;quot;teams&amp;quot;: [
+        {
+            &amp;quot;chinese_name&amp;quot;: &amp;quot;TEAM1&amp;quot;,
+            &amp;quot;description&amp;quot;: &amp;quot;TEAM1&amp;quot;,
+            &amp;quot;gid&amp;quot;: 10125,
+            &amp;quot;location&amp;quot;: [
+                &amp;quot;hq&amp;quot;
+            ],
+            &amp;quot;name&amp;quot;: &amp;quot;aa&amp;quot;,
+            &amp;quot;users&amp;quot;: [
+                &amp;quot;chen&amp;quot;,
+                &amp;quot;chou&amp;quot;,
+                &amp;quot;huani&amp;quot;,
+                &amp;quot;yey&amp;quot;,
+                &amp;quot;wa&amp;quot;
+            ]
+        },
+        {
+            &amp;quot;chinese_name&amp;quot;: &amp;quot;TEAM2&amp;quot;,
+            &amp;quot;description&amp;quot;: &amp;quot;TEAM2&amp;quot;,
+            &amp;quot;gid&amp;quot;: 10126,
+            &amp;quot;location&amp;quot;: [
+                &amp;quot;hq&amp;quot;
+            ],
+            &amp;quot;name&amp;quot;: &amp;quot;bb&amp;quot;,
+            &amp;quot;users&amp;quot;: [
+                &amp;quot;chhiao&amp;quot;,
+                &amp;quot;chgc&amp;quot;,
+                &amp;quot;chy&amp;quot;,
+                &amp;quot;hsi&amp;quot;,
+                &amp;quot;li&amp;quot;,
+                &amp;quot;li&amp;quot;,
+                &amp;quot;chgchi&amp;quot;
+            ]
+        }
+		]
+		
+&lt;/code&gt;&lt;/pre&gt;</description>
+    </item>
+    
+    <item>
+      <title>Nice Du Report Tool Durep</title>
+      <link>https://hu.mc4.us/p/nice-du-report-tool-durep/</link>
+      <pubDate>Tue, 06 Nov 2018 15:24:29 +0800</pubDate>
+      
+      <guid>https://hu.mc4.us/p/nice-du-report-tool-durep/</guid>
+      <description>&lt;p&gt;最近在重新規劃前人留下的backup爛攤子
+各個伺服器統一備份到一台backup storage
+想說如果每天能夠看到backup storage的磁碟用量的話
+就可以抓出備份空間成長速度、推估需要多大的磁碟空間
+找了一些工具，結果發現 durep 這個 ubuntu 內建的工具
+基本上可以滿足我的需求&lt;/p&gt;</description>
+    </item>
+    
+  </channel>
+</rss>

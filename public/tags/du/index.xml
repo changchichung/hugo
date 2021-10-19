@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>du on MC-stack</title>
+    <link>https://hu.mc4.us/tags/du/</link>
+    <description>Recent content in du on MC-stack</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Tue, 06 Nov 2018 15:24:29 +0800</lastBuildDate><atom:link href="https://hu.mc4.us/tags/du/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Nice Du Report Tool Durep</title>
+      <link>https://hu.mc4.us/p/nice-du-report-tool-durep/</link>
+      <pubDate>Tue, 06 Nov 2018 15:24:29 +0800</pubDate>
+      
+      <guid>https://hu.mc4.us/p/nice-du-report-tool-durep/</guid>
+      <description>&lt;p&gt;最近在重新規劃前人留下的backup爛攤子
+各個伺服器統一備份到一台backup storage
+想說如果每天能夠看到backup storage的磁碟用量的話
+就可以抓出備份空間成長速度、推估需要多大的磁碟空間
+找了一些工具，結果發現 durep 這個 ubuntu 內建的工具
+基本上可以滿足我的需求&lt;/p&gt;</description>
+    </item>
+    
+  </channel>
+</rss>

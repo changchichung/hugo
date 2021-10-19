@@ -1,0 +1,974 @@
+<!DOCTYPE html>
+<html lang="en-us">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='最近在玩ansible &#43; openwrt &#43; wireguard
+ansible 腳本寫好之後，可以把config 佈署到 openwrt 上
+當然前提是最好用同樣的機器，不同的機器在config 上會有一些差異
+但是這些差異常常就會造成無法連線、無法使用的狀況
+BTW 我是用 ubiquiti 的 edgerouter X 來做
+都弄好之後，就想說來跑個iperf3 測試一下連線速度
+也好和之前做的 IPSEC 比較一下
+結果很奇怪的是，明明一樣的機器、一樣用ansible 跑出來的config
+但是有一台edgerouter X 的VPN 連接速度就是特別慢
+而且速度都剛好卡在 99.X Mb 左右
+就讓我很納悶了&amp;hellip;
+'><title>[筆記] 在openwrt 中檢查網路埠的連接速度/ Check Port Speed in Openwrt</title>
+
+<link rel='canonical' href='https://hu.mc4.us/p/%E7%AD%86%E8%A8%98-%E5%9C%A8openwrt-%E4%B8%AD%E6%AA%A2%E6%9F%A5%E7%B6%B2%E8%B7%AF%E5%9F%A0%E7%9A%84%E9%80%A3%E6%8E%A5%E9%80%9F%E5%BA%A6/-check-port-speed-in-openwrt/'>
+
+<link rel="stylesheet" href="/scss/style.min.css"><meta property='og:title' content='[筆記] 在openwrt 中檢查網路埠的連接速度/ Check Port Speed in Openwrt'>
+<meta property='og:description' content='最近在玩ansible &#43; openwrt &#43; wireguard
+ansible 腳本寫好之後，可以把config 佈署到 openwrt 上
+當然前提是最好用同樣的機器，不同的機器在config 上會有一些差異
+但是這些差異常常就會造成無法連線、無法使用的狀況
+BTW 我是用 ubiquiti 的 edgerouter X 來做
+都弄好之後，就想說來跑個iperf3 測試一下連線速度
+也好和之前做的 IPSEC 比較一下
+結果很奇怪的是，明明一樣的機器、一樣用ansible 跑出來的config
+但是有一台edgerouter X 的VPN 連接速度就是特別慢
+而且速度都剛好卡在 99.X Mb 左右
+就讓我很納悶了&amp;hellip;
+'>
+<meta property='og:url' content='https://hu.mc4.us/p/%E7%AD%86%E8%A8%98-%E5%9C%A8openwrt-%E4%B8%AD%E6%AA%A2%E6%9F%A5%E7%B6%B2%E8%B7%AF%E5%9F%A0%E7%9A%84%E9%80%A3%E6%8E%A5%E9%80%9F%E5%BA%A6/-check-port-speed-in-openwrt/'>
+<meta property='og:site_name' content='MC-stack'>
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='openwrt' /><meta property='article:published_time' content='2020-07-15T10:35:01&#43;08:00'/><meta property='article:modified_time' content='2020-07-15T10:35:01&#43;08:00'/><meta property='og:image' content='https://h.cowbay.org/images/post-default-10.jpg' />
+<meta name="twitter:title" content="[筆記] 在openwrt 中檢查網路埠的連接速度/ Check Port Speed in Openwrt">
+<meta name="twitter:description" content="最近在玩ansible &#43; openwrt &#43; wireguard
+ansible 腳本寫好之後，可以把config 佈署到 openwrt 上
+當然前提是最好用同樣的機器，不同的機器在config 上會有一些差異
+但是這些差異常常就會造成無法連線、無法使用的狀況
+BTW 我是用 ubiquiti 的 edgerouter X 來做
+都弄好之後，就想說來跑個iperf3 測試一下連線速度
+也好和之前做的 IPSEC 比較一下
+結果很奇怪的是，明明一樣的機器、一樣用ansible 跑出來的config
+但是有一台edgerouter X 的VPN 連接速度就是特別慢
+而且速度都剛好卡在 99.X Mb 左右
+就讓我很納悶了&amp;hellip;
+"><meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:image" content='https://h.cowbay.org/images/post-default-10.jpg' />
+    </head>
+    <body class="
+    article-page 
+">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "auto");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.documentElement.dataset.scheme = 'dark';
+        } else {
+            document.documentElement.dataset.scheme = 'light';
+        }
+    })();
+</script>
+<div class="container main-container flex 
+    
+        on-phone--column extended
+    
+">
+    
+        <aside class="sidebar left-sidebar sticky">
+    <button class="hamburger hamburger--spin" type="button" id="toggle-menu" aria-label="Toggle Menu">
+        <span class="hamburger-box">
+            <span class="hamburger-inner"></span>
+        </span>
+    </button>
+
+    <header class="site-info">
+        
+            
+            <figure class="site-avatar">
+                
+                    
+                    
+                    
+                        
+                        <img src="/img/avatar_huda2458f72ce188392d75c5d51cd8e24e_373_300x0_resize_box_3.png" width="300"
+                            height="300" class="site-logo" loading="lazy" alt="Avatar">
+                    
+                
+
+                
+                    <span class="emoji">🍥</span>
+                
+            </figure>
+            
+        
+        <h1 class="site-name"><a href="/">MC-stack</a></h1>
+        <h2 class="site-description">Lorem ipsum dolor sit amet, consectetur adipiscing elit.</h2>
+    </header>
+
+    <ol class="menu" id="main-menu">
+        
+        
+        
+
+        <li >
+            <a href='/' target="_blank">
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-home" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="5 12 3 12 12 3 21 12 19 12" />
+  <path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-7" />
+  <path d="M9 21v-6a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v6" />
+</svg>
+
+
+
+                
+                <span>Home</span>
+            </a>
+        </li>
+        
+
+        
+            <li id="dark-mode-toggle">
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="8" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="16" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                <span>Dark Mode</span>
+            </li>
+        
+    </ol>
+</aside>
+
+    
+<main class="main full-width">
+    <article class="has-image main-article">
+    <header class="article-header">
+        <div class="article-image">
+            <a href="/p/%E7%AD%86%E8%A8%98-%E5%9C%A8openwrt-%E4%B8%AD%E6%AA%A2%E6%9F%A5%E7%B6%B2%E8%B7%AF%E5%9F%A0%E7%9A%84%E9%80%A3%E6%8E%A5%E9%80%9F%E5%BA%A6/-check-port-speed-in-openwrt/">
+                
+                    <img src="https://h.cowbay.org/images/post-default-10.jpg" loading="lazy" alt="Featured image of post [筆記] 在openwrt 中檢查網路埠的連接速度/ Check Port Speed in Openwrt" />
+                
+            </a>
+        </div>
+    
+
+    <div class="article-details">
+    
+    <header class="article-category">
+        
+            <a href="/categories/%E7%AD%86%E8%A8%98/" >
+                筆記
+            </a>
+        
+    </header>
+    
+
+    <h2 class="article-title">
+        <a href="/p/%E7%AD%86%E8%A8%98-%E5%9C%A8openwrt-%E4%B8%AD%E6%AA%A2%E6%9F%A5%E7%B6%B2%E8%B7%AF%E5%9F%A0%E7%9A%84%E9%80%A3%E6%8E%A5%E9%80%9F%E5%BA%A6/-check-port-speed-in-openwrt/">[筆記] 在openwrt 中檢查網路埠的連接速度/ Check Port Speed in Openwrt</a>
+    </h2>
+
+    
+
+    
+    <footer class="article-time">
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M11.795 21h-6.795a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
+  <circle cx="18" cy="18" r="4" />
+  <path d="M15 3v4" />
+  <path d="M7 3v4" />
+  <path d="M3 11h16" />
+  <path d="M18 16.496v1.504l1 1" />
+</svg>
+                <time class="article-time--published">Jul 15, 2020</time>
+            </div>
+        
+
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+                <time class="article-time--reading">
+                    6 minute read
+                </time>
+            </div>
+        
+    </footer>
+    
+</div>
+</header>
+
+    <section class="article-content">
+    <p>最近在玩ansible + openwrt + wireguard</p>
+<p>ansible 腳本寫好之後，可以把config 佈署到 openwrt 上</p>
+<p>當然前提是最好用同樣的機器，不同的機器在config 上會有一些差異</p>
+<p>但是這些差異常常就會造成無法連線、無法使用的狀況</p>
+<p>BTW 我是用 ubiquiti 的 edgerouter X 來做</p>
+<p>都弄好之後，就想說來跑個iperf3 測試一下連線速度</p>
+<p>也好和之前做的 IPSEC 比較一下</p>
+<p>結果很奇怪的是，明明一樣的機器、一樣用ansible 跑出來的config</p>
+<p>但是有一台edgerouter X 的VPN 連接速度就是特別慢</p>
+<p>而且速度都剛好卡在 99.X Mb 左右</p>
+<p>就讓我很納悶了&hellip;</p>
+<p>於是想說來檢查一下網路孔的狀態</p>
+<p>但是因為openwrt 精簡了很多指令，所以一些linux 上常用的指令都看不到實際的連線速度</p>
+<p>後來終於找到這一篇</p>
+<p><a class="link" href="https://forum.openwrt.org/t/change-interface-br-lan-from-100-mb-to-1-gigabit-help-me/21914"  target="_blank" rel="noopener"
+    >https://forum.openwrt.org/t/change-interface-br-lan-from-100-mb-to-1-gigabit-help-me/21914</a></p>
+<p>其中有提到這個指令</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell">swconfig dev switch0 show
+</code></pre></div><p>所以在有問題的那台機器跑一次，結果就發現了port0 的連線速度只有100BaseT</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell">root@OpenWrt-15:~# swconfig dev switch0 show
+Global attributes:
+	enable_vlan: <span class="m">1</span>
+	mib: Switch MIB counters
+PPE_AC_BCNT0: <span class="m">0</span>
+PPE_AC_PCNT0: <span class="m">0</span>
+PPE_AC_BCNT63: <span class="m">0</span>
+PPE_AC_PCNT63: <span class="m">0</span>
+PPE_MTR_CNT0: <span class="m">0</span>
+PPE_MTR_CNT63: <span class="m">0</span>
+GDM1_TX_GBCNT: <span class="m">0</span>
+GDM1_TX_GPCNT: <span class="m">0</span>
+GDM1_TX_SKIPCNT: <span class="m">0</span>
+GDM1_TX_COLCNT: <span class="m">0</span>
+GDM1_RX_GBCNT1: <span class="m">0</span>
+GDM1_RX_GPCNT1: <span class="m">0</span>
+GDM1_RX_OERCNT: <span class="m">0</span>
+GDM1_RX_FERCNT: <span class="m">0</span>
+GDM1_RX_SERCNT: <span class="m">0</span>
+GDM1_RX_LERCNT: <span class="m">0</span>
+GDM1_RX_CERCNT: <span class="m">0</span>
+GDM1_RX_FCCNT: <span class="m">0</span>
+GDM2_TX_GBCNT: <span class="m">0</span>
+GDM2_TX_GPCNT: <span class="m">0</span>
+GDM2_TX_SKIPCNT: <span class="m">0</span>
+GDM2_TX_COLCNT: <span class="m">0</span>
+GDM2_RX_GBCNT: <span class="m">0</span>
+GDM2_RX_GPCNT: <span class="m">0</span>
+GDM2_RX_OERCNT: <span class="m">0</span>
+GDM2_RX_FERCNT: <span class="m">0</span>
+GDM2_RX_SERCNT: <span class="m">0</span>
+GDM2_RX_LERCNT: <span class="m">0</span>
+GDM2_RX_CERCNT: <span class="m">0</span>
+GDM2_RX_FCCNT: <span class="m">0</span>
+
+Port 0:
+	mib: Port <span class="m">0</span> MIB counters
+TxDrop     : <span class="m">0</span>
+TxCRC      : <span class="m">0</span>
+TxUni      : <span class="m">6861716</span>
+TxMulti    : <span class="m">8</span>
+TxBroad    : <span class="m">12</span>
+TxCollision: <span class="m">0</span>
+TxSingleCol: <span class="m">0</span>
+TxMultiCol : <span class="m">0</span>
+TxDefer    : <span class="m">0</span>
+TxLateCol  : <span class="m">0</span>
+TxExcCol   : <span class="m">0</span>
+TxPause    : <span class="m">0</span>
+Tx64Byte   : <span class="m">4056</span>
+Tx65Byte   : <span class="m">11645</span>
+Tx128Byte  : <span class="m">13210</span>
+Tx256Byte  : <span class="m">249</span>
+Tx512Byte  : <span class="m">169</span>
+Tx1024Byte : <span class="m">6832407</span>
+TxByte     : <span class="m">10238376166</span>
+RxDrop     : <span class="m">0</span>
+RxFiltered : <span class="m">49</span>
+RxUni      : <span class="m">963037</span>
+RxMulti    : <span class="m">1200795</span>
+RxBroad    : <span class="m">54114</span>
+RxAlignErr : <span class="m">0</span>
+RxCRC      : <span class="m">0</span>
+RxUnderSize: <span class="m">0</span>
+RxFragment : <span class="m">0</span>
+RxOverSize : <span class="m">0</span>
+RxJabber   : <span class="m">0</span>
+RxPause    : <span class="m">0</span>
+Rx64Byte   : <span class="m">56679</span>
+Rx65Byte   : <span class="m">117104</span>
+Rx128Byte  : <span class="m">1359908</span>
+Rx256Byte  : <span class="m">181766</span>
+Rx512Byte  : <span class="m">198823</span>
+Rx1024Byte : <span class="m">303666</span>
+RxByte     : <span class="m">889985596</span>
+RxCtrlDrop : <span class="m">0</span>
+RxIngDrop  : <span class="m">0</span>
+RxARLDrop  : <span class="m">0</span>
+
+	pvid: <span class="m">2</span>
+	link: port:0 link:up speed:100baseT full-duplex 
+Port 1:
+	mib: Port <span class="m">1</span> MIB counters
+TxDrop     : <span class="m">0</span>
+TxCRC      : <span class="m">0</span>
+TxUni      : <span class="m">948176</span>
+TxMulti    : <span class="m">170</span>
+TxBroad    : <span class="m">3</span>
+TxCollision: <span class="m">0</span>
+TxSingleCol: <span class="m">0</span>
+TxMultiCol : <span class="m">0</span>
+TxDefer    : <span class="m">0</span>
+TxLateCol  : <span class="m">0</span>
+TxExcCol   : <span class="m">0</span>
+TxPause    : <span class="m">0</span>
+Tx64Byte   : <span class="m">1557</span>
+Tx65Byte   : <span class="m">930766</span>
+Tx128Byte  : <span class="m">1302</span>
+Tx256Byte  : <span class="m">528</span>
+Tx512Byte  : <span class="m">75</span>
+Tx1024Byte : <span class="m">14121</span>
+TxByte     : <span class="m">87870052</span>
+RxDrop     : <span class="m">0</span>
+RxFiltered : <span class="m">0</span>
+RxUni      : <span class="m">6849258</span>
+RxMulti    : <span class="m">187</span>
+RxBroad    : <span class="m">0</span>
+RxAlignErr : <span class="m">0</span>
+RxCRC      : <span class="m">0</span>
+RxUnderSize: <span class="m">0</span>
+RxFragment : <span class="m">0</span>
+RxOverSize : <span class="m">0</span>
+RxJabber   : <span class="m">0</span>
+RxPause    : <span class="m">0</span>
+Rx64Byte   : <span class="m">911</span>
+Rx65Byte   : <span class="m">14343</span>
+Rx128Byte  : <span class="m">298</span>
+Rx256Byte  : <span class="m">88</span>
+Rx512Byte  : <span class="m">56</span>
+Rx1024Byte : <span class="m">6833749</span>
+RxByte     : <span class="m">9828214886</span>
+RxCtrlDrop : <span class="m">0</span>
+RxIngDrop  : <span class="m">0</span>
+RxARLDrop  : <span class="m">0</span>
+
+	pvid: <span class="m">1</span>
+	link: port:1 link:up speed:1000baseT full-duplex 
+Port 2:
+	mib: Port <span class="m">2</span> MIB counters
+TxDrop     : <span class="m">0</span>
+TxCRC      : <span class="m">0</span>
+TxUni      : <span class="m">0</span>
+TxMulti    : <span class="m">0</span>
+TxBroad    : <span class="m">0</span>
+TxCollision: <span class="m">0</span>
+TxSingleCol: <span class="m">0</span>
+TxMultiCol : <span class="m">0</span>
+TxDefer    : <span class="m">0</span>
+TxLateCol  : <span class="m">0</span>
+TxExcCol   : <span class="m">0</span>
+TxPause    : <span class="m">0</span>
+Tx64Byte   : <span class="m">0</span>
+Tx65Byte   : <span class="m">0</span>
+Tx128Byte  : <span class="m">0</span>
+Tx256Byte  : <span class="m">0</span>
+Tx512Byte  : <span class="m">0</span>
+Tx1024Byte : <span class="m">0</span>
+TxByte     : <span class="m">0</span>
+RxDrop     : <span class="m">0</span>
+RxFiltered : <span class="m">0</span>
+RxUni      : <span class="m">0</span>
+RxMulti    : <span class="m">0</span>
+RxBroad    : <span class="m">0</span>
+RxAlignErr : <span class="m">0</span>
+RxCRC      : <span class="m">0</span>
+RxUnderSize: <span class="m">0</span>
+RxFragment : <span class="m">0</span>
+RxOverSize : <span class="m">0</span>
+RxJabber   : <span class="m">0</span>
+RxPause    : <span class="m">0</span>
+Rx64Byte   : <span class="m">0</span>
+Rx65Byte   : <span class="m">0</span>
+Rx128Byte  : <span class="m">0</span>
+Rx256Byte  : <span class="m">0</span>
+Rx512Byte  : <span class="m">0</span>
+Rx1024Byte : <span class="m">0</span>
+RxByte     : <span class="m">0</span>
+RxCtrlDrop : <span class="m">0</span>
+RxIngDrop  : <span class="m">0</span>
+RxARLDrop  : <span class="m">0</span>
+
+	pvid: <span class="m">1</span>
+	link: port:2 link:down
+Port 3:
+	mib: Port <span class="m">3</span> MIB counters
+TxDrop     : <span class="m">0</span>
+TxCRC      : <span class="m">0</span>
+TxUni      : <span class="m">0</span>
+TxMulti    : <span class="m">0</span>
+TxBroad    : <span class="m">0</span>
+TxCollision: <span class="m">0</span>
+TxSingleCol: <span class="m">0</span>
+TxMultiCol : <span class="m">0</span>
+TxDefer    : <span class="m">0</span>
+TxLateCol  : <span class="m">0</span>
+TxExcCol   : <span class="m">0</span>
+TxPause    : <span class="m">0</span>
+Tx64Byte   : <span class="m">0</span>
+Tx65Byte   : <span class="m">0</span>
+Tx128Byte  : <span class="m">0</span>
+Tx256Byte  : <span class="m">0</span>
+Tx512Byte  : <span class="m">0</span>
+Tx1024Byte : <span class="m">0</span>
+TxByte     : <span class="m">0</span>
+RxDrop     : <span class="m">0</span>
+RxFiltered : <span class="m">0</span>
+RxUni      : <span class="m">0</span>
+RxMulti    : <span class="m">0</span>
+RxBroad    : <span class="m">0</span>
+RxAlignErr : <span class="m">0</span>
+RxCRC      : <span class="m">0</span>
+RxUnderSize: <span class="m">0</span>
+RxFragment : <span class="m">0</span>
+RxOverSize : <span class="m">0</span>
+RxJabber   : <span class="m">0</span>
+RxPause    : <span class="m">0</span>
+Rx64Byte   : <span class="m">0</span>
+Rx65Byte   : <span class="m">0</span>
+Rx128Byte  : <span class="m">0</span>
+Rx256Byte  : <span class="m">0</span>
+Rx512Byte  : <span class="m">0</span>
+Rx1024Byte : <span class="m">0</span>
+RxByte     : <span class="m">0</span>
+RxCtrlDrop : <span class="m">0</span>
+RxIngDrop  : <span class="m">0</span>
+RxARLDrop  : <span class="m">0</span>
+
+	pvid: <span class="m">1</span>
+	link: port:3 link:down
+Port 4:
+	mib: Port <span class="m">4</span> MIB counters
+TxDrop     : <span class="m">0</span>
+TxCRC      : <span class="m">0</span>
+TxUni      : <span class="m">0</span>
+TxMulti    : <span class="m">0</span>
+TxBroad    : <span class="m">0</span>
+TxCollision: <span class="m">0</span>
+TxSingleCol: <span class="m">0</span>
+TxMultiCol : <span class="m">0</span>
+TxDefer    : <span class="m">0</span>
+TxLateCol  : <span class="m">0</span>
+TxExcCol   : <span class="m">0</span>
+TxPause    : <span class="m">0</span>
+Tx64Byte   : <span class="m">0</span>
+Tx65Byte   : <span class="m">0</span>
+Tx128Byte  : <span class="m">0</span>
+Tx256Byte  : <span class="m">0</span>
+Tx512Byte  : <span class="m">0</span>
+Tx1024Byte : <span class="m">0</span>
+TxByte     : <span class="m">0</span>
+RxDrop     : <span class="m">0</span>
+RxFiltered : <span class="m">0</span>
+RxUni      : <span class="m">0</span>
+RxMulti    : <span class="m">0</span>
+RxBroad    : <span class="m">0</span>
+RxAlignErr : <span class="m">0</span>
+RxCRC      : <span class="m">0</span>
+RxUnderSize: <span class="m">0</span>
+RxFragment : <span class="m">0</span>
+RxOverSize : <span class="m">0</span>
+RxJabber   : <span class="m">0</span>
+RxPause    : <span class="m">0</span>
+Rx64Byte   : <span class="m">0</span>
+Rx65Byte   : <span class="m">0</span>
+Rx128Byte  : <span class="m">0</span>
+Rx256Byte  : <span class="m">0</span>
+Rx512Byte  : <span class="m">0</span>
+Rx1024Byte : <span class="m">0</span>
+RxByte     : <span class="m">0</span>
+RxCtrlDrop : <span class="m">0</span>
+RxIngDrop  : <span class="m">0</span>
+RxARLDrop  : <span class="m">0</span>
+
+	pvid: <span class="m">1</span>
+	link: port:4 link:down
+Port 5:
+	mib: Port <span class="m">5</span> MIB counters
+TxDrop     : <span class="m">0</span>
+TxCRC      : <span class="m">0</span>
+TxUni      : <span class="m">0</span>
+TxMulti    : <span class="m">0</span>
+TxBroad    : <span class="m">0</span>
+TxCollision: <span class="m">0</span>
+TxSingleCol: <span class="m">0</span>
+TxMultiCol : <span class="m">0</span>
+TxDefer    : <span class="m">0</span>
+TxLateCol  : <span class="m">0</span>
+TxExcCol   : <span class="m">0</span>
+TxPause    : <span class="m">0</span>
+Tx64Byte   : <span class="m">0</span>
+Tx65Byte   : <span class="m">0</span>
+Tx128Byte  : <span class="m">0</span>
+Tx256Byte  : <span class="m">0</span>
+Tx512Byte  : <span class="m">0</span>
+Tx1024Byte : <span class="m">0</span>
+TxByte     : <span class="m">0</span>
+RxDrop     : <span class="m">0</span>
+RxFiltered : <span class="m">0</span>
+RxUni      : <span class="m">0</span>
+RxMulti    : <span class="m">0</span>
+RxBroad    : <span class="m">0</span>
+RxAlignErr : <span class="m">0</span>
+RxCRC      : <span class="m">0</span>
+RxUnderSize: <span class="m">0</span>
+RxFragment : <span class="m">0</span>
+RxOverSize : <span class="m">0</span>
+RxJabber   : <span class="m">0</span>
+RxPause    : <span class="m">0</span>
+Rx64Byte   : <span class="m">0</span>
+Rx65Byte   : <span class="m">0</span>
+Rx128Byte  : <span class="m">0</span>
+Rx256Byte  : <span class="m">0</span>
+Rx512Byte  : <span class="m">0</span>
+Rx1024Byte : <span class="m">0</span>
+RxByte     : <span class="m">0</span>
+RxCtrlDrop : <span class="m">0</span>
+RxIngDrop  : <span class="m">0</span>
+RxARLDrop  : <span class="m">0</span>
+
+	pvid: <span class="m">0</span>
+	link: port:5 link:down
+Port 6:
+	mib: Port <span class="m">6</span> MIB counters
+TxDrop     : <span class="m">0</span>
+TxCRC      : <span class="m">0</span>
+TxUni      : <span class="m">7812303</span>
+TxMulti    : <span class="m">1200937</span>
+TxBroad    : <span class="m">54112</span>
+TxCollision: <span class="m">0</span>
+TxSingleCol: <span class="m">0</span>
+TxMultiCol : <span class="m">0</span>
+TxDefer    : <span class="m">0</span>
+TxLateCol  : <span class="m">0</span>
+TxExcCol   : <span class="m">0</span>
+TxPause    : <span class="m">13632</span>
+Tx64Byte   : <span class="m">13632</span>
+Tx65Byte   : <span class="m">188400</span>
+Tx128Byte  : <span class="m">1360750</span>
+Tx256Byte  : <span class="m">181926</span>
+Tx512Byte  : <span class="m">198875</span>
+Tx1024Byte : <span class="m">7137402</span>
+TxByte     : <span class="m">10755312044</span>
+RxDrop     : <span class="m">0</span>
+RxFiltered : <span class="m">51</span>
+RxUni      : <span class="m">7809918</span>
+RxMulti    : <span class="m">201</span>
+RxBroad    : <span class="m">30</span>
+RxAlignErr : <span class="m">0</span>
+RxCRC      : <span class="m">0</span>
+RxUnderSize: <span class="m">0</span>
+RxFragment : <span class="m">0</span>
+RxOverSize : <span class="m">0</span>
+RxJabber   : <span class="m">0</span>
+RxPause    : <span class="m">89</span>
+Rx64Byte   : <span class="m">5720</span>
+Rx65Byte   : <span class="m">942425</span>
+Rx128Byte  : <span class="m">14535</span>
+Rx256Byte  : <span class="m">778</span>
+Rx512Byte  : <span class="m">249</span>
+Rx1024Byte : <span class="m">6846531</span>
+RxByte     : <span class="m">10357481140</span>
+RxCtrlDrop : <span class="m">0</span>
+RxIngDrop  : <span class="m">0</span>
+RxARLDrop  : <span class="m">0</span>
+
+	pvid: <span class="m">0</span>
+	link: port:6 link:up speed:1000baseT full-duplex 
+Port 7:
+	mib: Port <span class="m">7</span> MIB counters
+TxDrop     : <span class="m">0</span>
+TxCRC      : <span class="m">0</span>
+TxUni      : <span class="m">0</span>
+TxMulti    : <span class="m">0</span>
+TxBroad    : <span class="m">0</span>
+TxCollision: <span class="m">0</span>
+TxSingleCol: <span class="m">0</span>
+TxMultiCol : <span class="m">0</span>
+TxDefer    : <span class="m">0</span>
+TxLateCol  : <span class="m">0</span>
+TxExcCol   : <span class="m">0</span>
+TxPause    : <span class="m">0</span>
+Tx64Byte   : <span class="m">0</span>
+Tx65Byte   : <span class="m">0</span>
+Tx128Byte  : <span class="m">0</span>
+Tx256Byte  : <span class="m">0</span>
+Tx512Byte  : <span class="m">0</span>
+Tx1024Byte : <span class="m">0</span>
+TxByte     : <span class="m">0</span>
+RxDrop     : <span class="m">0</span>
+RxFiltered : <span class="m">0</span>
+RxUni      : <span class="m">0</span>
+RxMulti    : <span class="m">0</span>
+RxBroad    : <span class="m">0</span>
+RxAlignErr : <span class="m">0</span>
+RxCRC      : <span class="m">0</span>
+RxUnderSize: <span class="m">0</span>
+RxFragment : <span class="m">0</span>
+RxOverSize : <span class="m">0</span>
+RxJabber   : <span class="m">0</span>
+RxPause    : <span class="m">0</span>
+Rx64Byte   : <span class="m">0</span>
+Rx65Byte   : <span class="m">0</span>
+Rx128Byte  : <span class="m">0</span>
+Rx256Byte  : <span class="m">0</span>
+Rx512Byte  : <span class="m">0</span>
+Rx1024Byte : <span class="m">0</span>
+RxByte     : <span class="m">0</span>
+RxCtrlDrop : <span class="m">0</span>
+RxIngDrop  : <span class="m">0</span>
+RxARLDrop  : <span class="m">0</span>
+
+	pvid: <span class="m">0</span>
+	link: port:7 link:down
+VLAN 1:
+	vid: <span class="m">1</span>
+	ports: <span class="m">1</span> <span class="m">2</span> <span class="m">3</span> <span class="m">4</span> 6t 
+VLAN 2:
+	vid: <span class="m">2</span>
+	ports: <span class="m">0</span> 6t 
+</code></pre></div><p>WTF !?</p>
+<p>既然另外幾台都沒有問題，那麼應該就是這台機器的網路孔、或者網路線有問題了！</p>
+<p>那就換換看網路線吧！</p>
+<p>果然從原本的 CAT 5E 換成 CAT 6 之後，連線速率就變成 1000 Mb了</p>
+<p>但是CAT 5E 應該要能支援到1000Mb 才對啊！</p>
+<p>所以就是這條 CAT 5E 要不就是偷工減料，要不就是年紀到了，衰退了？？</p>
+<p>以後還是不要用  CAT 5E 的線了&hellip;</p>
+<p>這邊太多的古董，總是藏著一些奇奇怪怪的臭蟲 &hellip;.</p>
+<p>同場加映一下 wireguard 連線的速率</p>
+<p>大概都能跑到200 Mb 左右</p>
+<p>比起原本strongswan 打的 IPSEC 只有 30 Mb 左右 ，那是進步太多太多了！</p>
+<p>strongswan 的設定又囉唆，該是讓他退場的時候了！</p>
+<p><figure 
+	>
+	<a href="https://i.imgur.com/QwQLH2V.png" >
+		<img src="https://i.imgur.com/QwQLH2V.png"
+			
+			
+			
+			loading="lazy"
+			>
+	</a>
+	
+</figure></p>
+</section>
+
+
+    <footer class="article-footer">
+    
+    <section class="article-tags">
+        
+            <a href="/tags/openwrt/">openwrt</a>
+        
+    </section>
+
+
+    
+    <section class="article-copyright">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <path d="M14.5 9a3.5 4 0 1 0 0 6" />
+</svg>
+
+
+
+        <span>Licensed under CC BY-NC-SA 4.0</span>
+    </section>
+    </footer>
+
+
+    
+</article>
+
+    <aside class="related-contents--wrapper">
+    
+    
+        <h2 class="section-title">Related contents</h2>
+        <div class="related-contents">
+            <div class="flex article-list--tile">
+                
+                    
+<article class="has-image">
+    <a href="/p/init-script-in-openwrt-to-start-leproxy/%E5%9C%A8openwrt-%E6%96%B0%E5%A2%9E%E8%87%AA%E5%8B%95%E5%95%9F%E5%8B%95leproxy%E7%9A%84script/">
+        
+        
+            <div class="article-image">
+                
+                    <img src="https://h.cowbay.org/images/post-default-8.jpg" loading="lazy" data-key="" data-hash="https://h.cowbay.org/images/post-default-8.jpg"/>
+                
+            </div>
+        
+
+        <div class="article-details">
+            <h2 class="article-title">Init Script in Openwrt to Start Leproxy/在openwrt 新增自動啟動leproxy的script</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="has-image">
+    <a href="/p/auto-fetch-wildcard-ssl-certs-with-lego-acme-dns-domain-register-namecheap/">
+        
+        
+            <div class="article-image">
+                
+                    <img src="https://h.cowbay.org/images/post-default-8.jpg" loading="lazy" data-key="" data-hash="https://h.cowbay.org/images/post-default-8.jpg"/>
+                
+            </div>
+        
+
+        <div class="article-details">
+            <h2 class="article-title">auto fetch  Wildcard ssl certs with lego &#43; acme-dns ( Domain Register : Namecheap)</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="has-image">
+    <a href="/p/%E7%AD%86%E8%A8%98-web-%E6%AA%94%E6%A1%88%E7%AE%A1%E7%90%86-cloudcmd-web-file-manager/">
+        
+        
+            <div class="article-image">
+                
+                    <img src="https://h.cowbay.org/images/post-default-2.jpg" loading="lazy" data-key="" data-hash="https://h.cowbay.org/images/post-default-2.jpg"/>
+                
+            </div>
+        
+
+        <div class="article-details">
+            <h2 class="article-title">[筆記] WEB 檔案管理 Cloudcmd Web File Manager</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="has-image">
+    <a href="/p/%E7%AD%86%E8%A8%98-%E5%B9%BE%E7%A8%AE%E5%8F%AF%E4%BB%A5%E8%87%AA%E5%BB%BA%E6%9C%8D%E5%8B%99%E7%9A%84-file-sharing-%E7%B3%BB%E7%B5%B1%E6%AF%94%E8%BC%83/">
+        
+        
+            <div class="article-image">
+                
+                    <img src="/images/post-default-18.jpg" loading="lazy" data-key="" data-hash="/images/post-default-18.jpg"/>
+                
+            </div>
+        
+
+        <div class="article-details">
+            <h2 class="article-title">[筆記] 幾種可以自建服務的 File Sharing 系統比較</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="has-image">
+    <a href="/p/ubuntu-20.04-install-nvidia-driver-/-cuda-/-postgresql-/-pg_strom/">
+        
+        
+            <div class="article-image">
+                
+                    <img src="https://h.cowbay.org/images/post-default-3.jpg" loading="lazy" data-key="" data-hash="https://h.cowbay.org/images/post-default-3.jpg"/>
+                
+            </div>
+        
+
+        <div class="article-details">
+            <h2 class="article-title">ubuntu 20.04 install nvidia driver / CUDA / postgresql / pg_strom</h2>
+        </div>
+    </a>
+</article>
+                
+            </div>
+        </div>
+    
+</aside>
+
+     
+    
+        
+    <div class="disqus-container">
+    <div id="disqus_thread"></div>
+<script type="application/javascript">
+    var disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "hugo-theme-stack" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+</div>
+
+<style>
+    .disqus-container {
+        background-color: var(--card-background);
+        border-radius: var(--card-border-radius);
+        box-shadow: var(--shadow-l1);
+        padding: var(--card-padding);
+    }
+</style>
+
+<script>
+    window.addEventListener('onColorSchemeChange', (e) => {
+        if (DISQUS) {
+            DISQUS.reset({
+                reload: true
+            });
+        }
+    })
+</script>
+
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+            2020 - 
+        
+        2021 MC-stack
+    </section>
+    
+    <section class="powerby">
+        Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
+        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.2.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+    </section>
+</footer>
+
+
+    
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer="true"
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer="true"
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.css"integrity="sha256-c0uckgykQ9v5k&#43;IqViZOZKc47Jn7KQil4/MP3ySA3F8="crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.css"integrity="sha256-SBLU4vv6CA6lHsZ1XyTdhyjJxCjPif/TRkjnsyGAGnE="crossorigin="anonymous"
+            >
+
+            </main>
+    
+
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.5/dist/vibrant.min.js"integrity="sha256-5NovOZc4iwiAWTYIFiIM7DxKUXKWvpVEuMEPLzcm5/g="crossorigin="anonymous"
+                defer="false"
+                >
+            </script><script type="text/javascript" src="/ts/main.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>

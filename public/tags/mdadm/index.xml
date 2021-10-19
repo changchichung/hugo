@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>mdadm on MC-stack</title>
+    <link>https://hu.mc4.us/tags/mdadm/</link>
+    <description>Recent content in mdadm on MC-stack</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Wed, 12 Dec 2018 11:10:22 +0800</lastBuildDate><atom:link href="https://hu.mc4.us/tags/mdadm/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>[碎念] mdadm 超級慢的rebuild 速度 Incredibly Slow mdadm Rebuild</title>
+      <link>https://hu.mc4.us/p/%E7%A2%8E%E5%BF%B5-mdadm-%E8%B6%85%E7%B4%9A%E6%85%A2%E7%9A%84rebuild-%E9%80%9F%E5%BA%A6-incredibly-slow-mdadm-rebuild/</link>
+      <pubDate>Wed, 12 Dec 2018 11:10:22 +0800</pubDate>
+      
+      <guid>https://hu.mc4.us/p/%E7%A2%8E%E5%BF%B5-mdadm-%E8%B6%85%E7%B4%9A%E6%85%A2%E7%9A%84rebuild-%E9%80%9F%E5%BA%A6-incredibly-slow-mdadm-rebuild/</guid>
+      <description>&lt;p&gt;最近在做一台老機器的P2V&lt;/p&gt;
+&lt;p&gt;偏偏user說不能關機，所以我用dd + ssh 做線上移轉&lt;/p&gt;
+&lt;p&gt;這部份有空再來寫&lt;/p&gt;
+&lt;p&gt;只是因為原來的設定有用mdadm 做raid1&lt;/p&gt;
+&lt;p&gt;這部份導致移轉過去proxmox 後，會出現raid degrade 導致無法正常開機&lt;/p&gt;</description>
+    </item>
+    
+  </channel>
+</rss>

@@ -1,0 +1,592 @@
+<!DOCTYPE html>
+<html lang="en-us">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='感覺最近應該會用到類似這樣的功能，趁著最近比較閒一點
+就把系統弄起來玩玩看，順便建立ansible 的playbook
+'><title>[筆記] 幾種可以自建服務的 File Sharing 系統比較</title>
+
+<link rel='canonical' href='https://hu.mc4.us/p/%E7%AD%86%E8%A8%98-%E5%B9%BE%E7%A8%AE%E5%8F%AF%E4%BB%A5%E8%87%AA%E5%BB%BA%E6%9C%8D%E5%8B%99%E7%9A%84-file-sharing-%E7%B3%BB%E7%B5%B1%E6%AF%94%E8%BC%83/'>
+
+<link rel="stylesheet" href="/scss/style.min.css"><meta property='og:title' content='[筆記] 幾種可以自建服務的 File Sharing 系統比較'>
+<meta property='og:description' content='感覺最近應該會用到類似這樣的功能，趁著最近比較閒一點
+就把系統弄起來玩玩看，順便建立ansible 的playbook
+'>
+<meta property='og:url' content='https://hu.mc4.us/p/%E7%AD%86%E8%A8%98-%E5%B9%BE%E7%A8%AE%E5%8F%AF%E4%BB%A5%E8%87%AA%E5%BB%BA%E6%9C%8D%E5%8B%99%E7%9A%84-file-sharing-%E7%B3%BB%E7%B5%B1%E6%AF%94%E8%BC%83/'>
+<meta property='og:site_name' content='MC-stack'>
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:published_time' content='2021-06-25T15:49:54&#43;08:00'/><meta property='article:modified_time' content='2021-06-25T15:49:54&#43;08:00'/><meta property='og:image' content='https://hu.mc4.us/images/post-default-18.jpg' />
+<meta name="twitter:title" content="[筆記] 幾種可以自建服務的 File Sharing 系統比較">
+<meta name="twitter:description" content="感覺最近應該會用到類似這樣的功能，趁著最近比較閒一點
+就把系統弄起來玩玩看，順便建立ansible 的playbook
+"><meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:image" content='https://hu.mc4.us/images/post-default-18.jpg' />
+    </head>
+    <body class="
+    article-page has-toc
+">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "auto");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.documentElement.dataset.scheme = 'dark';
+        } else {
+            document.documentElement.dataset.scheme = 'light';
+        }
+    })();
+</script>
+<div class="container main-container flex 
+    
+        extended
+    
+">
+    
+        <div id="article-toolbar">
+            <a href="/" class="back-home">
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-chevron-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="15 6 9 12 15 18" />
+</svg>
+
+
+
+                <span>Back</span>
+            </a>
+        </div>
+    
+<main class="main full-width">
+    <article class="has-image main-article">
+    <header class="article-header">
+        <div class="article-image">
+            <a href="/p/%E7%AD%86%E8%A8%98-%E5%B9%BE%E7%A8%AE%E5%8F%AF%E4%BB%A5%E8%87%AA%E5%BB%BA%E6%9C%8D%E5%8B%99%E7%9A%84-file-sharing-%E7%B3%BB%E7%B5%B1%E6%AF%94%E8%BC%83/">
+                
+                    <img src="/images/post-default-18.jpg" loading="lazy" alt="Featured image of post [筆記] 幾種可以自建服務的 File Sharing 系統比較" />
+                
+            </a>
+        </div>
+    
+
+    <div class="article-details">
+    
+    <header class="article-category">
+        
+            <a href="/categories/%E7%AD%86%E8%A8%98/" >
+                筆記
+            </a>
+        
+    </header>
+    
+
+    <h2 class="article-title">
+        <a href="/p/%E7%AD%86%E8%A8%98-%E5%B9%BE%E7%A8%AE%E5%8F%AF%E4%BB%A5%E8%87%AA%E5%BB%BA%E6%9C%8D%E5%8B%99%E7%9A%84-file-sharing-%E7%B3%BB%E7%B5%B1%E6%AF%94%E8%BC%83/">[筆記] 幾種可以自建服務的 File Sharing 系統比較</a>
+    </h2>
+
+    
+
+    
+    <footer class="article-time">
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M11.795 21h-6.795a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
+  <circle cx="18" cy="18" r="4" />
+  <path d="M15 3v4" />
+  <path d="M7 3v4" />
+  <path d="M3 11h16" />
+  <path d="M18 16.496v1.504l1 1" />
+</svg>
+                <time class="article-time--published">Jun 25, 2021</time>
+            </div>
+        
+
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+                <time class="article-time--reading">
+                    1 minute read
+                </time>
+            </div>
+        
+    </footer>
+    
+</div>
+</header>
+
+    <section class="article-content">
+    <p>感覺最近應該會用到類似這樣的功能，趁著最近比較閒一點</p>
+<p>就把系統弄起來玩玩看，順便建立ansible 的playbook</p>
+<h3 id="linx-server">linx-server</h3>
+<p><a class="link" href="https://github.com/andreimarcu/linx-server"  target="_blank" rel="noopener"
+    >https://github.com/andreimarcu/linx-server</a></p>
+<p>目前已經停止開發的樣子</p>
+<p>有Docker 版本，裝起來很容易，用起來也不難</p>
+<p>可以自行架設伺服器</p>
+<p>可以上傳任意類型的檔案</p>
+<p>可以直接線上分享文字</p>
+<p>可以自定分享密碼</p>
+<p>上傳界面可以鎖密碼，但是鎖了密碼之後，就沒辦法用命令上傳檔案(不知道怎麼帶KEY進去)</p>
+<h4 id="不支援整個目錄上傳">不支援整個目錄上傳</h4>
+<h4 id="關於api-如何使用沒有一個完整的說明">關於API 如何使用沒有一個完整的說明</h4>
+<h4 id="始終找不到怎麼建立api-key">始終找不到怎麼建立API KEY</h4>
+<p><figure 
+	>
+	<a href="https://i.imgur.com/83WOenv.png" >
+		<img src="https://i.imgur.com/83WOenv.png"
+			
+			
+			
+			loading="lazy"
+			>
+	</a>
+	
+</figure></p>
+<p>在console 下，可以直接上傳並取得超連結</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell">chchang@hqdc039:~/docker/linx-server$ cat linx-server.conf
+<span class="nb">bind</span> <span class="o">=</span> 0.0.0.0:7779
+<span class="nv">sitename</span> <span class="o">=</span> myLinx
+<span class="nv">siteurl</span> <span class="o">=</span> https://share.com.tw
+<span class="nv">maxsize</span> <span class="o">=</span> <span class="m">4294967296</span>
+<span class="nv">maxexpiry</span> <span class="o">=</span> <span class="m">43200</span>
+<span class="nv">selifpath</span> <span class="o">=</span> s
+<span class="nv">allowhotlink</span> <span class="o">=</span> <span class="nb">false</span>
+<span class="nv">remoteuploads</span> <span class="o">=</span> <span class="nb">false</span>
+<span class="nv">nologs</span> <span class="o">=</span> <span class="nb">true</span>
+force-random-filename <span class="o">=</span> <span class="nb">true</span>
+cleanup-every-minutes <span class="o">=</span> <span class="m">5</span>
+<span class="nv">basicauth</span> <span class="o">=</span> <span class="nb">false</span>
+<span class="nv">authfile</span> <span class="o">=</span> /data/authfile
+
+chchang@hqdc039:~/docker/linx-server$ docker-compose up -d
+Creating linx-server ... <span class="k">done</span>
+chchang@hqdc039:~/docker/linx-server$ ./linx-client README.md 
+Copied https://share.com.tw/fyd81h81.md into clipboard!              
+chchang@hqdc039:~/docker/linx-server$ 
+
+</code></pre></div><h3 id="psitransfer">Psitransfer</h3>
+<p><a class="link" href="https://github.com/psi-4ward/psitransfer"  target="_blank" rel="noopener"
+    >https://github.com/psi-4ward/psitransfer</a></p>
+<p>不支援command 上傳</p>
+<p>有docker版本，架設容易</p>
+<p>適合給一般使用者用，可以自行設定密碼、保存期限</p>
+<p>比較特別的是下載的連結可以產生QRCODE</p>
+<p>上傳檔案的頁面也可以鎖密碼</p>
+<p><figure 
+	>
+	<a href="https://i.imgur.com/UMnPo0W.png" >
+		<img src="https://i.imgur.com/UMnPo0W.png"
+			
+			
+			
+			loading="lazy"
+			>
+	</a>
+	
+</figure></p>
+<h3 id="pictshare">pictshare</h3>
+<p><a class="link" href="https://github.com/HaschekSolutions/pictshare"  target="_blank" rel="noopener"
+    >https://github.com/HaschekSolutions/pictshare</a></p>
+<p>有docker版本，但是需要自己手動調整</p>
+<p>不然調整過的config 都會被蓋掉</p>
+<p>調整過後的docker-compose.yml 我放了一份到github 上</p>
+<p><a class="link" href="https://github.com/changchichung/docker-compose-pictshare"  target="_blank" rel="noopener"
+    >https://github.com/changchichung/docker-compose-pictshare</a></p>
+<p>需要拿掉pictshare.sh 中，每次自動更新config的部分</p>
+<p>雖然web UI 有點醜，但是基本上想要的功能都有了</p>
+<p>可以用WEB傳，也可以用terminal 傳</p>
+<p>不限制上傳的檔案類型</p>
+<p>可以限制可以上傳的subnet</p>
+<p>回傳的URL 也可以有副檔名，所以可以直接連結當作圖床</p>
+<p>算是很不錯用的了</p>
+<p><figure 
+	>
+	<a href="https://i.imgur.com/4ujMfRA.png" >
+		<img src="https://i.imgur.com/4ujMfRA.png"
+			
+			
+			
+			loading="lazy"
+			>
+	</a>
+	
+</figure></p>
+<h4 id="upload-in-terminal">upload in terminal</h4>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell">chchang@hqdc039:~/docker/pictshare$ pict ~/Downloads/images/IMG_20190717_092723.jpg 
+https://share.com.tw/1dpobr.jpg
+chchang@hqdc039:~/docker/pictshare$ 
+
+</code></pre></div><p>就先決定用這個 <!-- raw HTML omitted -->pictshare<!-- raw HTML omitted --> 吧</p>
+<h3 id="另外推薦的工具-anypaste">另外推薦的工具 anypaste</h3>
+<p><a class="link" href="https://github.com/markasoftware/anypaste"  target="_blank" rel="noopener"
+    >https://github.com/markasoftware/anypaste</a></p>
+<p>這個雖然不能自己建立服務，需要依賴internet 上已經存在的多個網站服務</p>
+<p>像是 file.io imgur hastebin 等等</p>
+<p>不過呢，如果不是那麼計較安全性，要上傳的檔案不介意丟在internet上公開</p>
+<p>那真的很推薦這個指令，不用安裝有的沒的一大堆，anypaste 本身就是一個script 整合了各家服務的上傳指令</p>
+<p>所以「理論上」 要修改也不是太難..</p>
+<p>跑起來大概像這樣</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell">chchang@hqdc039:~/docker/pictshare$ anypaste ~/Downloads/images/IMG_20190717_092723.jpg 
+Current file: /home/chchang/Downloads/images/IMG_20190717_092723.jpg
+Attempting to upload with plugin <span class="s1">&#39;imgur&#39;</span>
+<span class="c1">################################################################################################################# 100.0%</span>
+
+Link: https://imgur.com/y0Suzjf
+Direct: https://i.imgur.com/y0Suzjf.jpg
+Edit: https://imgur.com/edit?deletehashD
+Delete: https://imgur.com/delete/fNJ
+
+Upload complete.
+Sucessfully uploaded: <span class="s1">&#39;/home/chchang/Downloads/images/IMG_20190717_092723.jpg&#39;</span>
+All files processed. Have a nice day!
+chchang@hqdc039:~/docker/pictshare$ 
+</code></pre></div><p>也是非常方便的一個工具，值得推薦！</p>
+</section>
+
+
+    <footer class="article-footer">
+    
+
+    
+    <section class="article-copyright">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <path d="M14.5 9a3.5 4 0 1 0 0 6" />
+</svg>
+
+
+
+        <span>Licensed under CC BY-NC-SA 4.0</span>
+    </section>
+    </footer>
+
+
+    
+</article>
+
+    <aside class="related-contents--wrapper">
+    
+    
+        <h2 class="section-title">Related contents</h2>
+        <div class="related-contents">
+            <div class="flex article-list--tile">
+                
+                    
+<article class="has-image">
+    <a href="/p/init-script-in-openwrt-to-start-leproxy/%E5%9C%A8openwrt-%E6%96%B0%E5%A2%9E%E8%87%AA%E5%8B%95%E5%95%9F%E5%8B%95leproxy%E7%9A%84script/">
+        
+        
+            <div class="article-image">
+                
+                    <img src="https://h.cowbay.org/images/post-default-8.jpg" loading="lazy" data-key="" data-hash="https://h.cowbay.org/images/post-default-8.jpg"/>
+                
+            </div>
+        
+
+        <div class="article-details">
+            <h2 class="article-title">Init Script in Openwrt to Start Leproxy/在openwrt 新增自動啟動leproxy的script</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="has-image">
+    <a href="/p/auto-fetch-wildcard-ssl-certs-with-lego-acme-dns-domain-register-namecheap/">
+        
+        
+            <div class="article-image">
+                
+                    <img src="https://h.cowbay.org/images/post-default-8.jpg" loading="lazy" data-key="" data-hash="https://h.cowbay.org/images/post-default-8.jpg"/>
+                
+            </div>
+        
+
+        <div class="article-details">
+            <h2 class="article-title">auto fetch  Wildcard ssl certs with lego &#43; acme-dns ( Domain Register : Namecheap)</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="has-image">
+    <a href="/p/%E7%AD%86%E8%A8%98-web-%E6%AA%94%E6%A1%88%E7%AE%A1%E7%90%86-cloudcmd-web-file-manager/">
+        
+        
+            <div class="article-image">
+                
+                    <img src="https://h.cowbay.org/images/post-default-2.jpg" loading="lazy" data-key="" data-hash="https://h.cowbay.org/images/post-default-2.jpg"/>
+                
+            </div>
+        
+
+        <div class="article-details">
+            <h2 class="article-title">[筆記] WEB 檔案管理 Cloudcmd Web File Manager</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="has-image">
+    <a href="/p/ubuntu-20.04-install-nvidia-driver-/-cuda-/-postgresql-/-pg_strom/">
+        
+        
+            <div class="article-image">
+                
+                    <img src="https://h.cowbay.org/images/post-default-3.jpg" loading="lazy" data-key="" data-hash="https://h.cowbay.org/images/post-default-3.jpg"/>
+                
+            </div>
+        
+
+        <div class="article-details">
+            <h2 class="article-title">ubuntu 20.04 install nvidia driver / CUDA / postgresql / pg_strom</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="has-image">
+    <a href="/p/%E7%AD%86%E8%A8%98-%E5%9C%A8-ubuntu-20.04-%E5%BA%95%E4%B8%8B%E7%94%A8certbot-%E9%80%8F%E9%81%8Ecloudflare-%E7%94%B3%E8%AB%8B%E5%85%A8%E5%9F%9F%E7%9A%84-letsencrypt-%E6%86%91%E8%AD%89/">
+        
+        
+            <div class="article-image">
+                
+                    <img src="https://h.cowbay.org/images/post-default-4.jpg" loading="lazy" data-key="" data-hash="https://h.cowbay.org/images/post-default-4.jpg"/>
+                
+            </div>
+        
+
+        <div class="article-details">
+            <h2 class="article-title">[筆記] 在 ubuntu 20.04 底下，用certbot 透過Cloudflare 申請全域的 Letsencrypt 憑證</h2>
+        </div>
+    </a>
+</article>
+                
+            </div>
+        </div>
+    
+</aside>
+
+     
+    
+        
+    <div class="disqus-container">
+    <div id="disqus_thread"></div>
+<script type="application/javascript">
+    var disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "hugo-theme-stack" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+</div>
+
+<style>
+    .disqus-container {
+        background-color: var(--card-background);
+        border-radius: var(--card-border-radius);
+        box-shadow: var(--shadow-l1);
+        padding: var(--card-padding);
+    }
+</style>
+
+<script>
+    window.addEventListener('onColorSchemeChange', (e) => {
+        if (DISQUS) {
+            DISQUS.reset({
+                reload: true
+            });
+        }
+    })
+</script>
+
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+            2020 - 
+        
+        2021 MC-stack
+    </section>
+    
+    <section class="powerby">
+        Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
+        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.2.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+    </section>
+</footer>
+
+
+    
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer="true"
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer="true"
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.css"integrity="sha256-c0uckgykQ9v5k&#43;IqViZOZKc47Jn7KQil4/MP3ySA3F8="crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.css"integrity="sha256-SBLU4vv6CA6lHsZ1XyTdhyjJxCjPif/TRkjnsyGAGnE="crossorigin="anonymous"
+            >
+
+            </main>
+    
+        <aside class="sidebar right-sidebar sticky">
+            <section class="widget archives">
+                <div class="widget-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <line x1="5" y1="9" x2="19" y2="9" />
+  <line x1="5" y1="15" x2="19" y2="15" />
+  <line x1="11" y1="4" x2="7" y2="20" />
+  <line x1="17" y1="4" x2="13" y2="20" />
+</svg>
+
+
+
+                </div>
+                <h2 class="widget-title section-title">Table of contents</h2>
+                
+                <div class="widget--toc">
+                    <nav id="TableOfContents">
+  <ol>
+    <li>
+      <ol>
+        <li><a href="#linx-server">linx-server</a>
+          <ol>
+            <li><a href="#不支援整個目錄上傳">不支援整個目錄上傳</a></li>
+            <li><a href="#關於api-如何使用沒有一個完整的說明">關於API 如何使用沒有一個完整的說明</a></li>
+            <li><a href="#始終找不到怎麼建立api-key">始終找不到怎麼建立API KEY</a></li>
+          </ol>
+        </li>
+        <li><a href="#psitransfer">Psitransfer</a></li>
+        <li><a href="#pictshare">pictshare</a>
+          <ol>
+            <li><a href="#upload-in-terminal">upload in terminal</a></li>
+          </ol>
+        </li>
+        <li><a href="#另外推薦的工具-anypaste">另外推薦的工具 anypaste</a></li>
+      </ol>
+    </li>
+  </ol>
+</nav>
+                </div>
+            </section>
+        </aside>
+    
+
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.5/dist/vibrant.min.js"integrity="sha256-5NovOZc4iwiAWTYIFiIM7DxKUXKWvpVEuMEPLzcm5/g="crossorigin="anonymous"
+                defer="false"
+                >
+            </script><script type="text/javascript" src="/ts/main.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>

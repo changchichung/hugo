@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>群暉 on MC-stack</title>
+    <link>https://hu.mc4.us/categories/%E7%BE%A4%E6%9A%89/</link>
+    <description>Recent content in 群暉 on MC-stack</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Tue, 04 Dec 2018 10:25:19 +0800</lastBuildDate><atom:link href="https://hu.mc4.us/categories/%E7%BE%A4%E6%9A%89/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>[雜念] 群暉 Synology NAS DS 415&#43; 誇張的維修費用</title>
+      <link>https://hu.mc4.us/p/%E9%9B%9C%E5%BF%B5-%E7%BE%A4%E6%9A%89-synology-nas-ds-415-%E8%AA%87%E5%BC%B5%E7%9A%84%E7%B6%AD%E4%BF%AE%E8%B2%BB%E7%94%A8/</link>
+      <pubDate>Tue, 04 Dec 2018 10:25:19 +0800</pubDate>
+      
+      <guid>https://hu.mc4.us/p/%E9%9B%9C%E5%BF%B5-%E7%BE%A4%E6%9A%89-synology-nas-ds-415-%E8%AA%87%E5%BC%B5%E7%9A%84%E7%B6%AD%E4%BF%AE%E8%B2%BB%E7%94%A8/</guid>
+      <description>&lt;p&gt;前幾天公司的一台 Synology DS 415+ 發生異常&lt;/p&gt;
+&lt;p&gt;注意到的時候，四顆硬碟燈號都不斷的在閃爍&lt;/p&gt;
+&lt;p&gt;但是已經無法登入系統&lt;/p&gt;
+&lt;p&gt;重開機之後更慘，四顆硬碟燈號全部橘燈恆亮&lt;/p&gt;
+&lt;p&gt;底下的電源藍燈不斷的在閃爍&lt;/p&gt;
+&lt;p&gt;雖然我一再表示不希望送修了&lt;/p&gt;
+&lt;p&gt;一來是已經過保，二來是DS415+ 本身就有intel bug，三來是因為對synology的NAS 實在沒有愛&amp;hellip;&lt;/p&gt;
+&lt;p&gt;不過主管還是希望能夠先問群暉維修的費用多少&lt;/p&gt;</description>
+    </item>
+    
+  </channel>
+</rss>

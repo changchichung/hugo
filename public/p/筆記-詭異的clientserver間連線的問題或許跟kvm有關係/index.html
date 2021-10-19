@@ -1,0 +1,596 @@
+<!DOCTYPE html>
+<html lang="en-us">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='這是發生在一個夜黑風高的寂寥深夜&amp;hellip;.. ( What The FXXX &amp;hellip; )
+來到這個環境之後，有一個很詭異的狀況一直困擾著我
+在每個分公司，都會有一台伺服器作為KVM Host
+上面跑兩台VM，一台作為ansible controller (目前沒作用)
+另一台作為這邊所謂的 &amp;ldquo;Build Server&amp;rdquo;
+用途包含了DHCP Server / Proxy Server (squid3) / APT Proxy (squid-deb-proxy)
+問題就發生在這台 Build Server 上&amp;hellip;
+'><title>[筆記] 詭異的client&amp;server間連線的問題，或許跟KVM有關係？</title>
+
+<link rel='canonical' href='https://hu.mc4.us/p/%E7%AD%86%E8%A8%98-%E8%A9%AD%E7%95%B0%E7%9A%84clientserver%E9%96%93%E9%80%A3%E7%B7%9A%E7%9A%84%E5%95%8F%E9%A1%8C%E6%88%96%E8%A8%B1%E8%B7%9Fkvm%E6%9C%89%E9%97%9C%E4%BF%82/'>
+
+<link rel="stylesheet" href="/scss/style.min.css"><meta property='og:title' content='[筆記] 詭異的client&amp;server間連線的問題，或許跟KVM有關係？'>
+<meta property='og:description' content='這是發生在一個夜黑風高的寂寥深夜&amp;hellip;.. ( What The FXXX &amp;hellip; )
+來到這個環境之後，有一個很詭異的狀況一直困擾著我
+在每個分公司，都會有一台伺服器作為KVM Host
+上面跑兩台VM，一台作為ansible controller (目前沒作用)
+另一台作為這邊所謂的 &amp;ldquo;Build Server&amp;rdquo;
+用途包含了DHCP Server / Proxy Server (squid3) / APT Proxy (squid-deb-proxy)
+問題就發生在這台 Build Server 上&amp;hellip;
+'>
+<meta property='og:url' content='https://hu.mc4.us/p/%E7%AD%86%E8%A8%98-%E8%A9%AD%E7%95%B0%E7%9A%84clientserver%E9%96%93%E9%80%A3%E7%B7%9A%E7%9A%84%E5%95%8F%E9%A1%8C%E6%88%96%E8%A8%B1%E8%B7%9Fkvm%E6%9C%89%E9%97%9C%E4%BF%82/'>
+<meta property='og:site_name' content='MC-stack'>
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='ubuntu' /><meta property='article:tag' content='筆記' /><meta property='article:published_time' content='2018-11-08T18:01:23&#43;08:00'/><meta property='article:modified_time' content='2018-11-08T18:01:23&#43;08:00'/><meta property='og:image' content='https://h.cowbay.org/images/post-default-4.jpg' />
+<meta name="twitter:title" content="[筆記] 詭異的client&amp;server間連線的問題，或許跟KVM有關係？">
+<meta name="twitter:description" content="這是發生在一個夜黑風高的寂寥深夜&amp;hellip;.. ( What The FXXX &amp;hellip; )
+來到這個環境之後，有一個很詭異的狀況一直困擾著我
+在每個分公司，都會有一台伺服器作為KVM Host
+上面跑兩台VM，一台作為ansible controller (目前沒作用)
+另一台作為這邊所謂的 &amp;ldquo;Build Server&amp;rdquo;
+用途包含了DHCP Server / Proxy Server (squid3) / APT Proxy (squid-deb-proxy)
+問題就發生在這台 Build Server 上&amp;hellip;
+"><meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:image" content='https://h.cowbay.org/images/post-default-4.jpg' />
+    </head>
+    <body class="
+    article-page 
+">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "auto");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.documentElement.dataset.scheme = 'dark';
+        } else {
+            document.documentElement.dataset.scheme = 'light';
+        }
+    })();
+</script>
+<div class="container main-container flex 
+    
+        on-phone--column extended
+    
+">
+    
+        <aside class="sidebar left-sidebar sticky">
+    <button class="hamburger hamburger--spin" type="button" id="toggle-menu" aria-label="Toggle Menu">
+        <span class="hamburger-box">
+            <span class="hamburger-inner"></span>
+        </span>
+    </button>
+
+    <header class="site-info">
+        
+            
+            <figure class="site-avatar">
+                
+                    
+                    
+                    
+                        
+                        <img src="/img/avatar_huda2458f72ce188392d75c5d51cd8e24e_373_300x0_resize_box_3.png" width="300"
+                            height="300" class="site-logo" loading="lazy" alt="Avatar">
+                    
+                
+
+                
+                    <span class="emoji">🍥</span>
+                
+            </figure>
+            
+        
+        <h1 class="site-name"><a href="/">MC-stack</a></h1>
+        <h2 class="site-description">Lorem ipsum dolor sit amet, consectetur adipiscing elit.</h2>
+    </header>
+
+    <ol class="menu" id="main-menu">
+        
+        
+        
+
+        <li >
+            <a href='/' target="_blank">
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-home" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="5 12 3 12 12 3 21 12 19 12" />
+  <path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-7" />
+  <path d="M9 21v-6a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v6" />
+</svg>
+
+
+
+                
+                <span>Home</span>
+            </a>
+        </li>
+        
+
+        
+            <li id="dark-mode-toggle">
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="8" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="16" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                <span>Dark Mode</span>
+            </li>
+        
+    </ol>
+</aside>
+
+    
+<main class="main full-width">
+    <article class="has-image main-article">
+    <header class="article-header">
+        <div class="article-image">
+            <a href="/p/%E7%AD%86%E8%A8%98-%E8%A9%AD%E7%95%B0%E7%9A%84clientserver%E9%96%93%E9%80%A3%E7%B7%9A%E7%9A%84%E5%95%8F%E9%A1%8C%E6%88%96%E8%A8%B1%E8%B7%9Fkvm%E6%9C%89%E9%97%9C%E4%BF%82/">
+                
+                    <img src="https://h.cowbay.org/images/post-default-4.jpg" loading="lazy" alt="Featured image of post [筆記] 詭異的client&amp;server間連線的問題，或許跟KVM有關係？" />
+                
+            </a>
+        </div>
+    
+
+    <div class="article-details">
+    
+    <header class="article-category">
+        
+            <a href="/categories/%E7%AD%86%E8%A8%98/" >
+                筆記
+            </a>
+        
+    </header>
+    
+
+    <h2 class="article-title">
+        <a href="/p/%E7%AD%86%E8%A8%98-%E8%A9%AD%E7%95%B0%E7%9A%84clientserver%E9%96%93%E9%80%A3%E7%B7%9A%E7%9A%84%E5%95%8F%E9%A1%8C%E6%88%96%E8%A8%B1%E8%B7%9Fkvm%E6%9C%89%E9%97%9C%E4%BF%82/">[筆記] 詭異的client&amp;server間連線的問題，或許跟KVM有關係？</a>
+    </h2>
+
+    
+
+    
+    <footer class="article-time">
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M11.795 21h-6.795a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
+  <circle cx="18" cy="18" r="4" />
+  <path d="M15 3v4" />
+  <path d="M7 3v4" />
+  <path d="M3 11h16" />
+  <path d="M18 16.496v1.504l1 1" />
+</svg>
+                <time class="article-time--published">Nov 08, 2018</time>
+            </div>
+        
+
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+                <time class="article-time--reading">
+                    1 minute read
+                </time>
+            </div>
+        
+    </footer>
+    
+</div>
+</header>
+
+    <section class="article-content">
+    <p>這是發生在一個夜黑風高的寂寥深夜&hellip;.. ( What The FXXX &hellip; )</p>
+<p>來到這個環境之後，有一個很詭異的狀況一直困擾著我</p>
+<p>在每個分公司，都會有一台伺服器作為KVM Host</p>
+<p>上面跑兩台VM，一台作為ansible controller (目前沒作用)</p>
+<p>另一台作為這邊所謂的 &ldquo;Build Server&rdquo;</p>
+<p>用途包含了DHCP Server / Proxy Server (squid3) / APT Proxy (squid-deb-proxy)</p>
+<p>問題就發生在這台 Build Server 上&hellip;</p>
+<p>有陣子花了點時間去檢查各個分公司的網路環境，確保每一台Build Server都能夠連接Internet</p>
+<p>然後找了一個離總部最近的據點，把這些電腦連接Internet 的方式改為用 proxy 來控制</p>
+<p>在proxy內加入了 allowhost 的設定，然後把user電腦上的瀏覽器都代入 proxy server (firefox/chrome 的設定方式不同)</p>
+<pre><code>acl localnet src 192.168.28.0/24
+acl allowhost src &quot;/etc/squid3/allowhost.txt&quot;
+acl localdomain dstdomain &quot;/etc/squid3/localdomain.txt&quot;
+acl SSL_ports port 443
+acl Safe_ports port 80      # http                                                                                                                          
+acl Safe_ports port 21      # ftp
+acl Safe_ports port 443     # https
+acl Safe_ports port 70      # gopher
+acl Safe_ports port 210     # wais
+acl Safe_ports port 1025-65535  # unregistered ports
+acl Safe_ports port 280     # http-mgmt
+acl Safe_ports port 488     # gss-http
+acl Safe_ports port 591     # filemaker
+acl Safe_ports port 777     # multiling http
+acl CONNECT method CONNECT
+</code></pre><p>一開始這樣作還相安無事，但是呢，慢慢的時不時會有USER反應說無法連接 Internet</p>
+<p>照理來說，因為都是透過proxy上網，所以如果是proxy server出問題，那其他電腦應該也不行上Internet</p>
+<p>但如果這樣的話，那就一點也不詭異了呀(攤手)</p>
+<p>實際上的狀況是，只有反應的USER的電腦無法連接Internet</p>
+<p>然後真的詭異的來了</p>
+<p>用USER電腦去 ping proxy server ，有時候會通，有時候不通..</p>
+<p>從Proxy Server去 ping USER電腦，也是類似的狀況</p>
+<p>可是我卻可以透過IPSEC VPN，分別SSH連接到這兩台機器上</p>
+<p>這代表兩台的網路都OK呀..</p>
+<p>正當我百思不得其解的時候，突然 USER電腦那邊的 ping 有反應了</p>
+<p>變成可以 ping proxy Server 了！ (What the FXXX !!!!)</p>
+<p>我什麼都沒改呀&hellip;</p>
+<p>update: 2018/11/19</p>
+<p>剛剛在測試一台機器，又發生這個問題</p>
+<p>兩台都ping不到對方</p>
+<p><figure 
+	>
+	<a href="https://i.imgur.com/gSD086o.png" >
+		<img src="https://i.imgur.com/gSD086o.png"
+			
+			
+			
+			loading="lazy"
+			alt="ping不到">
+	</a>
+	
+	<figcaption>ping不到</figcaption>
+	
+</figure></p>
+<p>什麼事也沒做，就是把ping中斷，然後再ping 一次，居然就可以了</p>
+<p><figure 
+	>
+	<a href="https://i.imgur.com/rvtw0hh.png" >
+		<img src="https://i.imgur.com/rvtw0hh.png"
+			
+			
+			
+			loading="lazy"
+			alt="又ping到了">
+	</a>
+	
+	<figcaption>又ping到了</figcaption>
+	
+</figure></p>
+<p>##真他X的詭異啊！</p>
+<!-- raw HTML omitted -->
+<p>反正呢&hellip;</p>
+<p>這種狀況三不五時就會出現一次，會出現在哪一台電腦也不一定</p>
+<p>不過，依照觀察到的狀況來說，似乎都是發生在很少開機的電腦上</p>
+<p>然後呢，因為底層是 KVM</p>
+<p>我也嘗試過用virsh 去restart VM 或者是 restart network</p>
+<p>有時候可以解決，有時候又還是不能連接</p>
+<p>於是另外測試安裝了 proxmox VE 的虛擬平台</p>
+<p>在上面起一台新的Server，再用 ansible 做成 build server的角色</p>
+<p>這樣子作的機器，就不會發生這種狀況</p>
+<p>所以我在猜是不是跟底層是KVM有關係..</p>
+<p>不過要動這個的話，工程有點大，手邊也沒那麼多機器可以替換(很慘)</p>
+<p>暫時先保留這個作法，等到下次再發生這狀況</p>
+<p>再來找老闆看這情形，然後來討論要不要換掉各分公司的VM Host&hellip;</p>
+</section>
+
+
+    <footer class="article-footer">
+    
+    <section class="article-tags">
+        
+            <a href="/tags/ubuntu/">ubuntu</a>
+        
+            <a href="/tags/%E7%AD%86%E8%A8%98/">筆記</a>
+        
+    </section>
+
+
+    
+    <section class="article-copyright">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <path d="M14.5 9a3.5 4 0 1 0 0 6" />
+</svg>
+
+
+
+        <span>Licensed under CC BY-NC-SA 4.0</span>
+    </section>
+    </footer>
+
+
+    
+</article>
+
+    <aside class="related-contents--wrapper">
+    
+    
+        <h2 class="section-title">Related contents</h2>
+        <div class="related-contents">
+            <div class="flex article-list--tile">
+                
+                    
+<article class="has-image">
+    <a href="/p/%E7%AD%86%E8%A8%98-%E5%9C%A8-ubuntu-20.04-%E4%B8%8A%E5%AE%89%E8%A3%9D-wireguard-pihole-%E4%BD%9C-ad-blocking/install-wireguard-and-pihole-to-do-ad-block-in-ubuntu-20.04/">
+        
+        
+            <div class="article-image">
+                
+                    <img src="https://h.cowbay.org/images/post-default-16.jpg" loading="lazy" data-key="" data-hash="https://h.cowbay.org/images/post-default-16.jpg"/>
+                
+            </div>
+        
+
+        <div class="article-details">
+            <h2 class="article-title">[筆記] 在 ubuntu 20.04 上安裝 wireguard &#43; pihole 作 AD Blocking/install wireguard and pihole to do ad block in ubuntu 20.04 </h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="has-image">
+    <a href="/p/%E7%AD%86%E8%A8%98-%E5%9C%A8-ubuntu-1404-preseed-%E5%8A%A0%E5%85%A5%E9%96%8B%E6%A9%9F%E5%BE%8C%E8%87%AA%E5%8B%95%E7%99%BC%E9%83%B5%E4%BB%B6%E9%80%9A%E7%9F%A5%E5%AE%89%E8%A3%9D%E5%AE%8C%E6%88%90/">
+        
+        
+            <div class="article-image">
+                
+                    <img src="https://h.cowbay.org/images/post-default-5.jpg" loading="lazy" data-key="" data-hash="https://h.cowbay.org/images/post-default-5.jpg"/>
+                
+            </div>
+        
+
+        <div class="article-details">
+            <h2 class="article-title">[筆記] 在 Ubuntu 1404 Preseed 加入開機後自動發郵件通知安裝完成</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="has-image">
+    <a href="/p/%E7%AD%86%E8%A8%98-%E8%A8%AD%E5%AE%9Aubuntu-18.04-%E7%9A%84networkmanager-config-%E4%B8%8D%E8%A6%81%E6%9B%B4%E6%94%B9-/etc/resolv.conf/">
+        
+        
+            <div class="article-image">
+                
+                    <img src="https://h.cowbay.org/images/post-default-17.jpg" loading="lazy" data-key="" data-hash="https://h.cowbay.org/images/post-default-17.jpg"/>
+                
+            </div>
+        
+
+        <div class="article-details">
+            <h2 class="article-title">[筆記] 設定ubuntu 18.04 的NetworkManager config 不要更改 /etc/resolv.conf</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="has-image">
+    <a href="/p/%E5%9C%A8ubuntu-18.04%E4%B8%AD%E9%80%8F%E9%81%8E-dconf-%E8%A8%AD%E5%AE%9A%E7%B3%BB%E7%B5%B1%E5%B1%A4%E7%B4%9A%E7%9A%84%E6%88%91%E7%9A%84%E6%9C%80%E6%84%9B/-add-system-wide-favorite-apps-in-dock-with-dconf-in-ubuntu-18.04/">
+        
+        
+            <div class="article-image">
+                
+                    <img src="https://h.cowbay.org/images/post-default-2.jpg" loading="lazy" data-key="" data-hash="https://h.cowbay.org/images/post-default-2.jpg"/>
+                
+            </div>
+        
+
+        <div class="article-details">
+            <h2 class="article-title">在ubuntu 18.04中，透過 dconf 設定系統層級的「我的最愛」/ Add System Wide Favorite Apps in dock with Dconf in ubuntu 18.04</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="has-image">
+    <a href="/p/%E7%AD%86%E8%A8%98-%E9%80%8F%E9%81%8E-wireguard-%E5%BB%BA%E7%AB%8B%E5%A4%9A%E9%BB%9E-site-to-site-vpn-/-multiple-site-to-site-vpn-using-wireguard/">
+        
+        
+            <div class="article-image">
+                
+                    <img src="https://h.cowbay.org/images/post-default-10.jpg" loading="lazy" data-key="" data-hash="https://h.cowbay.org/images/post-default-10.jpg"/>
+                
+            </div>
+        
+
+        <div class="article-details">
+            <h2 class="article-title">[筆記] 透過 wireguard 建立多點 site to site VPN / Multiple Site to Site VPN Using Wireguard</h2>
+        </div>
+    </a>
+</article>
+                
+            </div>
+        </div>
+    
+</aside>
+
+     
+    
+        
+    <div class="disqus-container">
+    <div id="disqus_thread"></div>
+<script type="application/javascript">
+    var disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "hugo-theme-stack" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+</div>
+
+<style>
+    .disqus-container {
+        background-color: var(--card-background);
+        border-radius: var(--card-border-radius);
+        box-shadow: var(--shadow-l1);
+        padding: var(--card-padding);
+    }
+</style>
+
+<script>
+    window.addEventListener('onColorSchemeChange', (e) => {
+        if (DISQUS) {
+            DISQUS.reset({
+                reload: true
+            });
+        }
+    })
+</script>
+
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+            2020 - 
+        
+        2021 MC-stack
+    </section>
+    
+    <section class="powerby">
+        Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
+        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.2.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+    </section>
+</footer>
+
+
+    
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer="true"
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer="true"
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.css"integrity="sha256-c0uckgykQ9v5k&#43;IqViZOZKc47Jn7KQil4/MP3ySA3F8="crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.css"integrity="sha256-SBLU4vv6CA6lHsZ1XyTdhyjJxCjPif/TRkjnsyGAGnE="crossorigin="anonymous"
+            >
+
+            </main>
+    
+
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.5/dist/vibrant.min.js"integrity="sha256-5NovOZc4iwiAWTYIFiIM7DxKUXKWvpVEuMEPLzcm5/g="crossorigin="anonymous"
+                defer="false"
+                >
+            </script><script type="text/javascript" src="/ts/main.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>

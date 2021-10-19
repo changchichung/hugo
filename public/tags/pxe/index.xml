@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>PXE on MC-stack</title>
+    <link>https://hu.mc4.us/tags/pxe/</link>
+    <description>Recent content in PXE on MC-stack</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Wed, 08 Apr 2020 16:20:33 +0800</lastBuildDate><atom:link href="https://hu.mc4.us/tags/pxe/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>[筆記] ubuntu 18.04 preseeds </title>
+      <link>https://hu.mc4.us/p/%E7%AD%86%E8%A8%98-ubuntu-18.04-preseeds/</link>
+      <pubDate>Wed, 08 Apr 2020 16:20:33 +0800</pubDate>
+      
+      <guid>https://hu.mc4.us/p/%E7%AD%86%E8%A8%98-ubuntu-18.04-preseeds/</guid>
+      <description>&lt;p&gt;ubuntu 18.04 預設移掉了 /etc/rc.local 的功能&lt;/p&gt;
+&lt;p&gt;變成要用 systemd 的方式來運作，可是有點難用…&lt;/p&gt;
+&lt;p&gt;紀錄一下步驟，再來研究怎麼整合到 preseed 裡面&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>[筆記] 在 Ubuntu 1404 Preseed 加入開機後自動發郵件通知安裝完成</title>
+      <link>https://hu.mc4.us/p/%E7%AD%86%E8%A8%98-%E5%9C%A8-ubuntu-1404-preseed-%E5%8A%A0%E5%85%A5%E9%96%8B%E6%A9%9F%E5%BE%8C%E8%87%AA%E5%8B%95%E7%99%BC%E9%83%B5%E4%BB%B6%E9%80%9A%E7%9F%A5%E5%AE%89%E8%A3%9D%E5%AE%8C%E6%88%90/</link>
+      <pubDate>Mon, 06 Apr 2020 10:21:41 +0800</pubDate>
+      
+      <guid>https://hu.mc4.us/p/%E7%AD%86%E8%A8%98-%E5%9C%A8-ubuntu-1404-preseed-%E5%8A%A0%E5%85%A5%E9%96%8B%E6%A9%9F%E5%BE%8C%E8%87%AA%E5%8B%95%E7%99%BC%E9%83%B5%E4%BB%B6%E9%80%9A%E7%9F%A5%E5%AE%89%E8%A3%9D%E5%AE%8C%E6%88%90/</guid>
+      <description>&lt;p&gt;這是之前做過的task，client透過pxe開機後，會自動安裝ubuntu 14.04&lt;/p&gt;
+&lt;p&gt;在安裝完成後，會發出郵件通知管理者已經安裝完成&lt;/p&gt;
+&lt;p&gt;可是某次ansible 更新之後，反而沒辦法安裝完成&lt;/p&gt;
+&lt;p&gt;這次順手修改一下，同時更新了ansible 的template&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>[筆記] 用pxe 安裝系統，完成後送出郵件通知 / send mail notification after pxe install</title>
+      <link>https://hu.mc4.us/p/%E7%AD%86%E8%A8%98-%E7%94%A8pxe-%E5%AE%89%E8%A3%9D%E7%B3%BB%E7%B5%B1%E5%AE%8C%E6%88%90%E5%BE%8C%E9%80%81%E5%87%BA%E9%83%B5%E4%BB%B6%E9%80%9A%E7%9F%A5-/-send-mail-notification-after-pxe-install/</link>
+      <pubDate>Wed, 31 Jul 2019 11:06:33 +0800</pubDate>
+      
+      <guid>https://hu.mc4.us/p/%E7%AD%86%E8%A8%98-%E7%94%A8pxe-%E5%AE%89%E8%A3%9D%E7%B3%BB%E7%B5%B1%E5%AE%8C%E6%88%90%E5%BE%8C%E9%80%81%E5%87%BA%E9%83%B5%E4%BB%B6%E9%80%9A%E7%9F%A5-/-send-mail-notification-after-pxe-install/</guid>
+      <description>&lt;p&gt;最近有個任務，需要大量安裝client&lt;/p&gt;
+&lt;p&gt;想用PXE來處理，只要user開機按F12(acer 桌機) 選擇PXE Boot&lt;/p&gt;
+&lt;p&gt;然後選擇OS版本，就可以自動進行安裝&lt;/p&gt;
+&lt;p&gt;安裝完成後，會自動重新開機，接著就用ansible來做user環境設定&lt;/p&gt;
+&lt;p&gt;PXE的部份本來是沒有什麼問題，自動安裝系統的部份都做好了&lt;/p&gt;
+&lt;p&gt;可是因為這次的量比較多，想說讓每一台在完成PXE安裝後的第一次重開機&lt;/p&gt;
+&lt;p&gt;就送出一封郵件來通知我，說已經完成安裝，可以執行ansible 了&lt;/p&gt;
+&lt;p&gt;看似很簡單的一件事情，卻搞了我兩天&amp;hellip;.&lt;/p&gt;</description>
+    </item>
+    
+  </channel>
+</rss>

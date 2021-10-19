@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>筆記 on MC-stack</title>
+    <link>https://hu.mc4.us/tags/%E7%AD%86%E8%A8%98/</link>
+    <description>Recent content in 筆記 on MC-stack</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Wed, 04 Mar 2020 16:38:55 +0800</lastBuildDate><atom:link href="https://hu.mc4.us/tags/%E7%AD%86%E8%A8%98/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>[筆記] 設定ubuntu 18.04 的NetworkManager config 不要更改 /etc/resolv.conf</title>
+      <link>https://hu.mc4.us/p/%E7%AD%86%E8%A8%98-%E8%A8%AD%E5%AE%9Aubuntu-18.04-%E7%9A%84networkmanager-config-%E4%B8%8D%E8%A6%81%E6%9B%B4%E6%94%B9-/etc/resolv.conf/</link>
+      <pubDate>Wed, 04 Mar 2020 16:38:55 +0800</pubDate>
+      
+      <guid>https://hu.mc4.us/p/%E7%AD%86%E8%A8%98-%E8%A8%AD%E5%AE%9Aubuntu-18.04-%E7%9A%84networkmanager-config-%E4%B8%8D%E8%A6%81%E6%9B%B4%E6%94%B9-/etc/resolv.conf/</guid>
+      <description>&lt;p&gt;ubuntu 18.04 的 DNS 設定很煩&lt;/p&gt;
+&lt;p&gt;系統預設會用NetworkManager 去管理&lt;/p&gt;
+&lt;p&gt;然後NetworkManager 又很「靈活」的許多種修改 /etc/resolv.conf 的方式&lt;/p&gt;
+&lt;p&gt;之前都是很粗暴的停用 NetworkManager&lt;/p&gt;
+&lt;p&gt;但是用筆電的user 又需要用 NetworkManager 來管理無線網路&lt;/p&gt;
+&lt;p&gt;今天找了一下文件，讓NetworkManager 可以執行，卻不會去異動 /etc/resolv.conf&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>[筆記] 用 proxmox &amp; Mellanox SFP 網卡土炮 10G LAB </title>
+      <link>https://hu.mc4.us/p/%E7%AD%86%E8%A8%98-%E7%94%A8-proxmox-mellanox-sfp-%E7%B6%B2%E5%8D%A1%E5%9C%9F%E7%82%AE-10g-lab/</link>
+      <pubDate>Fri, 30 Nov 2018 16:05:14 +0800</pubDate>
+      
+      <guid>https://hu.mc4.us/p/%E7%AD%86%E8%A8%98-%E7%94%A8-proxmox-mellanox-sfp-%E7%B6%B2%E5%8D%A1%E5%9C%9F%E7%82%AE-10g-lab/</guid>
+      <description>&lt;p&gt;想做一個 10G 的 LAB 環境出來已經很久了。&lt;/p&gt;
+&lt;p&gt;只是礙於10G RJ45的卡太貴了，然後光纖的種類又太複雜&lt;/p&gt;
+&lt;p&gt;如果直接在淘寶購買，很怕會買錯(什麼LC/FC LC/LC 多模單模 單芯雙芯 SFP/SFP+ 又是什麼光模塊的一大堆規格)&lt;/p&gt;
+&lt;p&gt;所以一直沒有付諸行動。&lt;/p&gt;
+&lt;p&gt;硬體的工作很久沒碰了，剛好在蝦皮看到有個賣家在賣 mellanox 的X2網卡，以在台灣的價格來說，算很便宜的 (550)&lt;/p&gt;
+&lt;p&gt;聊了一下，跟他請教了關於線材、光纖模塊的問題，回答也都很快很到位&lt;/p&gt;
+&lt;p&gt;就直接下訂了兩張網卡、兩個光纖模塊、一條LC/LC 光纖線&lt;/p&gt;
+&lt;p&gt;就是到貨有點久，等了兩個禮拜左右，一直到昨天東西才寄到&lt;/p&gt;
+&lt;p&gt;今天就花了點時間測試一下&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>[筆記] 為了metabase 修改 firefox 開啟網頁時使用的預設語言 change the preferred language in firefox for metabase</title>
+      <link>https://hu.mc4.us/p/%E7%AD%86%E8%A8%98-%E7%82%BA%E4%BA%86metabase-%E4%BF%AE%E6%94%B9-firefox-%E9%96%8B%E5%95%9F%E7%B6%B2%E9%A0%81%E6%99%82%E4%BD%BF%E7%94%A8%E7%9A%84%E9%A0%90%E8%A8%AD%E8%AA%9E%E8%A8%80-change-the-preferred-language-in-firefox-for-metabase/</link>
+      <pubDate>Thu, 15 Nov 2018 11:06:28 +0800</pubDate>
+      
+      <guid>https://hu.mc4.us/p/%E7%AD%86%E8%A8%98-%E7%82%BA%E4%BA%86metabase-%E4%BF%AE%E6%94%B9-firefox-%E9%96%8B%E5%95%9F%E7%B6%B2%E9%A0%81%E6%99%82%E4%BD%BF%E7%94%A8%E7%9A%84%E9%A0%90%E8%A8%AD%E8%AA%9E%E8%A8%80-change-the-preferred-language-in-firefox-for-metabase/</guid>
+      <description>&lt;p&gt;最近在測試metabase，記得幾個月前就有測試過&lt;/p&gt;
+&lt;p&gt;但是當時的界面和現在的樣子差很多，看樣子改版還滿勤勞的&lt;/p&gt;
+&lt;p&gt;所以這次改用docker來建立，根本五分鐘不到就建好了(挖鼻孔)&lt;/p&gt;
+&lt;p&gt;不過呢，很討厭的是，一進去就發現語系採用的是簡體中文&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>PostgreSQL 直接從已經存在的使用者複製權限到另一個使用者</title>
+      <link>https://hu.mc4.us/p/postgresql-%E7%9B%B4%E6%8E%A5%E5%BE%9E%E5%B7%B2%E7%B6%93%E5%AD%98%E5%9C%A8%E7%9A%84%E4%BD%BF%E7%94%A8%E8%80%85%E8%A4%87%E8%A3%BD%E6%AC%8A%E9%99%90%E5%88%B0%E5%8F%A6%E4%B8%80%E5%80%8B%E4%BD%BF%E7%94%A8%E8%80%85/</link>
+      <pubDate>Mon, 12 Nov 2018 09:48:12 +0800</pubDate>
+      
+      <guid>https://hu.mc4.us/p/postgresql-%E7%9B%B4%E6%8E%A5%E5%BE%9E%E5%B7%B2%E7%B6%93%E5%AD%98%E5%9C%A8%E7%9A%84%E4%BD%BF%E7%94%A8%E8%80%85%E8%A4%87%E8%A3%BD%E6%AC%8A%E9%99%90%E5%88%B0%E5%8F%A6%E4%B8%80%E5%80%8B%E4%BD%BF%E7%94%A8%E8%80%85/</guid>
+      <description>&lt;p&gt;因為工作上的需求，有個資料庫需要開放給不同team的人去存取&lt;/p&gt;
+&lt;p&gt;雖然都是在同一台機器上的同一個資料庫&lt;/p&gt;
+&lt;p&gt;但是希望能夠不同team的人用不同的資料庫使用者&lt;/p&gt;
+&lt;p&gt;這樣萬一出事，會比較好抓兇手？？&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>[筆記] 詭異的client&amp;server間連線的問題，或許跟KVM有關係？</title>
+      <link>https://hu.mc4.us/p/%E7%AD%86%E8%A8%98-%E8%A9%AD%E7%95%B0%E7%9A%84clientserver%E9%96%93%E9%80%A3%E7%B7%9A%E7%9A%84%E5%95%8F%E9%A1%8C%E6%88%96%E8%A8%B1%E8%B7%9Fkvm%E6%9C%89%E9%97%9C%E4%BF%82/</link>
+      <pubDate>Thu, 08 Nov 2018 18:01:23 +0800</pubDate>
+      
+      <guid>https://hu.mc4.us/p/%E7%AD%86%E8%A8%98-%E8%A9%AD%E7%95%B0%E7%9A%84clientserver%E9%96%93%E9%80%A3%E7%B7%9A%E7%9A%84%E5%95%8F%E9%A1%8C%E6%88%96%E8%A8%B1%E8%B7%9Fkvm%E6%9C%89%E9%97%9C%E4%BF%82/</guid>
+      <description>&lt;p&gt;這是發生在一個夜黑風高的寂寥深夜&amp;hellip;.. ( What The FXXX &amp;hellip; )&lt;/p&gt;
+&lt;p&gt;來到這個環境之後，有一個很詭異的狀況一直困擾著我&lt;/p&gt;
+&lt;p&gt;在每個分公司，都會有一台伺服器作為KVM Host&lt;/p&gt;
+&lt;p&gt;上面跑兩台VM，一台作為ansible controller (目前沒作用)&lt;/p&gt;
+&lt;p&gt;另一台作為這邊所謂的 &amp;ldquo;Build Server&amp;rdquo;&lt;/p&gt;
+&lt;p&gt;用途包含了DHCP Server / Proxy Server (squid3) / APT Proxy (squid-deb-proxy)&lt;/p&gt;
+&lt;p&gt;問題就發生在這台 Build Server 上&amp;hellip;&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>筆記- 啟用群暉NAS (Synology NAS)的SSH Server  透過Publickey 認證免密碼登入</title>
+      <link>https://hu.mc4.us/p/%E7%AD%86%E8%A8%98-%E5%95%9F%E7%94%A8%E7%BE%A4%E6%9A%89nas-synology-nas%E7%9A%84ssh-server-%E9%80%8F%E9%81%8Epublickey-%E8%AA%8D%E8%AD%89%E5%85%8D%E5%AF%86%E7%A2%BC%E7%99%BB%E5%85%A5/</link>
+      <pubDate>Mon, 05 Nov 2018 14:16:54 +0800</pubDate>
+      
+      <guid>https://hu.mc4.us/p/%E7%AD%86%E8%A8%98-%E5%95%9F%E7%94%A8%E7%BE%A4%E6%9A%89nas-synology-nas%E7%9A%84ssh-server-%E9%80%8F%E9%81%8Epublickey-%E8%AA%8D%E8%AD%89%E5%85%8D%E5%AF%86%E7%A2%BC%E7%99%BB%E5%85%A5/</guid>
+      <description>&lt;p&gt;公司內有幾台NAS，其中有一台用來放開發人員的postgresql dump file
+之前都是主要的開發人員上傳到google drive，分享出來 ，然後其他人去抓回來&lt;/p&gt;
+&lt;p&gt;這樣子有個問題是，當server要存取這些檔案時，就沒辦法了，除非透過一些 3rd party的軟體
+像是這篇&lt;/p&gt;
+&lt;p&gt;&lt;a class=&#34;link&#34; href=&#34;https://www.omgubuntu.co.uk/2017/04/mount-google-drive-ocamlfuse-linux&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;https://www.omgubuntu.co.uk/2017/04/mount-google-drive-ocamlfuse-linux&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;或者是這篇&lt;/p&gt;
+&lt;p&gt;&lt;a class=&#34;link&#34; href=&#34;https://www.maketecheasier.com/mount-google-drive-ubuntu/&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;https://www.maketecheasier.com/mount-google-drive-ubuntu/&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;但是手邊的伺服器，原則上除非有必要，不然都沒有開放internet
+所以導致明明檔案就在那邊，但是要取得就是很麻煩&lt;/p&gt;</description>
+    </item>
+    
+  </channel>
+</rss>

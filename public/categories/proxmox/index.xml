@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Proxmox on MC-stack</title>
+    <link>https://hu.mc4.us/categories/proxmox/</link>
+    <description>Recent content in Proxmox on MC-stack</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Mon, 17 Jun 2019 13:20:57 +0800</lastBuildDate><atom:link href="https://hu.mc4.us/categories/proxmox/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Install Asus 10G NIC XG-C100C in Proxmox</title>
+      <link>https://hu.mc4.us/p/install-asus-10g-nic-xg-c100c-in-proxmox/</link>
+      <pubDate>Mon, 17 Jun 2019 13:20:57 +0800</pubDate>
+      
+      <guid>https://hu.mc4.us/p/install-asus-10g-nic-xg-c100c-in-proxmox/</guid>
+      <description>&lt;p&gt;前幾天接的一個case&lt;/p&gt;
+&lt;p&gt;因為費用的關係，所以沒有考慮用傳統定義上的伺服器(DELL R640)&lt;/p&gt;
+&lt;p&gt;改採用比較高階一點的洋垃圾，規格大概是 Intel E5-2680V2 x2 + 64G RAM + 128G SSD x2 (OS) + 960G SSD x4 (raid 10 , zfs)&lt;/p&gt;
+&lt;p&gt;storage 選擇QNAP NAS  TS-932X + 960G SSD x 4 (raid 10 , NFS) + QNAP 10G Switch QSW-1280C-8C&lt;/p&gt;
+&lt;p&gt;既然storage這邊選用了10G的機種，伺服器上當然也要增加10G網卡&lt;/p&gt;
+&lt;p&gt;一樣，成本考量，就不用INTEL 了，買了這張 ASUS 10G 網卡&lt;/p&gt;</description>
+    </item>
+    
+  </channel>
+</rss>

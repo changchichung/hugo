@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>debian on MC-stack</title>
+    <link>https://hu.mc4.us/tags/debian/</link>
+    <description>Recent content in debian on MC-stack</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Fri, 10 Jul 2020 09:48:24 +0800</lastBuildDate><atom:link href="https://hu.mc4.us/tags/debian/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>[筆記] Debian Buster 伺服器被入侵了！/ Debian Buster Server Been Hacked</title>
+      <link>https://hu.mc4.us/p/%E7%AD%86%E8%A8%98-debian-buster-%E4%BC%BA%E6%9C%8D%E5%99%A8%E8%A2%AB%E5%85%A5%E4%BE%B5%E4%BA%86/-debian-buster-server-been-hacked/</link>
+      <pubDate>Fri, 10 Jul 2020 09:48:24 +0800</pubDate>
+      
+      <guid>https://hu.mc4.us/p/%E7%AD%86%E8%A8%98-debian-buster-%E4%BC%BA%E6%9C%8D%E5%99%A8%E8%A2%AB%E5%85%A5%E4%BE%B5%E4%BA%86/-debian-buster-server-been-hacked/</guid>
+      <description>&lt;p&gt;上禮拜某天在開會的時候，LINE不斷傳來訊息&lt;/p&gt;
+&lt;p&gt;不過因為我向來開會都很認真(驕傲，所以都沒看，接著就變成來電了&lt;/p&gt;
+&lt;p&gt;看來大概有啥事發生&lt;/p&gt;
+&lt;p&gt;不過畢竟不是正職的工作，就先放著吧&lt;/p&gt;
+&lt;p&gt;後來變成連學長都直接打來告訴我，某間公司的伺服器出事了，客戶找不到我&lt;/p&gt;
+&lt;p&gt;叫我趕快連進去看&lt;/p&gt;
+&lt;p&gt;是說，啊我又沒跟人家簽維護，趕什麼趕&amp;hellip;&lt;/p&gt;
+&lt;p&gt;總之，開完會後就了解一下狀況&lt;/p&gt;</description>
+    </item>
+    
+  </channel>
+</rss>

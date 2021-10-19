@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>pihole on MC-stack</title>
+    <link>https://hu.mc4.us/tags/pihole/</link>
+    <description>Recent content in pihole on MC-stack</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Thu, 13 Aug 2020 14:22:05 +0800</lastBuildDate><atom:link href="https://hu.mc4.us/tags/pihole/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>[筆記] 在 ubuntu 20.04 上安裝 wireguard &#43; pihole 作 AD Blocking/install wireguard and pihole to do ad block in ubuntu 20.04 </title>
+      <link>https://hu.mc4.us/p/%E7%AD%86%E8%A8%98-%E5%9C%A8-ubuntu-20.04-%E4%B8%8A%E5%AE%89%E8%A3%9D-wireguard-pihole-%E4%BD%9C-ad-blocking/install-wireguard-and-pihole-to-do-ad-block-in-ubuntu-20.04/</link>
+      <pubDate>Thu, 13 Aug 2020 14:22:05 +0800</pubDate>
+      
+      <guid>https://hu.mc4.us/p/%E7%AD%86%E8%A8%98-%E5%9C%A8-ubuntu-20.04-%E4%B8%8A%E5%AE%89%E8%A3%9D-wireguard-pihole-%E4%BD%9C-ad-blocking/install-wireguard-and-pihole-to-do-ad-block-in-ubuntu-20.04/</guid>
+      <description>&lt;p&gt;手機上的廣告越來越討厭了&lt;/p&gt;
+&lt;p&gt;但是用手機看頁面、影片的機會越來越高&lt;/p&gt;
+&lt;p&gt;所以一直想看看有沒有什麼方式可以解決這個問題&lt;/p&gt;
+&lt;p&gt;不只可以用在safari 上，連APP 裡面的廣告最好都能夠擋掉&lt;/p&gt;
+&lt;p&gt;在github上面看到有個專案是 wireguard + pihole&lt;/p&gt;
+&lt;p&gt;滿有趣的，就來研究一下&lt;/p&gt;</description>
+    </item>
+    
+  </channel>
+</rss>
