@@ -42,8 +42,8 @@ params:
         subtitle: You can’t be everything to everyone.
         avatar:
             enabled: true
-            local: true
-            src: img/avatar.png
+            local: false
+            src: https://blog.cowbay.org/img/avatar.png
 
     article:
         math: false
@@ -150,7 +150,7 @@ params:
         opengraph:
             enabled: true
             local: false
-            src:
+            src: "https://images.pexels.com/photos/5708970/pexels-photo-5708970.jpeg"
 
     colorScheme:
         # Display toggle
