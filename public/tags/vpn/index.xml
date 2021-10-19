@@ -2,17 +2,17 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>vpn on MC-stack</title>
-    <link>https://hu.mc4.us/tags/vpn/</link>
+    <link>https://blog.cowbay.org/tags/vpn/</link>
     <description>Recent content in vpn on MC-stack</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Mon, 14 Oct 2019 13:59:58 +0800</lastBuildDate><atom:link href="https://hu.mc4.us/tags/vpn/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Mon, 14 Oct 2019 13:59:58 +0800</lastBuildDate><atom:link href="https://blog.cowbay.org/tags/vpn/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>[筆記] 超強的ALL-in-One VPN Server streisand / Awesome All in One Vpn Server Streisand</title>
-      <link>https://hu.mc4.us/p/%E7%AD%86%E8%A8%98-%E8%B6%85%E5%BC%B7%E7%9A%84all-in-one-vpn-server-streisand-/-awesome-all-in-one-vpn-server-streisand/</link>
+      <link>https://blog.cowbay.org/p/%E7%AD%86%E8%A8%98-%E8%B6%85%E5%BC%B7%E7%9A%84all-in-one-vpn-server-streisand-/-awesome-all-in-one-vpn-server-streisand/</link>
       <pubDate>Mon, 14 Oct 2019 13:59:58 +0800</pubDate>
       
-      <guid>https://hu.mc4.us/p/%E7%AD%86%E8%A8%98-%E8%B6%85%E5%BC%B7%E7%9A%84all-in-one-vpn-server-streisand-/-awesome-all-in-one-vpn-server-streisand/</guid>
+      <guid>https://blog.cowbay.org/p/%E7%AD%86%E8%A8%98-%E8%B6%85%E5%BC%B7%E7%9A%84all-in-one-vpn-server-streisand-/-awesome-all-in-one-vpn-server-streisand/</guid>
       <description>&lt;p&gt;最近上班閒得發慌，沒事就上 github 找看看有沒有什麼好玩的專案&lt;/p&gt;
 &lt;p&gt;就不小心發現了這個 streisand&lt;/p&gt;
 &lt;p&gt;&lt;a class=&#34;link&#34; href=&#34;https://github.com/StreisandEffect/streisand&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
@@ -22,10 +22,10 @@
     
     <item>
       <title>[筆記] 在gcp 中用wireguard建立VPN時，不要用 10.0.0.0/16 網段/Do No Use 10 0 0 0 Private Ipaddr in GCP</title>
-      <link>https://hu.mc4.us/p/%E7%AD%86%E8%A8%98-%E5%9C%A8gcp-%E4%B8%AD%E7%94%A8wireguard%E5%BB%BA%E7%AB%8Bvpn%E6%99%82%E4%B8%8D%E8%A6%81%E7%94%A8-10.0.0.0/16-%E7%B6%B2%E6%AE%B5/do-no-use-10-0-0-0-private-ipaddr-in-gcp/</link>
+      <link>https://blog.cowbay.org/p/%E7%AD%86%E8%A8%98-%E5%9C%A8gcp-%E4%B8%AD%E7%94%A8wireguard%E5%BB%BA%E7%AB%8Bvpn%E6%99%82%E4%B8%8D%E8%A6%81%E7%94%A8-10.0.0.0/16-%E7%B6%B2%E6%AE%B5/do-no-use-10-0-0-0-private-ipaddr-in-gcp/</link>
       <pubDate>Fri, 16 Aug 2019 10:18:06 +0800</pubDate>
       
-      <guid>https://hu.mc4.us/p/%E7%AD%86%E8%A8%98-%E5%9C%A8gcp-%E4%B8%AD%E7%94%A8wireguard%E5%BB%BA%E7%AB%8Bvpn%E6%99%82%E4%B8%8D%E8%A6%81%E7%94%A8-10.0.0.0/16-%E7%B6%B2%E6%AE%B5/do-no-use-10-0-0-0-private-ipaddr-in-gcp/</guid>
+      <guid>https://blog.cowbay.org/p/%E7%AD%86%E8%A8%98-%E5%9C%A8gcp-%E4%B8%AD%E7%94%A8wireguard%E5%BB%BA%E7%AB%8Bvpn%E6%99%82%E4%B8%8D%E8%A6%81%E7%94%A8-10.0.0.0/16-%E7%B6%B2%E6%AE%B5/do-no-use-10-0-0-0-private-ipaddr-in-gcp/</guid>
       <description>&lt;p&gt;最近一直在玩 wireguard ，先前把各個分公司和總部的VPN 改用 wireguard 建立&lt;/p&gt;
 &lt;p&gt;想說再打個VPN tunnel 來當跳板連 ptt 好了&lt;/p&gt;
 &lt;p&gt;因為wireguard 建立很簡單，而且又可以指定想要繞出去的路由，不會影響原本的網路環境&lt;/p&gt;
@@ -37,10 +37,10 @@
     
     <item>
       <title>[筆記] 透過 wireguard 建立多點 site to site VPN / Multiple Site to Site VPN Using Wireguard</title>
-      <link>https://hu.mc4.us/p/%E7%AD%86%E8%A8%98-%E9%80%8F%E9%81%8E-wireguard-%E5%BB%BA%E7%AB%8B%E5%A4%9A%E9%BB%9E-site-to-site-vpn-/-multiple-site-to-site-vpn-using-wireguard/</link>
+      <link>https://blog.cowbay.org/p/%E7%AD%86%E8%A8%98-%E9%80%8F%E9%81%8E-wireguard-%E5%BB%BA%E7%AB%8B%E5%A4%9A%E9%BB%9E-site-to-site-vpn-/-multiple-site-to-site-vpn-using-wireguard/</link>
       <pubDate>Tue, 13 Aug 2019 15:50:31 +0800</pubDate>
       
-      <guid>https://hu.mc4.us/p/%E7%AD%86%E8%A8%98-%E9%80%8F%E9%81%8E-wireguard-%E5%BB%BA%E7%AB%8B%E5%A4%9A%E9%BB%9E-site-to-site-vpn-/-multiple-site-to-site-vpn-using-wireguard/</guid>
+      <guid>https://blog.cowbay.org/p/%E7%AD%86%E8%A8%98-%E9%80%8F%E9%81%8E-wireguard-%E5%BB%BA%E7%AB%8B%E5%A4%9A%E9%BB%9E-site-to-site-vpn-/-multiple-site-to-site-vpn-using-wireguard/</guid>
       <description>&lt;p&gt;因為實在受夠了現在用的 openwrt + strongswan 建立 IPSec VPN&lt;/p&gt;
 &lt;p&gt;雖然說其實沒有什麼不好，但是畢竟不是我建立的，而當初的文件也都不見了&lt;/p&gt;
 &lt;p&gt;完全沒辦法了解當時設計的邏輯，造成後續debug 困難&lt;/p&gt;
@@ -51,10 +51,10 @@
     
     <item>
       <title>[筆記] 在edgerouter上用wireguard 建立site to site VPN / Site to Site Vpn Using Wireguard in Two Edgerouters</title>
-      <link>https://hu.mc4.us/p/%E7%AD%86%E8%A8%98-%E5%9C%A8edgerouter%E4%B8%8A%E7%94%A8wireguard-%E5%BB%BA%E7%AB%8Bsite-to-site-vpn-/-site-to-site-vpn-using-wireguard-in-two-edgerouters/</link>
+      <link>https://blog.cowbay.org/p/%E7%AD%86%E8%A8%98-%E5%9C%A8edgerouter%E4%B8%8A%E7%94%A8wireguard-%E5%BB%BA%E7%AB%8Bsite-to-site-vpn-/-site-to-site-vpn-using-wireguard-in-two-edgerouters/</link>
       <pubDate>Tue, 06 Aug 2019 17:14:17 +0800</pubDate>
       
-      <guid>https://hu.mc4.us/p/%E7%AD%86%E8%A8%98-%E5%9C%A8edgerouter%E4%B8%8A%E7%94%A8wireguard-%E5%BB%BA%E7%AB%8Bsite-to-site-vpn-/-site-to-site-vpn-using-wireguard-in-two-edgerouters/</guid>
+      <guid>https://blog.cowbay.org/p/%E7%AD%86%E8%A8%98-%E5%9C%A8edgerouter%E4%B8%8A%E7%94%A8wireguard-%E5%BB%BA%E7%AB%8Bsite-to-site-vpn-/-site-to-site-vpn-using-wireguard-in-two-edgerouters/</guid>
       <description>&lt;p&gt;之前總部和分公司之間 是用buffalo 的小AP 灌 openwrt&lt;/p&gt;
 &lt;p&gt;然後用strongswan 來打 IPSEC site to site VPN&lt;/p&gt;
 &lt;p&gt;config 看起來不是很難 (只是看起來)&lt;/p&gt;

@@ -2,17 +2,17 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>ansible on MC-stack</title>
-    <link>https://hu.mc4.us/tags/ansible/</link>
+    <link>https://blog.cowbay.org/tags/ansible/</link>
     <description>Recent content in ansible on MC-stack</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Fri, 27 Dec 2019 09:09:05 +0800</lastBuildDate><atom:link href="https://hu.mc4.us/tags/ansible/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Fri, 27 Dec 2019 09:09:05 +0800</lastBuildDate><atom:link href="https://blog.cowbay.org/tags/ansible/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>[筆記]在ansible中，取得loop register後的值/ Ansible Get Value From Loop Register</title>
-      <link>https://hu.mc4.us/p/%E7%AD%86%E8%A8%98%E5%9C%A8ansible%E4%B8%AD%E5%8F%96%E5%BE%97loop-register%E5%BE%8C%E7%9A%84%E5%80%BC/-ansible-get-value-from-loop-register/</link>
+      <link>https://blog.cowbay.org/p/%E7%AD%86%E8%A8%98%E5%9C%A8ansible%E4%B8%AD%E5%8F%96%E5%BE%97loop-register%E5%BE%8C%E7%9A%84%E5%80%BC/-ansible-get-value-from-loop-register/</link>
       <pubDate>Fri, 27 Dec 2019 09:09:05 +0800</pubDate>
       
-      <guid>https://hu.mc4.us/p/%E7%AD%86%E8%A8%98%E5%9C%A8ansible%E4%B8%AD%E5%8F%96%E5%BE%97loop-register%E5%BE%8C%E7%9A%84%E5%80%BC/-ansible-get-value-from-loop-register/</guid>
+      <guid>https://blog.cowbay.org/p/%E7%AD%86%E8%A8%98%E5%9C%A8ansible%E4%B8%AD%E5%8F%96%E5%BE%97loop-register%E5%BE%8C%E7%9A%84%E5%80%BC/-ansible-get-value-from-loop-register/</guid>
       <description>&lt;p&gt;今天在寫一支客製化 firefox 的playbook&lt;/p&gt;
 &lt;p&gt;因為firefox 會給每個user 建立一個由亂數字串組成的default profile&lt;/p&gt;
 &lt;p&gt;所以每個user的 default profile 都不同&lt;/p&gt;
@@ -21,10 +21,10 @@
     
     <item>
       <title>[筆記] ansible 設定 ssh_args 開啟 ForwardX11 / config ansible ssh_args to enable forwardagent</title>
-      <link>https://hu.mc4.us/p/%E7%AD%86%E8%A8%98-ansible-%E8%A8%AD%E5%AE%9A-ssh_args-%E9%96%8B%E5%95%9F-forwardx11-/-config-ansible-ssh_args-to-enable-forwardagent/</link>
+      <link>https://blog.cowbay.org/p/%E7%AD%86%E8%A8%98-ansible-%E8%A8%AD%E5%AE%9A-ssh_args-%E9%96%8B%E5%95%9F-forwardx11-/-config-ansible-ssh_args-to-enable-forwardagent/</link>
       <pubDate>Tue, 24 Dec 2019 14:41:37 +0800</pubDate>
       
-      <guid>https://hu.mc4.us/p/%E7%AD%86%E8%A8%98-ansible-%E8%A8%AD%E5%AE%9A-ssh_args-%E9%96%8B%E5%95%9F-forwardx11-/-config-ansible-ssh_args-to-enable-forwardagent/</guid>
+      <guid>https://blog.cowbay.org/p/%E7%AD%86%E8%A8%98-ansible-%E8%A8%AD%E5%AE%9A-ssh_args-%E9%96%8B%E5%95%9F-forwardx11-/-config-ansible-ssh_args-to-enable-forwardagent/</guid>
       <description>&lt;p&gt;正確來說，我不曉得到底怎麼「稱呼」這個 forwardx11 / forwardagent&lt;/p&gt;
 &lt;p&gt;總之就是在寫一隻ansible playbook&lt;/p&gt;
 &lt;p&gt;目的是用來安裝、設定 firefox&lt;/p&gt;
@@ -34,10 +34,10 @@
     
     <item>
       <title>[筆記] 在ansible playbook中不小心多打了一個空格 / Accidentally Typed an Extra Space in Ansible Playbook</title>
-      <link>https://hu.mc4.us/p/%E7%AD%86%E8%A8%98-%E5%9C%A8ansible-playbook%E4%B8%AD%E4%B8%8D%E5%B0%8F%E5%BF%83%E5%A4%9A%E6%89%93%E4%BA%86%E4%B8%80%E5%80%8B%E7%A9%BA%E6%A0%BC-/-accidentally-typed-an-extra-space-in-ansible-playbook/</link>
+      <link>https://blog.cowbay.org/p/%E7%AD%86%E8%A8%98-%E5%9C%A8ansible-playbook%E4%B8%AD%E4%B8%8D%E5%B0%8F%E5%BF%83%E5%A4%9A%E6%89%93%E4%BA%86%E4%B8%80%E5%80%8B%E7%A9%BA%E6%A0%BC-/-accidentally-typed-an-extra-space-in-ansible-playbook/</link>
       <pubDate>Wed, 18 Dec 2019 14:44:27 +0800</pubDate>
       
-      <guid>https://hu.mc4.us/p/%E7%AD%86%E8%A8%98-%E5%9C%A8ansible-playbook%E4%B8%AD%E4%B8%8D%E5%B0%8F%E5%BF%83%E5%A4%9A%E6%89%93%E4%BA%86%E4%B8%80%E5%80%8B%E7%A9%BA%E6%A0%BC-/-accidentally-typed-an-extra-space-in-ansible-playbook/</guid>
+      <guid>https://blog.cowbay.org/p/%E7%AD%86%E8%A8%98-%E5%9C%A8ansible-playbook%E4%B8%AD%E4%B8%8D%E5%B0%8F%E5%BF%83%E5%A4%9A%E6%89%93%E4%BA%86%E4%B8%80%E5%80%8B%E7%A9%BA%E6%A0%BC-/-accidentally-typed-an-extra-space-in-ansible-playbook/</guid>
       <description>&lt;p&gt;剛剛在跑一個修改過的playbook，卻發現一個詭異的狀況&lt;/p&gt;
 &lt;p&gt;在用template產生檔案之前，爲了避免錯誤，所以我先用 file module 去建立目錄&lt;/p&gt;
 &lt;p&gt;怪就怪在，建立目錄的task沒錯，但是要產生檔案時，卻出現了目的目錄不存在的錯誤&lt;/p&gt;</description>
@@ -45,10 +45,10 @@
     
     <item>
       <title>[筆記] 為了保存log 用script 指令執行ansible / Another Way to Keep Ansible Log using script command</title>
-      <link>https://hu.mc4.us/p/%E7%AD%86%E8%A8%98-%E7%82%BA%E4%BA%86%E4%BF%9D%E5%AD%98log-%E7%94%A8script-%E6%8C%87%E4%BB%A4%E5%9F%B7%E8%A1%8Cansible-/-another-way-to-keep-ansible-log-using-script-command/</link>
+      <link>https://blog.cowbay.org/p/%E7%AD%86%E8%A8%98-%E7%82%BA%E4%BA%86%E4%BF%9D%E5%AD%98log-%E7%94%A8script-%E6%8C%87%E4%BB%A4%E5%9F%B7%E8%A1%8Cansible-/-another-way-to-keep-ansible-log-using-script-command/</link>
       <pubDate>Mon, 05 Aug 2019 16:24:40 +0800</pubDate>
       
-      <guid>https://hu.mc4.us/p/%E7%AD%86%E8%A8%98-%E7%82%BA%E4%BA%86%E4%BF%9D%E5%AD%98log-%E7%94%A8script-%E6%8C%87%E4%BB%A4%E5%9F%B7%E8%A1%8Cansible-/-another-way-to-keep-ansible-log-using-script-command/</guid>
+      <guid>https://blog.cowbay.org/p/%E7%AD%86%E8%A8%98-%E7%82%BA%E4%BA%86%E4%BF%9D%E5%AD%98log-%E7%94%A8script-%E6%8C%87%E4%BB%A4%E5%9F%B7%E8%A1%8Cansible-/-another-way-to-keep-ansible-log-using-script-command/</guid>
       <description>&lt;p&gt;之前為了能夠在執行完 ansible playbook 後，能有個log 可以看&lt;/p&gt;
 &lt;p&gt;所以在每次執行的時候，都要加入 tee 的指令&lt;/p&gt;
 &lt;p&gt;像是&lt;/p&gt;
@@ -59,10 +59,10 @@
     
     <item>
       <title>[ansible] 用 ip 位置判斷是否要執行task /ansible run task depends on ipaddr</title>
-      <link>https://hu.mc4.us/p/ansible-%E7%94%A8-ip-%E4%BD%8D%E7%BD%AE%E5%88%A4%E6%96%B7%E6%98%AF%E5%90%A6%E8%A6%81%E5%9F%B7%E8%A1%8Ctask-/ansible-run-task-depends-on-ipaddr/</link>
+      <link>https://blog.cowbay.org/p/ansible-%E7%94%A8-ip-%E4%BD%8D%E7%BD%AE%E5%88%A4%E6%96%B7%E6%98%AF%E5%90%A6%E8%A6%81%E5%9F%B7%E8%A1%8Ctask-/ansible-run-task-depends-on-ipaddr/</link>
       <pubDate>Tue, 23 Jul 2019 15:06:37 +0800</pubDate>
       
-      <guid>https://hu.mc4.us/p/ansible-%E7%94%A8-ip-%E4%BD%8D%E7%BD%AE%E5%88%A4%E6%96%B7%E6%98%AF%E5%90%A6%E8%A6%81%E5%9F%B7%E8%A1%8Ctask-/ansible-run-task-depends-on-ipaddr/</guid>
+      <guid>https://blog.cowbay.org/p/ansible-%E7%94%A8-ip-%E4%BD%8D%E7%BD%AE%E5%88%A4%E6%96%B7%E6%98%AF%E5%90%A6%E8%A6%81%E5%9F%B7%E8%A1%8Ctask-/ansible-run-task-depends-on-ipaddr/</guid>
       <description>&lt;p&gt;因為工作上的需要，要修改client端的 /etc/environment 檔案&lt;/p&gt;
 &lt;p&gt;在有權限使用proxy 服務的user的環境中，加入proxy 的設定&lt;/p&gt;
 &lt;p&gt;原本的清單中，有host/user/ip 這幾個值可以拿來判斷&lt;/p&gt;
@@ -71,10 +71,10 @@
     
     <item>
       <title>[ansible] 引用事先定義好的yaml檔裡面的變數 - Ansible Selectattr From List in Dictionary file</title>
-      <link>https://hu.mc4.us/p/ansible-%E5%BC%95%E7%94%A8%E4%BA%8B%E5%85%88%E5%AE%9A%E7%BE%A9%E5%A5%BD%E7%9A%84yaml%E6%AA%94%E8%A3%A1%E9%9D%A2%E7%9A%84%E8%AE%8A%E6%95%B8-ansible-selectattr-from-list-in-dictionary-file/</link>
+      <link>https://blog.cowbay.org/p/ansible-%E5%BC%95%E7%94%A8%E4%BA%8B%E5%85%88%E5%AE%9A%E7%BE%A9%E5%A5%BD%E7%9A%84yaml%E6%AA%94%E8%A3%A1%E9%9D%A2%E7%9A%84%E8%AE%8A%E6%95%B8-ansible-selectattr-from-list-in-dictionary-file/</link>
       <pubDate>Mon, 01 Jul 2019 09:06:12 +0800</pubDate>
       
-      <guid>https://hu.mc4.us/p/ansible-%E5%BC%95%E7%94%A8%E4%BA%8B%E5%85%88%E5%AE%9A%E7%BE%A9%E5%A5%BD%E7%9A%84yaml%E6%AA%94%E8%A3%A1%E9%9D%A2%E7%9A%84%E8%AE%8A%E6%95%B8-ansible-selectattr-from-list-in-dictionary-file/</guid>
+      <guid>https://blog.cowbay.org/p/ansible-%E5%BC%95%E7%94%A8%E4%BA%8B%E5%85%88%E5%AE%9A%E7%BE%A9%E5%A5%BD%E7%9A%84yaml%E6%AA%94%E8%A3%A1%E9%9D%A2%E7%9A%84%E8%AE%8A%E6%95%B8-ansible-selectattr-from-list-in-dictionary-file/</guid>
       <description>&lt;p&gt;在ansible中，關於如何引用自定義的變數，一直讓我很頭疼&lt;/p&gt;
 &lt;p&gt;尤其是有牽涉到從外部導入yaml檔案時，更是常常讓我不知道到底該怎麼抓出想要的變數&lt;/p&gt;
 &lt;p&gt;這次還是用selectattr 來處理，希望下次能夠記得&amp;hellip;&lt;/p&gt;</description>
@@ -82,10 +82,10 @@
     
     <item>
       <title>[筆記] 還是 Ansible Selectattr </title>
-      <link>https://hu.mc4.us/p/%E7%AD%86%E8%A8%98-%E9%82%84%E6%98%AF-ansible-selectattr/</link>
+      <link>https://blog.cowbay.org/p/%E7%AD%86%E8%A8%98-%E9%82%84%E6%98%AF-ansible-selectattr/</link>
       <pubDate>Thu, 29 Nov 2018 11:22:28 +0800</pubDate>
       
-      <guid>https://hu.mc4.us/p/%E7%AD%86%E8%A8%98-%E9%82%84%E6%98%AF-ansible-selectattr/</guid>
+      <guid>https://blog.cowbay.org/p/%E7%AD%86%E8%A8%98-%E9%82%84%E6%98%AF-ansible-selectattr/</guid>
       <description>&lt;p&gt;在上一篇 &lt;a class=&#34;link&#34; href=&#34;https://h.cowbay.org/post/ansible-selectattr/&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;Ansible how to use &amp;lsquo;list&amp;rsquo; in yaml file &lt;/a&gt;&lt;/p&gt;
 &lt;p&gt;有提到怎麼用 with_items / set_fact 來取得在yaml 檔案中的清單&lt;/p&gt;
@@ -94,10 +94,10 @@
     
     <item>
       <title>[筆記] Ansible how to use &#39;list&#39; in yaml file </title>
-      <link>https://hu.mc4.us/p/%E7%AD%86%E8%A8%98-ansible-how-to-use-list-in-yaml-file/</link>
+      <link>https://blog.cowbay.org/p/%E7%AD%86%E8%A8%98-ansible-how-to-use-list-in-yaml-file/</link>
       <pubDate>Tue, 27 Nov 2018 16:50:53 +0800</pubDate>
       
-      <guid>https://hu.mc4.us/p/%E7%AD%86%E8%A8%98-ansible-how-to-use-list-in-yaml-file/</guid>
+      <guid>https://blog.cowbay.org/p/%E7%AD%86%E8%A8%98-ansible-how-to-use-list-in-yaml-file/</guid>
       <description>&lt;p&gt;這幾天在玩ansible 時，碰到一個問題&lt;/p&gt;
 &lt;p&gt;假如我有個yaml檔作為資料來源，檔名是 abc.yml&lt;/p&gt;
 &lt;p&gt;大概長這樣&lt;/p&gt;

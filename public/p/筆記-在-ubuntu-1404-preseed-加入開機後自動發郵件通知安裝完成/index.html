@@ -7,7 +7,7 @@
 這次順手修改一下，同時更新了ansible 的template
 '><title>[筆記] 在 Ubuntu 1404 Preseed 加入開機後自動發郵件通知安裝完成</title>
 
-<link rel='canonical' href='https://hu.mc4.us/p/%E7%AD%86%E8%A8%98-%E5%9C%A8-ubuntu-1404-preseed-%E5%8A%A0%E5%85%A5%E9%96%8B%E6%A9%9F%E5%BE%8C%E8%87%AA%E5%8B%95%E7%99%BC%E9%83%B5%E4%BB%B6%E9%80%9A%E7%9F%A5%E5%AE%89%E8%A3%9D%E5%AE%8C%E6%88%90/'>
+<link rel='canonical' href='https://blog.cowbay.org/p/%E7%AD%86%E8%A8%98-%E5%9C%A8-ubuntu-1404-preseed-%E5%8A%A0%E5%85%A5%E9%96%8B%E6%A9%9F%E5%BE%8C%E8%87%AA%E5%8B%95%E7%99%BC%E9%83%B5%E4%BB%B6%E9%80%9A%E7%9F%A5%E5%AE%89%E8%A3%9D%E5%AE%8C%E6%88%90/'>
 
 <link rel="stylesheet" href="/scss/style.min.css"><meta property='og:title' content='[筆記] 在 Ubuntu 1404 Preseed 加入開機後自動發郵件通知安裝完成'>
 <meta property='og:description' content='這是之前做過的task，client透過pxe開機後，會自動安裝ubuntu 14.04
@@ -15,7 +15,7 @@
 可是某次ansible 更新之後，反而沒辦法安裝完成
 這次順手修改一下，同時更新了ansible 的template
 '>
-<meta property='og:url' content='https://hu.mc4.us/p/%E7%AD%86%E8%A8%98-%E5%9C%A8-ubuntu-1404-preseed-%E5%8A%A0%E5%85%A5%E9%96%8B%E6%A9%9F%E5%BE%8C%E8%87%AA%E5%8B%95%E7%99%BC%E9%83%B5%E4%BB%B6%E9%80%9A%E7%9F%A5%E5%AE%89%E8%A3%9D%E5%AE%8C%E6%88%90/'>
+<meta property='og:url' content='https://blog.cowbay.org/p/%E7%AD%86%E8%A8%98-%E5%9C%A8-ubuntu-1404-preseed-%E5%8A%A0%E5%85%A5%E9%96%8B%E6%A9%9F%E5%BE%8C%E8%87%AA%E5%8B%95%E7%99%BC%E9%83%B5%E4%BB%B6%E9%80%9A%E7%9F%A5%E5%AE%89%E8%A3%9D%E5%AE%8C%E6%88%90/'>
 <meta property='og:site_name' content='MC-stack'>
 <meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='pxe' /><meta property='article:tag' content='ubuntu' /><meta property='article:published_time' content='2020-04-06T10:21:41&#43;08:00'/><meta property='article:modified_time' content='2020-04-06T10:21:41&#43;08:00'/><meta property='og:image' content='https://h.cowbay.org/images/post-default-5.jpg' />
 <meta name="twitter:title" content="[筆記] 在 Ubuntu 1404 Preseed 加入開機後自動發郵件通知安裝完成">
@@ -512,7 +512,7 @@ in-target passwd --expire root
             return;
         }
         var d = document, s = d.createElement('script'); s.async = true;
-        s.src = '//' + "hugo-theme-stack" + '.disqus.com/embed.js';
+        s.src = '//' + "h-cowbay-org-1" + '.disqus.com/embed.js';
         s.setAttribute('data-timestamp', +new Date());
         (d.head || d.body).appendChild(s);
     })();

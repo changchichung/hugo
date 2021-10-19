@@ -2,17 +2,17 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>mellanox on MC-stack</title>
-    <link>https://hu.mc4.us/tags/mellanox/</link>
+    <link>https://blog.cowbay.org/tags/mellanox/</link>
     <description>Recent content in mellanox on MC-stack</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Fri, 30 Nov 2018 16:05:14 +0800</lastBuildDate><atom:link href="https://hu.mc4.us/tags/mellanox/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Fri, 30 Nov 2018 16:05:14 +0800</lastBuildDate><atom:link href="https://blog.cowbay.org/tags/mellanox/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>[筆記] 用 proxmox &amp; Mellanox SFP 網卡土炮 10G LAB </title>
-      <link>https://hu.mc4.us/p/%E7%AD%86%E8%A8%98-%E7%94%A8-proxmox-mellanox-sfp-%E7%B6%B2%E5%8D%A1%E5%9C%9F%E7%82%AE-10g-lab/</link>
+      <link>https://blog.cowbay.org/p/%E7%AD%86%E8%A8%98-%E7%94%A8-proxmox-mellanox-sfp-%E7%B6%B2%E5%8D%A1%E5%9C%9F%E7%82%AE-10g-lab/</link>
       <pubDate>Fri, 30 Nov 2018 16:05:14 +0800</pubDate>
       
-      <guid>https://hu.mc4.us/p/%E7%AD%86%E8%A8%98-%E7%94%A8-proxmox-mellanox-sfp-%E7%B6%B2%E5%8D%A1%E5%9C%9F%E7%82%AE-10g-lab/</guid>
+      <guid>https://blog.cowbay.org/p/%E7%AD%86%E8%A8%98-%E7%94%A8-proxmox-mellanox-sfp-%E7%B6%B2%E5%8D%A1%E5%9C%9F%E7%82%AE-10g-lab/</guid>
       <description>&lt;p&gt;想做一個 10G 的 LAB 環境出來已經很久了。&lt;/p&gt;
 &lt;p&gt;只是礙於10G RJ45的卡太貴了，然後光纖的種類又太複雜&lt;/p&gt;
 &lt;p&gt;如果直接在淘寶購買，很怕會買錯(什麼LC/FC LC/LC 多模單模 單芯雙芯 SFP/SFP+ 又是什麼光模塊的一大堆規格)&lt;/p&gt;

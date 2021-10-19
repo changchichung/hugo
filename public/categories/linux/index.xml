@@ -2,17 +2,17 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>linux on MC-stack</title>
-    <link>https://hu.mc4.us/categories/linux/</link>
+    <link>https://blog.cowbay.org/categories/linux/</link>
     <description>Recent content in linux on MC-stack</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Fri, 17 May 2019 12:18:54 +0800</lastBuildDate><atom:link href="https://hu.mc4.us/categories/linux/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Fri, 17 May 2019 12:18:54 +0800</lastBuildDate><atom:link href="https://blog.cowbay.org/categories/linux/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>Transfer File Content Using Xclip in Terminal</title>
-      <link>https://hu.mc4.us/p/transfer-file-content-using-xclip-in-terminal/</link>
+      <link>https://blog.cowbay.org/p/transfer-file-content-using-xclip-in-terminal/</link>
       <pubDate>Fri, 17 May 2019 12:18:54 +0800</pubDate>
       
-      <guid>https://hu.mc4.us/p/transfer-file-content-using-xclip-in-terminal/</guid>
+      <guid>https://blog.cowbay.org/p/transfer-file-content-using-xclip-in-terminal/</guid>
       <description>&lt;p&gt;工作上常會需要用ssh登入遠端主機檢查LOG，有必要的時候，還要把log複製回本機來處理。&lt;/p&gt;
 &lt;p&gt;以前都是傻傻的用 scp 傳檔案&lt;/p&gt;
 &lt;p&gt;之前就記得有這個xclip/xsel 可以用，但是一直沒有弄清楚怎麼執行&lt;/p&gt;

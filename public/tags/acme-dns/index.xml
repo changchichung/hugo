@@ -2,17 +2,17 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>acme-dns on MC-stack</title>
-    <link>https://hu.mc4.us/tags/acme-dns/</link>
+    <link>https://blog.cowbay.org/tags/acme-dns/</link>
     <description>Recent content in acme-dns on MC-stack</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Thu, 26 Aug 2021 12:08:43 +0800</lastBuildDate><atom:link href="https://hu.mc4.us/tags/acme-dns/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Thu, 26 Aug 2021 12:08:43 +0800</lastBuildDate><atom:link href="https://blog.cowbay.org/tags/acme-dns/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>auto fetch  Wildcard ssl certs with lego &#43; acme-dns ( Domain Register : Namecheap)</title>
-      <link>https://hu.mc4.us/p/auto-fetch-wildcard-ssl-certs-with-lego-acme-dns-domain-register-namecheap/</link>
+      <link>https://blog.cowbay.org/p/auto-fetch-wildcard-ssl-certs-with-lego-acme-dns-domain-register-namecheap/</link>
       <pubDate>Thu, 26 Aug 2021 12:08:43 +0800</pubDate>
       
-      <guid>https://hu.mc4.us/p/auto-fetch-wildcard-ssl-certs-with-lego-acme-dns-domain-register-namecheap/</guid>
+      <guid>https://blog.cowbay.org/p/auto-fetch-wildcard-ssl-certs-with-lego-acme-dns-domain-register-namecheap/</guid>
       <description>&lt;p&gt;自從用了 &lt;a class=&#34;link&#34; href=&#34;https://github.com/artyom/leproxy&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;leproxy&lt;/a&gt; 之後，其實就很少在管ssl 憑證的問題，反正&lt;a class=&#34;link&#34; href=&#34;https://github.com/artyom/leproxy&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;leproxy &lt;/a&gt;都會自動處理好&lt;/p&gt;

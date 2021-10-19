@@ -2,17 +2,17 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>dconf on MC-stack</title>
-    <link>https://hu.mc4.us/tags/dconf/</link>
+    <link>https://blog.cowbay.org/tags/dconf/</link>
     <description>Recent content in dconf on MC-stack</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Mon, 16 Dec 2019 13:59:26 +0800</lastBuildDate><atom:link href="https://hu.mc4.us/tags/dconf/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Mon, 16 Dec 2019 13:59:26 +0800</lastBuildDate><atom:link href="https://blog.cowbay.org/tags/dconf/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>在ubuntu 18.04中，透過 dconf 設定系統層級的「我的最愛」/ Add System Wide Favorite Apps in dock with Dconf in ubuntu 18.04</title>
-      <link>https://hu.mc4.us/p/%E5%9C%A8ubuntu-18.04%E4%B8%AD%E9%80%8F%E9%81%8E-dconf-%E8%A8%AD%E5%AE%9A%E7%B3%BB%E7%B5%B1%E5%B1%A4%E7%B4%9A%E7%9A%84%E6%88%91%E7%9A%84%E6%9C%80%E6%84%9B/-add-system-wide-favorite-apps-in-dock-with-dconf-in-ubuntu-18.04/</link>
+      <link>https://blog.cowbay.org/p/%E5%9C%A8ubuntu-18.04%E4%B8%AD%E9%80%8F%E9%81%8E-dconf-%E8%A8%AD%E5%AE%9A%E7%B3%BB%E7%B5%B1%E5%B1%A4%E7%B4%9A%E7%9A%84%E6%88%91%E7%9A%84%E6%9C%80%E6%84%9B/-add-system-wide-favorite-apps-in-dock-with-dconf-in-ubuntu-18.04/</link>
       <pubDate>Mon, 16 Dec 2019 13:59:26 +0800</pubDate>
       
-      <guid>https://hu.mc4.us/p/%E5%9C%A8ubuntu-18.04%E4%B8%AD%E9%80%8F%E9%81%8E-dconf-%E8%A8%AD%E5%AE%9A%E7%B3%BB%E7%B5%B1%E5%B1%A4%E7%B4%9A%E7%9A%84%E6%88%91%E7%9A%84%E6%9C%80%E6%84%9B/-add-system-wide-favorite-apps-in-dock-with-dconf-in-ubuntu-18.04/</guid>
+      <guid>https://blog.cowbay.org/p/%E5%9C%A8ubuntu-18.04%E4%B8%AD%E9%80%8F%E9%81%8E-dconf-%E8%A8%AD%E5%AE%9A%E7%B3%BB%E7%B5%B1%E5%B1%A4%E7%B4%9A%E7%9A%84%E6%88%91%E7%9A%84%E6%9C%80%E6%84%9B/-add-system-wide-favorite-apps-in-dock-with-dconf-in-ubuntu-18.04/</guid>
       <description>&lt;p&gt;這幾天在ansible 寫了一份新的playbook給developer 用&lt;/p&gt;
 &lt;p&gt;然後user反映說，希望能在ubuntu 18.04 內建的dock 裏面新增一個gnome-terminal的icon&lt;/p&gt;
 &lt;p&gt;我才發現原來之前的寫法不能用在 ubuntu 18.04 上&lt;/p&gt;
@@ -21,10 +21,10 @@
     
     <item>
       <title>[筆記] ubuntu 18.04 透過 dconf 修改系統 proxy / modify system proxy with dconf in ubuntu 18.04</title>
-      <link>https://hu.mc4.us/p/%E7%AD%86%E8%A8%98-ubuntu-18.04-%E9%80%8F%E9%81%8E-dconf-%E4%BF%AE%E6%94%B9%E7%B3%BB%E7%B5%B1-proxy-/-modify-system-proxy-with-dconf-in-ubuntu-18.04/</link>
+      <link>https://blog.cowbay.org/p/%E7%AD%86%E8%A8%98-ubuntu-18.04-%E9%80%8F%E9%81%8E-dconf-%E4%BF%AE%E6%94%B9%E7%B3%BB%E7%B5%B1-proxy-/-modify-system-proxy-with-dconf-in-ubuntu-18.04/</link>
       <pubDate>Thu, 31 Oct 2019 11:08:54 +0800</pubDate>
       
-      <guid>https://hu.mc4.us/p/%E7%AD%86%E8%A8%98-ubuntu-18.04-%E9%80%8F%E9%81%8E-dconf-%E4%BF%AE%E6%94%B9%E7%B3%BB%E7%B5%B1-proxy-/-modify-system-proxy-with-dconf-in-ubuntu-18.04/</guid>
+      <guid>https://blog.cowbay.org/p/%E7%AD%86%E8%A8%98-ubuntu-18.04-%E9%80%8F%E9%81%8E-dconf-%E4%BF%AE%E6%94%B9%E7%B3%BB%E7%B5%B1-proxy-/-modify-system-proxy-with-dconf-in-ubuntu-18.04/</guid>
       <description>&lt;p&gt;最近在準備升級client 的作業系統，從 ubuntu 14.04 準備升級到 18.04 或明年的 20.04&lt;/p&gt;
 &lt;p&gt;因為公司政策的關係，所以現在要連接internet ，需要申請&lt;/p&gt;
 &lt;p&gt;然後 user 再去系統的proxy 設定新增一個 PAC 檔&lt;/p&gt;

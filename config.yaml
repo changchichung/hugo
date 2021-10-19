@@ -1,14 +1,14 @@
-baseurl: https://hu.mc4.us
+baseurl: https://blog.cowbay.org
 languageCode: en-us
 theme: hugo-theme-stack
 paginate: 5
 title: MC-stack
 
 # Change it to your Disqus shortname before using
-disqusShortname: hugo-theme-stack
+disqusShortname: "h-cowbay-org-1"
 
 # GA Tracking ID
-googleAnalytics: UA-138954876-1
+googleAnalytics: "UA-138954876-1"
 
 # Theme i18n support
 # Available values: en, fr, id, ja, ko, pt-br, zh-cn, es, de, nl, it, th

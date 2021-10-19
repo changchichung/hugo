@@ -4,12 +4,12 @@
 <meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='前幾天在淘寶上買了個 SSK 的USB 3.1 Gen2 (type-c) NVME SSD 外接盒 手邊也剛好有一條多的intel 600p nvme ssd 就順手來做個比較 目標是看看有沒有可能直接用外接的SSD來跑postgresql
 '><title>[筆記] 測試 USB 3.1 Gen2 NVME SSD 外接盒 &amp; 內建pci-e ssd &amp; 外接SATA SSD / Bencmark With External Internal Nvme Ssd and External Sata Ssd</title>
 
-<link rel='canonical' href='https://hu.mc4.us/p/%E7%AD%86%E8%A8%98-%E6%B8%AC%E8%A9%A6-usb-3.1-gen2-nvme-ssd-%E5%A4%96%E6%8E%A5%E7%9B%92-%E5%85%A7%E5%BB%BApci-e-ssd-%E5%A4%96%E6%8E%A5sata-ssd-/-bencmark-with-external-internal-nvme-ssd-and-external-sata-ssd/'>
+<link rel='canonical' href='https://blog.cowbay.org/p/%E7%AD%86%E8%A8%98-%E6%B8%AC%E8%A9%A6-usb-3.1-gen2-nvme-ssd-%E5%A4%96%E6%8E%A5%E7%9B%92-%E5%85%A7%E5%BB%BApci-e-ssd-%E5%A4%96%E6%8E%A5sata-ssd-/-bencmark-with-external-internal-nvme-ssd-and-external-sata-ssd/'>
 
 <link rel="stylesheet" href="/scss/style.min.css"><meta property='og:title' content='[筆記] 測試 USB 3.1 Gen2 NVME SSD 外接盒 &amp; 內建pci-e ssd &amp; 外接SATA SSD / Bencmark With External Internal Nvme Ssd and External Sata Ssd'>
 <meta property='og:description' content='前幾天在淘寶上買了個 SSK 的USB 3.1 Gen2 (type-c) NVME SSD 外接盒 手邊也剛好有一條多的intel 600p nvme ssd 就順手來做個比較 目標是看看有沒有可能直接用外接的SSD來跑postgresql
 '>
-<meta property='og:url' content='https://hu.mc4.us/p/%E7%AD%86%E8%A8%98-%E6%B8%AC%E8%A9%A6-usb-3.1-gen2-nvme-ssd-%E5%A4%96%E6%8E%A5%E7%9B%92-%E5%85%A7%E5%BB%BApci-e-ssd-%E5%A4%96%E6%8E%A5sata-ssd-/-bencmark-with-external-internal-nvme-ssd-and-external-sata-ssd/'>
+<meta property='og:url' content='https://blog.cowbay.org/p/%E7%AD%86%E8%A8%98-%E6%B8%AC%E8%A9%A6-usb-3.1-gen2-nvme-ssd-%E5%A4%96%E6%8E%A5%E7%9B%92-%E5%85%A7%E5%BB%BApci-e-ssd-%E5%A4%96%E6%8E%A5sata-ssd-/-bencmark-with-external-internal-nvme-ssd-and-external-sata-ssd/'>
 <meta property='og:site_name' content='MC-stack'>
 <meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='postgresql' /><meta property='article:tag' content='benchmark' /><meta property='article:tag' content='nvme' /><meta property='article:published_time' content='2019-09-10T14:37:09&#43;08:00'/><meta property='article:modified_time' content='2019-09-10T14:37:09&#43;08:00'/><meta property='og:image' content='https://h.cowbay.org/images/post-default-9.jpg' />
 <meta name="twitter:title" content="[筆記] 測試 USB 3.1 Gen2 NVME SSD 外接盒 &amp; 內建pci-e ssd &amp; 外接SATA SSD / Bencmark With External Internal Nvme Ssd and External Sata Ssd">
@@ -629,7 +629,7 @@ postgres@hqdc075:~$
             return;
         }
         var d = document, s = d.createElement('script'); s.async = true;
-        s.src = '//' + "hugo-theme-stack" + '.disqus.com/embed.js';
+        s.src = '//' + "h-cowbay-org-1" + '.disqus.com/embed.js';
         s.setAttribute('data-timestamp', +new Date());
         (d.head || d.body).appendChild(s);
     })();

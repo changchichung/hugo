@@ -6,14 +6,14 @@
 可是一直出現device busy的錯誤訊息
 '><title>[筆記] 解決無法建立zpool 的錯誤 / Fix Zpool Device Busy Using dmsetup</title>
 
-<link rel='canonical' href='https://hu.mc4.us/p/%E7%AD%86%E8%A8%98-%E8%A7%A3%E6%B1%BA%E7%84%A1%E6%B3%95%E5%BB%BA%E7%AB%8Bzpool-%E7%9A%84%E9%8C%AF%E8%AA%A4-/-fix-zpool-device-busy-using-dmsetup/'>
+<link rel='canonical' href='https://blog.cowbay.org/p/%E7%AD%86%E8%A8%98-%E8%A7%A3%E6%B1%BA%E7%84%A1%E6%B3%95%E5%BB%BA%E7%AB%8Bzpool-%E7%9A%84%E9%8C%AF%E8%AA%A4-/-fix-zpool-device-busy-using-dmsetup/'>
 
 <link rel="stylesheet" href="/scss/style.min.css"><meta property='og:title' content='[筆記] 解決無法建立zpool 的錯誤 / Fix Zpool Device Busy Using dmsetup'>
 <meta property='og:description' content='今天把其中一台proxmox 加上10G 光纖網卡，準備和另一台proxmox 組成10G 環境進行測試
 想說把本機的zpool 拆掉，重新建立一個raid0 的空間來做clone/migrate
 可是一直出現device busy的錯誤訊息
 '>
-<meta property='og:url' content='https://hu.mc4.us/p/%E7%AD%86%E8%A8%98-%E8%A7%A3%E6%B1%BA%E7%84%A1%E6%B3%95%E5%BB%BA%E7%AB%8Bzpool-%E7%9A%84%E9%8C%AF%E8%AA%A4-/-fix-zpool-device-busy-using-dmsetup/'>
+<meta property='og:url' content='https://blog.cowbay.org/p/%E7%AD%86%E8%A8%98-%E8%A7%A3%E6%B1%BA%E7%84%A1%E6%B3%95%E5%BB%BA%E7%AB%8Bzpool-%E7%9A%84%E9%8C%AF%E8%AA%A4-/-fix-zpool-device-busy-using-dmsetup/'>
 <meta property='og:site_name' content='MC-stack'>
 <meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='zfs' /><meta property='article:published_time' content='2019-04-01T15:56:27&#43;08:00'/><meta property='article:modified_time' content='2019-04-01T15:56:27&#43;08:00'/><meta property='og:image' content='https://h.cowbay.org/images/post-default-11.jpg' />
 <meta name="twitter:title" content="[筆記] 解決無法建立zpool 的錯誤 / Fix Zpool Device Busy Using dmsetup">
@@ -404,7 +404,7 @@ root@pve:~#
             return;
         }
         var d = document, s = d.createElement('script'); s.async = true;
-        s.src = '//' + "hugo-theme-stack" + '.disqus.com/embed.js';
+        s.src = '//' + "h-cowbay-org-1" + '.disqus.com/embed.js';
         s.setAttribute('data-timestamp', +new Date());
         (d.head || d.body).appendChild(s);
     })();

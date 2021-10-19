@@ -2,17 +2,17 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>freenas on MC-stack</title>
-    <link>https://hu.mc4.us/tags/freenas/</link>
+    <link>https://blog.cowbay.org/tags/freenas/</link>
     <description>Recent content in freenas on MC-stack</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Thu, 13 Dec 2018 17:40:20 +0800</lastBuildDate><atom:link href="https://hu.mc4.us/tags/freenas/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Thu, 13 Dec 2018 17:40:20 +0800</lastBuildDate><atom:link href="https://blog.cowbay.org/tags/freenas/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>[筆記] Freenas Smartd 啟動失敗 Smartd Failed to Start in Freenas</title>
-      <link>https://hu.mc4.us/p/%E7%AD%86%E8%A8%98-freenas-smartd-%E5%95%9F%E5%8B%95%E5%A4%B1%E6%95%97-smartd-failed-to-start-in-freenas/</link>
+      <link>https://blog.cowbay.org/p/%E7%AD%86%E8%A8%98-freenas-smartd-%E5%95%9F%E5%8B%95%E5%A4%B1%E6%95%97-smartd-failed-to-start-in-freenas/</link>
       <pubDate>Thu, 13 Dec 2018 17:40:20 +0800</pubDate>
       
-      <guid>https://hu.mc4.us/p/%E7%AD%86%E8%A8%98-freenas-smartd-%E5%95%9F%E5%8B%95%E5%A4%B1%E6%95%97-smartd-failed-to-start-in-freenas/</guid>
+      <guid>https://blog.cowbay.org/p/%E7%AD%86%E8%A8%98-freenas-smartd-%E5%95%9F%E5%8B%95%E5%A4%B1%E6%95%97-smartd-failed-to-start-in-freenas/</guid>
       <description>&lt;p&gt;這兩天在弄兩台Freenas ，準備當作Proxmox 的Storage &amp;amp; Server Backup&lt;/p&gt;
 &lt;p&gt;因為伺服器的限制，只能接六個SATA，我接了六個2T的硬碟做raid10&lt;/p&gt;
 &lt;p&gt;然後把Freenas 安裝在隨身碟上&lt;/p&gt;

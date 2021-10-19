@@ -2,17 +2,17 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>timezone on MC-stack</title>
-    <link>https://hu.mc4.us/tags/timezone/</link>
+    <link>https://blog.cowbay.org/tags/timezone/</link>
     <description>Recent content in timezone on MC-stack</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Tue, 21 May 2019 17:25:15 +0800</lastBuildDate><atom:link href="https://hu.mc4.us/tags/timezone/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Tue, 21 May 2019 17:25:15 +0800</lastBuildDate><atom:link href="https://blog.cowbay.org/tags/timezone/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>[筆記] 修改 docker 容器內的時區 - Change Timezone in Docker</title>
-      <link>https://hu.mc4.us/p/%E7%AD%86%E8%A8%98-%E4%BF%AE%E6%94%B9-docker-%E5%AE%B9%E5%99%A8%E5%85%A7%E7%9A%84%E6%99%82%E5%8D%80-change-timezone-in-docker/</link>
+      <link>https://blog.cowbay.org/p/%E7%AD%86%E8%A8%98-%E4%BF%AE%E6%94%B9-docker-%E5%AE%B9%E5%99%A8%E5%85%A7%E7%9A%84%E6%99%82%E5%8D%80-change-timezone-in-docker/</link>
       <pubDate>Tue, 21 May 2019 17:25:15 +0800</pubDate>
       
-      <guid>https://hu.mc4.us/p/%E7%AD%86%E8%A8%98-%E4%BF%AE%E6%94%B9-docker-%E5%AE%B9%E5%99%A8%E5%85%A7%E7%9A%84%E6%99%82%E5%8D%80-change-timezone-in-docker/</guid>
+      <guid>https://blog.cowbay.org/p/%E7%AD%86%E8%A8%98-%E4%BF%AE%E6%94%B9-docker-%E5%AE%B9%E5%99%A8%E5%85%A7%E7%9A%84%E6%99%82%E5%8D%80-change-timezone-in-docker/</guid>
       <description>&lt;p&gt;最近一直在玩一些docker，不過老是會碰到歪果扔寫的東西，時區都不一致&lt;/p&gt;
 &lt;p&gt;有的用 UTC，有的用localtime，就是沒碰到用 Asia/Taipei 的&amp;hellip;.&lt;/p&gt;</description>
     </item>

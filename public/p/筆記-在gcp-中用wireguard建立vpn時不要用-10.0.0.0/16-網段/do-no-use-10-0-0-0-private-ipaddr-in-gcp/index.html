@@ -10,7 +10,7 @@
 反正只是拿來當跳板，不會有什麼流量、運算產生，可以一直保持免費的狀態
 '><title>[筆記] 在gcp 中用wireguard建立VPN時，不要用 10.0.0.0/16 網段/Do No Use 10 0 0 0 Private Ipaddr in GCP</title>
 
-<link rel='canonical' href='https://hu.mc4.us/p/%E7%AD%86%E8%A8%98-%E5%9C%A8gcp-%E4%B8%AD%E7%94%A8wireguard%E5%BB%BA%E7%AB%8Bvpn%E6%99%82%E4%B8%8D%E8%A6%81%E7%94%A8-10.0.0.0/16-%E7%B6%B2%E6%AE%B5/do-no-use-10-0-0-0-private-ipaddr-in-gcp/'>
+<link rel='canonical' href='https://blog.cowbay.org/p/%E7%AD%86%E8%A8%98-%E5%9C%A8gcp-%E4%B8%AD%E7%94%A8wireguard%E5%BB%BA%E7%AB%8Bvpn%E6%99%82%E4%B8%8D%E8%A6%81%E7%94%A8-10.0.0.0/16-%E7%B6%B2%E6%AE%B5/do-no-use-10-0-0-0-private-ipaddr-in-gcp/'>
 
 <link rel="stylesheet" href="/scss/style.min.css"><meta property='og:title' content='[筆記] 在gcp 中用wireguard建立VPN時，不要用 10.0.0.0/16 網段/Do No Use 10 0 0 0 Private Ipaddr in GCP'>
 <meta property='og:description' content='最近一直在玩 wireguard ，先前把各個分公司和總部的VPN 改用 wireguard 建立
@@ -21,7 +21,7 @@
 所以改用google cloud platform 的free tier 來做
 反正只是拿來當跳板，不會有什麼流量、運算產生，可以一直保持免費的狀態
 '>
-<meta property='og:url' content='https://hu.mc4.us/p/%E7%AD%86%E8%A8%98-%E5%9C%A8gcp-%E4%B8%AD%E7%94%A8wireguard%E5%BB%BA%E7%AB%8Bvpn%E6%99%82%E4%B8%8D%E8%A6%81%E7%94%A8-10.0.0.0/16-%E7%B6%B2%E6%AE%B5/do-no-use-10-0-0-0-private-ipaddr-in-gcp/'>
+<meta property='og:url' content='https://blog.cowbay.org/p/%E7%AD%86%E8%A8%98-%E5%9C%A8gcp-%E4%B8%AD%E7%94%A8wireguard%E5%BB%BA%E7%AB%8Bvpn%E6%99%82%E4%B8%8D%E8%A6%81%E7%94%A8-10.0.0.0/16-%E7%B6%B2%E6%AE%B5/do-no-use-10-0-0-0-private-ipaddr-in-gcp/'>
 <meta property='og:site_name' content='MC-stack'>
 <meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='vpn' /><meta property='article:tag' content='wireguard' /><meta property='article:published_time' content='2019-08-16T10:18:06&#43;08:00'/><meta property='article:modified_time' content='2019-08-16T10:18:06&#43;08:00'/><meta property='og:image' content='https://h.cowbay.org/images/post-default-8.jpg' />
 <meta name="twitter:title" content="[筆記] 在gcp 中用wireguard建立VPN時，不要用 10.0.0.0/16 網段/Do No Use 10 0 0 0 Private Ipaddr in GCP">
@@ -450,7 +450,7 @@ traceroute to term.ptt.cc (104.31.231.9), 30 hops max, 60 byte packets
             return;
         }
         var d = document, s = d.createElement('script'); s.async = true;
-        s.src = '//' + "hugo-theme-stack" + '.disqus.com/embed.js';
+        s.src = '//' + "h-cowbay-org-1" + '.disqus.com/embed.js';
         s.setAttribute('data-timestamp', +new Date());
         (d.head || d.body).appendChild(s);
     })();
