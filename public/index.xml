@@ -12,7 +12,7 @@
         <pubDate>Wed, 29 Sep 2021 14:38:10 +0800</pubDate>
         
         <guid>https://hu.mc4.us/p/init-script-in-openwrt-to-start-leproxy/%E5%9C%A8openwrt-%E6%96%B0%E5%A2%9E%E8%87%AA%E5%8B%95%E5%95%9F%E5%8B%95leproxy%E7%9A%84script/</guid>
-        <description>&lt;img src="https://h.cowbay.org/images/post-default-8.jpg" alt="Featured image of post Init Script in Openwrt to Start Leproxy/在openwrt 新增自動啟動leproxy的script" /&gt;&lt;p&gt;最近在逐步的把舊有的VPN Router 汰換掉，改用wireguard 來作 full mesh site-to-site VPN&lt;/p&gt;
+        <description>&lt;img src="https://h.cowbay.org/images/post-default-13.jpg" alt="Featured image of post Init Script in Openwrt to Start Leproxy/在openwrt 新增自動啟動leproxy的script" /&gt;&lt;p&gt;最近在逐步的把舊有的VPN Router 汰換掉，改用wireguard 來作 full mesh site-to-site VPN&lt;/p&gt;
 &lt;p&gt;不過這是另外的故事了&amp;hellip;&lt;/p&gt;
 &lt;p&gt;在把wireguard VPN 都搞定之後，才發現原來 openwrt 的 uhttpd 要加上 letsencrypt 的免費憑證有點難搞&lt;/p&gt;
 &lt;p&gt;網路上大部分都介紹用 acme.sh ，我是有測試出來啦&lt;/p&gt;
@@ -6807,8 +6807,8 @@ Processing triggers for man-db (2.8.3-2ubuntu0.1) ...
 &lt;p&gt;直接來看輸出的範例&lt;/p&gt;
 &lt;p&gt;&lt;figure 
 	&gt;
-	&lt;a href=&#34;http://i.imgur.com/OSx9cnz.png&#34; &gt;
-		&lt;img src=&#34;http://i.imgur.com/OSx9cnz.png&#34;
+	&lt;a href=&#34;https://i.imgur.com/OSx9cnz.png&#34; &gt;
+		&lt;img src=&#34;https://i.imgur.com/OSx9cnz.png&#34;
 			
 			
 			

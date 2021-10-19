@@ -4,7 +4,7 @@ date: 2021-09-29T14:38:10+08:00
 draft: false
 noSummary: false
 categories: ['筆記']
-image: https://h.cowbay.org/images/post-default-8.jpg
+image: https://h.cowbay.org/images/post-default-13.jpg
 tags: ['openwrt']
 author: "Eric Chang"
 keywords:
