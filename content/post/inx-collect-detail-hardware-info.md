@@ -36,7 +36,7 @@ author: "Eric Chang"
 
 直接來看輸出的範例
 
-![sample of inxi output](http://i.imgur.com/OSx9cnz.png)
+![sample of inxi output](https://i.imgur.com/OSx9cnz.png)
 
 有沒有，是不是很優！
 
