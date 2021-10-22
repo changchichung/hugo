@@ -181,7 +181,7 @@ menu:
         - identifier: second_home
           name: Another Palce
           url: "https://h.cowbay.org"
-          weight: -100
+          weight: -200
           pre: home
           params:
               ### For demonstration purpose, the home link will be open in a new tab
