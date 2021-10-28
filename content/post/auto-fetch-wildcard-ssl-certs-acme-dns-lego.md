@@ -292,5 +292,43 @@ ACME_DNS_API_BASE=http://localhost:9000 ACME_DNS_STORAGE_PATH=/home/minion/.lego
 
 終於可以不用再為ssl 憑證煩惱了！！！
 
+### 更新 renew 過程
 
+剛剛在巡機器(人家是巡田水，我在巡機器... )
+
+剛好看到這台reverse proxy ，然後算算時間也差不多了
+
+就順手跑了一次更新，也順利update 了
+
+之後應該就是用這種方式繼續下去吧，除非有更簡便的方法，不然不想再搞這個憑證的問題了！
+
+```
+2021/10/28 13:53:36 [INFO] [*.abc.com] acme: Trying renewal with 645 hours remaining
+2021/10/28 13:53:36 [INFO] [*.abc.com] acme: Obtaining bundled SAN certificate
+2021/10/28 13:53:37 [INFO] [*.abc.com] AuthURL: https://acme-v02.api.letsencrypt.org/acme/authz-v3/43963334430
+2021/10/28 13:53:37 [INFO] [*.abc.com] acme: use dns-01 solver
+2021/10/28 13:53:37 [INFO] [*.abc.com] acme: Preparing to solve DNS-01
+2021/10/28 13:53:37 [INFO] [*.abc.com] acme: Trying to solve DNS-01
+2021/10/28 13:53:37 [INFO] [*.abc.com] acme: Checking DNS record propagation using [8.8.8.8:53 192.168.0.10:53 168.95.1.1:53 127.0.0.53:53]
+2021/10/28 13:53:39 [INFO] Wait for propagation [timeout: 1m0s, interval: 2s]
+2021/10/28 13:53:47 [INFO] [*.abc.com] The server validated our request
+2021/10/28 13:53:47 [INFO] [*.abc.com] acme: Cleaning DNS-01 challenge
+2021/10/28 13:53:47 [INFO] [*.abc.com] acme: Validations succeeded; requesting certificates
+2021/10/28 13:53:48 [INFO] [*.abc.com] Server responded with a certificate.
+
+```
+
+看一下憑證的狀況，沒什麼問題，日期也更新了
+
+```
+2021-10-28 14:09:06 [mini@s058 ~]$ ls -lart ~/.lego/certificates/
+total 28
+drwx------ 5 minion sudo 4096 Aug 26 11:59 ..
+drwx------ 2 minion sudo 4096 Aug 26 12:00 .
+-rw------- 1 minion sudo  227 Oct 28 13:53 _.abc.com.key
+-rw------- 1 minion sudo  238 Oct 28 13:53 _.abc.com.json
+-rw------- 1 minion sudo 3751 Oct 28 13:53 _.abc.com.issuer.crt
+-rw------- 1 minion sudo 5325 Oct 28 13:53 _.abc.com.crt
+2021-10-28 14:10:12 [mini@s058 ~]$
+```
 
