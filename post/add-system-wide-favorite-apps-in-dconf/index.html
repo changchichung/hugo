@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html lang="en-us" dir="ltr">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='這幾天在ansible 寫了一份新的playbook給developer 用
+然後user反映說，希望能在ubuntu 18.04 內建的dock 裏面新增一個gnome-terminal的icon
+我才發現原來之前的寫法不能用在 ubuntu 18.04 上
+只好又弄了一份出來
+'>
+<meta name="keywords" content="ubuntu, dconf, favorite-app"><title>在ubuntu 18.04中，透過 dconf 設定系統層級的「我的最愛」/ Add System Wide Favorite Apps in dock with Dconf in ubuntu 18.04</title>
+
+<link rel='canonical' href='https://h.cowbay.org/post/add-system-wide-favorite-apps-in-dconf/'>
+
+<link rel="stylesheet" href="/scss/style.min.8191399262444ab68b72a18c97392f5349be20a1615d77445be51e974c144cff.css"><meta property='og:title' content='在ubuntu 18.04中，透過 dconf 設定系統層級的「我的最愛」/ Add System Wide Favorite Apps in dock with Dconf in ubuntu 18.04'>
+<meta property='og:description' content='這幾天在ansible 寫了一份新的playbook給developer 用
+然後user反映說，希望能在ubuntu 18.04 內建的dock 裏面新增一個gnome-terminal的icon
+我才發現原來之前的寫法不能用在 ubuntu 18.04 上
+只好又弄了一份出來
+'>
+<meta property='og:url' content='https://h.cowbay.org/post/add-system-wide-favorite-apps-in-dconf/'>
+<meta property='og:site_name' content='My New Hugo Site'>
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='ubuntu' /><meta property='article:tag' content='dconf' /><meta property='article:published_time' content='2019-12-16T13:59:26&#43;08:00'/><meta property='article:modified_time' content='2019-12-16T13:59:26&#43;08:00'/><meta property='og:image' content='https://h.cowbay.org/images/post-default-2.jpg' />
+<meta name="twitter:title" content="在ubuntu 18.04中，透過 dconf 設定系統層級的「我的最愛」/ Add System Wide Favorite Apps in dock with Dconf in ubuntu 18.04">
+<meta name="twitter:description" content="這幾天在ansible 寫了一份新的playbook給developer 用
+然後user反映說，希望能在ubuntu 18.04 內建的dock 裏面新增一個gnome-terminal的icon
+我才發現原來之前的寫法不能用在 ubuntu 18.04 上
+只好又弄了一份出來
+"><meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:image" content='https://h.cowbay.org/images/post-default-2.jpg' />
+    </head>
+    <body class="
+    article-page
+    ">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "auto");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.documentElement.dataset.scheme = 'dark';
+        } else {
+            document.documentElement.dataset.scheme = 'light';
+        }
+    })();
+</script>
+<div class="container main-container flex on-phone--column compact"><aside class="sidebar left-sidebar sticky ">
+    <button class="hamburger hamburger--spin" type="button" id="toggle-menu" aria-label="Toggle Menu">
+        <span class="hamburger-box">
+            <span class="hamburger-inner"></span>
+        </span>
+    </button>
+
+    <header>
+        
+            
+            <figure class="site-avatar">
+                <a href="/">
+                
+                    
+                    
+                    
+                        
+                        <img src="/img/avatar.png" width="300"
+                            height="300" class="site-logo" loading="lazy" alt="Avatar">
+                    
+                
+                </a>
+                
+            </figure>
+            
+        
+        
+        <div class="site-meta">
+            <h1 class="site-name"><a href="/">My New Hugo Site</a></h1>
+            <h2 class="site-description"></h2>
+        </div>
+    </header><ol class="menu" id="main-menu">
+        
+        
+        
+        <li >
+            <a href='/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-home" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="5 12 3 12 12 3 21 12 19 12" />
+  <path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-7" />
+  <path d="M9 21v-6a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v6" />
+</svg>
+
+
+
+                
+                <span>Home</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/page/about/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-user" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="7" r="4" />
+  <path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2" />
+</svg>
+
+
+
+                
+                <span>About</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/page/archives/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-archive" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <rect x="3" y="4" width="18" height="4" rx="2" />
+  <path d="M5 8v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-10" />
+  <line x1="10" y1="12" x2="14" y2="12" />
+</svg>
+
+
+
+                
+                <span>Archives</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/page/search/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="10" cy="10" r="7" />
+  <line x1="21" y1="21" x2="15" y2="15" />
+</svg>
+
+
+
+                
+                <span>Search</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/page/links/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-link" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M10 14a3.5 3.5 0 0 0 5 0l4 -4a3.5 3.5 0 0 0 -5 -5l-.5 .5" />
+  <path d="M14 10a3.5 3.5 0 0 0 -5 0l-4 4a3.5 3.5 0 0 0 5 5l.5 -.5" />
+</svg>
+
+
+
+                
+                <span>Links</span>
+            </a>
+        </li>
+        
+
+        <div class="menu-bottom-section">
+            
+            
+                <li id="dark-mode-toggle">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="8" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="16" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                    <span>Dark Mode</span>
+                </li>
+            
+        </div>
+    </ol>
+</aside>
+
+    
+
+            <main class="main full-width">
+    <article class="has-image main-article">
+    <header class="article-header">
+        <div class="article-image">
+            <a href="/post/add-system-wide-favorite-apps-in-dconf/">
+                
+                    <img src="https://h.cowbay.org/images/post-default-2.jpg" loading="lazy" alt="Featured image of post 在ubuntu 18.04中，透過 dconf 設定系統層級的「我的最愛」/ Add System Wide Favorite Apps in dock with Dconf in ubuntu 18.04" />
+                
+            </a>
+        </div>
+    
+
+    <div class="article-details">
+    
+    <header class="article-category">
+        
+            <a href="/categories/%E7%AD%86%E8%A8%98/" >
+                筆記
+            </a>
+        
+    </header>
+    
+
+    <div class="article-title-wrapper">
+        <h2 class="article-title">
+            <a href="/post/add-system-wide-favorite-apps-in-dconf/">在ubuntu 18.04中，透過 dconf 設定系統層級的「我的最愛」/ Add System Wide Favorite Apps in dock with Dconf in ubuntu 18.04</a>
+        </h2>
+    
+        
+    </div>
+
+    
+    
+    
+    
+    <footer class="article-time">
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M11.795 21h-6.795a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
+  <circle cx="18" cy="18" r="4" />
+  <path d="M15 3v4" />
+  <path d="M7 3v4" />
+  <path d="M3 11h16" />
+  <path d="M18 16.496v1.504l1 1" />
+</svg>
+                <time class="article-time--published">Dec 16, 2019</time>
+            </div>
+        
+
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+                <time class="article-time--reading">
+                    1 minute read
+                </time>
+            </div>
+        
+    </footer>
+    
+
+    
+</div>
+
+</header>
+
+    <section class="article-content">
+    
+    
+    <p>這幾天在ansible 寫了一份新的playbook給developer 用</p>
+<p>然後user反映說，希望能在ubuntu 18.04 內建的dock 裏面新增一個gnome-terminal的icon</p>
+<p>我才發現原來之前的寫法不能用在 ubuntu 18.04 上</p>
+<p>只好又弄了一份出來</p>
+<p>有些task 我是直接從原本給14.04 client 用的直接套用過來</p>
+<p>也沒有去特別注意</p>
+<p>今天重新檢查才發現，舊的寫法是給 14.04 的unity用</p>
+<p>但是 18.04 已經不用 unity 了，所以在設定dock這個task 雖然有成功，但是沒做用
+(手術成功，但病人掛了？)</p>
+<p>原來的寫法是在 /usr/share/glib-2.0/schemas/ 底下新增一個設定檔</p>
+<p>然後用dconf 去產生設定</p>
+<p>原本的內容長這樣</p>
+<pre tabindex="0"><code>[com.canonical.Unity.Launcher]                                                                                                
+favorites=[&#39;application://ubiquity.desktop&#39;, &#39;application://launchers.desktop&#39;, &#39;application://nautilus.desktop&#39;, &#39;application
+://gnome-terminal.desktop&#39;, &#39;application://google-chrome.desktop&#39;, &#39;application://goldendict.desktop&#39;, &#39;application://stardict
+.desktop&#39;, &#39;application://libreoffice-writer.desktop&#39;, &#39;application://libreoffice-calc.desktop&#39;, &#39;unity://running-apps&#39;, &#39;unit
+y://expo-icon&#39;, &#39;unity://devices&#39;]
+</code></pre><p>就如同前面所說，因爲18.04捨棄了 unity，所以這個config 等於沒有用了</p>
+<p>新的步驟比較麻煩一點點</p>
+<p>大概是</p>
+<ol>
+<li>mkdir -p /etc/dconf/profile</li>
+<li>vim /etc/dconf/profile/user</li>
+</ol>
+<pre tabindex="0"><code>#This line allows the user to change the default favorites later.
+user-db:user
+#This line defines a system database named msb
+system-db:msb
+</code></pre><ol start="3">
+<li>mkdir -p /etc/dconf/db/msb.d</li>
+<li>vim /etc/dconf/db/msb.d/00_msb_settings</li>
+</ol>
+<pre tabindex="0"><code># Define default favorite apps
+[org/gnome/shell]
+favorite-apps = [&#39;chromium-browser.desktop&#39;, &#39;firefox.desktop&#39;, &#39;gnome-terminal.desktop&#39;, &#39;nautilus.desktop&#39;]
+</code></pre><p>把這些步驟改成 ansible 語法，再派送到client ，重開機之後就可以正確顯示設定好的「我的最愛」了</p>
+</section>
+
+
+    <footer class="article-footer">
+    
+    <section class="article-tags">
+        
+            <a href="/tags/ubuntu/">ubuntu</a>
+        
+            <a href="/tags/dconf/">dconf</a>
+        
+    </section>
+
+
+    </footer>
+
+
+    
+</article>
+
+    
+
+    
+
+<aside class="related-content--wrapper">
+    <h2 class="section-title">Related content</h2>
+    <div class="related-content">
+        <div class="flex article-list--tile">
+            
+                
+<article class="">
+    <a href="/post/multiple-site-to-site-vpn-using-wireguard/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">[筆記] 透過 wireguard 建立多點 site to site VPN / Multiple Site to Site VPN Using Wireguard</h2>
+        </div>
+    </a>
+</article>
+
+            
+                
+<article class="">
+    <a href="/post/send-mail-to-notify-after-pxe-install/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">[筆記] 用pxe 安裝系統，完成後送出郵件通知 / send mail notification after pxe install</h2>
+        </div>
+    </a>
+</article>
+
+            
+                
+<article class="">
+    <a href="/post/install-timeshift-on-ubuntu1804/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">Install Timeshift on Ubuntu1804</h2>
+        </div>
+    </a>
+</article>
+
+            
+                
+<article class="">
+    <a href="/post/install-ubuntu1804-on-dell-6ir-raid-controller/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">用DELL 6 i/R 建立RAID，並在上面安裝ubuntu 18.04 </h2>
+        </div>
+    </a>
+</article>
+
+            
+                
+<article class="">
+    <a href="/post/ubuntu-1804-install-root-on-raid/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">Ubuntu 1804 Install Root on Raid</h2>
+        </div>
+    </a>
+</article>
+
+            
+        </div>
+    </div>
+</aside>
+
+     
+    
+        
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+        2023 My New Hugo Site
+    </section>
+    
+    <section class="powerby">
+        Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
+        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.16.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+    </section>
+</footer>
+
+
+    
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.min.css"crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css"crossorigin="anonymous"
+            >
+
+            </main>
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.6/dist/vibrant.min.js"integrity="sha256-awcR2jno4kI5X0zL8ex0vi2z&#43;KMkF24hUW8WePSA9HM="crossorigin="anonymous"
+                
+                >
+            </script><script type="text/javascript" src="/ts/main.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>

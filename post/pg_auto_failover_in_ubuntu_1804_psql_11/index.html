@@ -1,0 +1,1278 @@
+<!DOCTYPE html>
+<html lang="en-us" dir="ltr">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='最近都在弄postgresql
+備份、還原測試得差不多了，就等著看到時候要用什麼方式
+前幾天看到 pg_auto_failover 這個postgresql 的extension
+https://github.com/citusdata/pg_auto_failover
+感覺挺不錯的，看起來設定很簡單，雖然之前已經測試了 keepalived 做 HA
+不過，反正當作練功嘛，多測試一套也不錯！
+'>
+<meta name="keywords" content="postgresql, pg_auto_failover"><title>[筆記] 在ubuntu 18.04安裝psql 11 以及 pg_auto_failover / install psql 11 and pg_auto_failover in ubuntu 18.04</title>
+
+<link rel='canonical' href='https://h.cowbay.org/post/pg_auto_failover_in_ubuntu_1804_psql_11/'>
+
+<link rel="stylesheet" href="/scss/style.min.8191399262444ab68b72a18c97392f5349be20a1615d77445be51e974c144cff.css"><meta property='og:title' content='[筆記] 在ubuntu 18.04安裝psql 11 以及 pg_auto_failover / install psql 11 and pg_auto_failover in ubuntu 18.04'>
+<meta property='og:description' content='最近都在弄postgresql
+備份、還原測試得差不多了，就等著看到時候要用什麼方式
+前幾天看到 pg_auto_failover 這個postgresql 的extension
+https://github.com/citusdata/pg_auto_failover
+感覺挺不錯的，看起來設定很簡單，雖然之前已經測試了 keepalived 做 HA
+不過，反正當作練功嘛，多測試一套也不錯！
+'>
+<meta property='og:url' content='https://h.cowbay.org/post/pg_auto_failover_in_ubuntu_1804_psql_11/'>
+<meta property='og:site_name' content='My New Hugo Site'>
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='postgresql' /><meta property='article:tag' content='failover' /><meta property='article:published_time' content='2019-09-20T10:17:17&#43;08:00'/><meta property='article:modified_time' content='2019-09-20T10:17:17&#43;08:00'/>
+<meta name="twitter:title" content="[筆記] 在ubuntu 18.04安裝psql 11 以及 pg_auto_failover / install psql 11 and pg_auto_failover in ubuntu 18.04">
+<meta name="twitter:description" content="最近都在弄postgresql
+備份、還原測試得差不多了，就等著看到時候要用什麼方式
+前幾天看到 pg_auto_failover 這個postgresql 的extension
+https://github.com/citusdata/pg_auto_failover
+感覺挺不錯的，看起來設定很簡單，雖然之前已經測試了 keepalived 做 HA
+不過，反正當作練功嘛，多測試一套也不錯！
+">
+    </head>
+    <body class="
+    article-page
+    ">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "auto");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.documentElement.dataset.scheme = 'dark';
+        } else {
+            document.documentElement.dataset.scheme = 'light';
+        }
+    })();
+</script>
+<div class="container main-container flex on-phone--column compact"><aside class="sidebar left-sidebar sticky ">
+    <button class="hamburger hamburger--spin" type="button" id="toggle-menu" aria-label="Toggle Menu">
+        <span class="hamburger-box">
+            <span class="hamburger-inner"></span>
+        </span>
+    </button>
+
+    <header>
+        
+            
+            <figure class="site-avatar">
+                <a href="/">
+                
+                    
+                    
+                    
+                        
+                        <img src="/img/avatar.png" width="300"
+                            height="300" class="site-logo" loading="lazy" alt="Avatar">
+                    
+                
+                </a>
+                
+            </figure>
+            
+        
+        
+        <div class="site-meta">
+            <h1 class="site-name"><a href="/">My New Hugo Site</a></h1>
+            <h2 class="site-description"></h2>
+        </div>
+    </header><ol class="menu" id="main-menu">
+        
+        
+        
+        <li >
+            <a href='/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-home" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="5 12 3 12 12 3 21 12 19 12" />
+  <path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-7" />
+  <path d="M9 21v-6a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v6" />
+</svg>
+
+
+
+                
+                <span>Home</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/page/about/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-user" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="7" r="4" />
+  <path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2" />
+</svg>
+
+
+
+                
+                <span>About</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/page/archives/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-archive" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <rect x="3" y="4" width="18" height="4" rx="2" />
+  <path d="M5 8v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-10" />
+  <line x1="10" y1="12" x2="14" y2="12" />
+</svg>
+
+
+
+                
+                <span>Archives</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/page/search/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="10" cy="10" r="7" />
+  <line x1="21" y1="21" x2="15" y2="15" />
+</svg>
+
+
+
+                
+                <span>Search</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/page/links/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-link" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M10 14a3.5 3.5 0 0 0 5 0l4 -4a3.5 3.5 0 0 0 -5 -5l-.5 .5" />
+  <path d="M14 10a3.5 3.5 0 0 0 -5 0l-4 4a3.5 3.5 0 0 0 5 5l.5 -.5" />
+</svg>
+
+
+
+                
+                <span>Links</span>
+            </a>
+        </li>
+        
+
+        <div class="menu-bottom-section">
+            
+            
+                <li id="dark-mode-toggle">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="8" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="16" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                    <span>Dark Mode</span>
+                </li>
+            
+        </div>
+    </ol>
+</aside>
+
+    
+
+            <main class="main full-width">
+    <article class="main-article">
+    <header class="article-header">
+
+    <div class="article-details">
+    
+    <header class="article-category">
+        
+            <a href="/categories/%E7%AD%86%E8%A8%98/" >
+                筆記
+            </a>
+        
+    </header>
+    
+
+    <div class="article-title-wrapper">
+        <h2 class="article-title">
+            <a href="/post/pg_auto_failover_in_ubuntu_1804_psql_11/">[筆記] 在ubuntu 18.04安裝psql 11 以及 pg_auto_failover / install psql 11 and pg_auto_failover in ubuntu 18.04</a>
+        </h2>
+    
+        
+    </div>
+
+    
+    
+    
+    
+    <footer class="article-time">
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M11.795 21h-6.795a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
+  <circle cx="18" cy="18" r="4" />
+  <path d="M15 3v4" />
+  <path d="M7 3v4" />
+  <path d="M3 11h16" />
+  <path d="M18 16.496v1.504l1 1" />
+</svg>
+                <time class="article-time--published">Sep 20, 2019</time>
+            </div>
+        
+
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+                <time class="article-time--reading">
+                    31 minute read
+                </time>
+            </div>
+        
+    </footer>
+    
+
+    
+</div>
+
+</header>
+
+    <section class="article-content">
+    
+    
+    <p>最近都在弄postgresql</p>
+<p>備份、還原測試得差不多了，就等著看到時候要用什麼方式</p>
+<p>前幾天看到 pg_auto_failover 這個postgresql 的extension</p>
+<p><a class="link" href="https://github.com/citusdata/pg_auto_failover"  target="_blank" rel="noopener"
+    >https://github.com/citusdata/pg_auto_failover</a></p>
+<p>感覺挺不錯的，看起來設定很簡單，雖然之前已經測試了 keepalived 做 HA</p>
+<p>不過，反正當作練功嘛，多測試一套也不錯！</p>
+<p>基本的邏輯是 一台 monitor , 一台 master/primary node ，一台 slave/secondary node 組成一個cluster</p>
+<p>官方提供的架構圖如下</p>
+<p><img src="https://i.imgur.com/SyPFXZ1.png"
+	
+	
+	
+	loading="lazy"
+	
+		alt="pg_auto_failover architecture"
+	
+	
+></p>
+<p>當master/primary node 上面的 postgresql 服務死掉了，slave/secondary node 會自動接手</p>
+<p>等到master/primary node 回來之後，會自動降級為 slave/secondary node</p>
+<p>而原本的 slave/secondary node 就會變成 master/primary</p>
+<hr>
+<h4 id="安裝相關套件">安裝相關套件</h4>
+<p><strong>以下步驟在三個node 都要操作</strong></p>
+<p>安裝相依套件</p>
+<pre tabindex="0"><code>sudo apt install make libssl1.0.0 libssl-dev libkrb5-3 libkrb5-dev libpq5 libpq-dev pgdg-keyring ssl-cert postgresql-plperl-11 postgresql-pltcl-11 postgresql-plpython-11 postgresql-plpython3-11 postgresql-11 postgresql-common postgresql-server-dev-11 postgresql-client-11 postgresql-client-common postgresql-doc-11 tcl8.6 libjson-perl tcl-tclreadline
+</code></pre><p>安裝完成後，切換到postgres身份，把原本系統內的postgresql 檔存放目錄還有資料庫檔案目錄都清掉</p>
+<pre tabindex="0"><code>sudo su - postgres
+mv /etc/postgresql/11 /etc/postgresql/11.bak
+mv /var/lib/postgresql/11 /var/lib/postgresql/11.bak
+exit
+</code></pre><p>開始安裝 pg_auto_failover</p>
+<pre tabindex="0"><code>curl https://install.citusdata.com/community/deb.sh | sudo bash
+sudo apt install postgresql-11-auto-failover -y
+</code></pre><p>postgresql 的相關執行檔路徑，預設不會載入到PATH變數中，所以要自己手動增加</p>
+<p>直接加入 /etc/environment ，或者是去修改使用者的 .profile 載入正確的 $PATH 都可以</p>
+<pre tabindex="0"><code>#replace PATH variable in /etc/environment
+PATH=&#34;/usr/lib/postgresql/11/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games&#34;
+</code></pre><p>因為要用 pg_auto_failover 來控制postgresql ，所以要把系統內建的服務先停掉，並且設定開啟不啟動</p>
+<pre tabindex="0"><code>sudo systemctl disable postgresql
+sudo systemctl stop postgresql
+</code></pre><p>為了讓三台機器可以直接用hostname溝通，所以要修改 /etc/hosts</p>
+<pre tabindex="0"><code>#add to /etc/hosts
+192.168.11.151 monitor monitor.abc.com
+192.168.11.152 pg-primary pg-primary.abc.com
+192.168.11.153 pg-slave pg-slave.abc.com
+</code></pre><p>以上完成在三台node上，安裝postgresql/pg_auto_failover 的工作</p>
+<hr>
+<h4 id="設定-monitor-node">設定 monitor node</h4>
+<p><strong>在monitor node操作</strong></p>
+<p><strong>建立monitor node</strong></p>
+<pre tabindex="0"><code>sudo runuser -l postgres -c &#34;/usr/bin/pg_autoctl create monitor --pgdata /var/lib/postgresql/11/main --pgport 5432 --nodename monitor&#34;
+</code></pre><p>這個步驟會在pg_hba.conf 中，新增一筆紀錄</p>
+<pre tabindex="0"><code>host &#34;pg_auto_failover&#34; &#34;autoctl_node&#34; 192.168.11.0/24 trust # Auto-generated by pg_auto_failover
+</code></pre><p>檢查一下狀態，看看有沒有安裝成功</p>
+<pre tabindex="0"><code>2019-09-19 06:56:09 [administrator@monitor ~]$ sudo runuser -l postgres -c &#34;psql -c &#39;\&#39;du&#34;
+                                     List of roles
+  Role name   |                         Attributes                         | Member of 
+--------------+------------------------------------------------------------+-----------
+ autoctl      |                                                            | {}
+ autoctl_node |                                                            | {}
+ postgres     | Superuser, Create role, Create DB, Replication, Bypass RLS | {}
+
+
+2019-09-19 06:56:15 [administrator@monitor ~]$ sudo runuser -l postgres -c &#34;psql -c &#39;\&#39;l&#34;
+                                 List of databases
+       Name       |  Owner   | Encoding  | Collate | Ctype |   Access privileges   
+------------------+----------+-----------+---------+-------+-----------------------
+ pg_auto_failover | autoctl  | SQL_ASCII | C       | C     | 
+ postgres         | postgres | SQL_ASCII | C       | C     | 
+ template0        | postgres | SQL_ASCII | C       | C     | =c/postgres          +
+                  |          |           |         |       | postgres=CTc/postgres
+ template1        | postgres | SQL_ASCII | C       | C     | =c/postgres          +
+                  |          |           |         |       | postgres=CTc/postgres
+(4 rows)
+</code></pre><p>OK，看起來沒有問題</p>
+<p><strong>啟動pg_auto_failover monitor</strong></p>
+<pre tabindex="0"><code>2019-09-19 06:56:19 [administrator@monitor ~]$ sudo runuser -l postgres -c &#34;pg_autoctl run --pgdata /var/lib/postgresql/11/main&#34;
+06:57:38 INFO  Managing PostgreSQL installation at &#34;/var/lib/postgresql/11/main&#34;
+06:57:38 INFO  PostgreSQL is running in &#34;/var/lib/postgresql/11/main&#34; on port 5432
+06:57:38 INFO  The version of extenstion &#34;pgautofailover&#34; is &#34;1.0&#34; on the monitor
+06:57:38 INFO  pg_auto_failover monitor is ready at postgres://autoctl_node@monitor:5432/pg_auto_failover
+06:57:38 INFO  Contacting the monitor to LISTEN to its events
+</code></pre><p>這個指令會停留在console畫面上，要不就是在最後加上 <code>&amp;</code> 放去背景執行</p>
+<p>要不就是用systemd/supervisor 來控制，這個後面再來改</p>
+<p>就先放著讓他跑，還可以順便觀察cluster變動時的狀態</p>
+<p>再開一個terminal 跑底下的指令，產生monitor node 的URI ，在建立maser/slave node 的時候會用到</p>
+<pre tabindex="0"><code>2019-09-19 06:58:39 [administrator@monitor ~]$ sudo runuser -l postgres -c &#34;pg_autoctl show uri --pgdata /var/lib/postgresql/11/main&#34;
+postgres://autoctl_node@monitor:5432/pg_auto_failover
+2019-09-19 06:59:01 [administrator@monitor ~]$
+</code></pre><p>以上完成monitor node 的準備工作</p>
+<hr>
+<h4 id="設定masterprimary-node">設定master/primary node</h4>
+<p><strong>建立pg_auto_failover master/primary node</strong></p>
+<pre tabindex="0"><code>2019-09-19 15:04:16 [administrator@pg-primary ~]$ sudo runuser -l postgres -c &#34;pg_autoctl create postgres --pgdata /var/lib/postgresql/11/main --pgport 5432 --nodename pg-primary --monitor postgres://autoctl_node@monitor:5432/pg_auto_failover&#34;
+15:04:19 INFO  Found pg_ctl for PostgreSQL 11.5 at /usr/lib/postgresql/11/bin/pg_ctl
+15:04:19 INFO  Registered node pg-primary:5432 with id 1 in formation &#34;default&#34;, group 0.
+15:04:19 INFO  Writing keeper init state file at &#34;/var/lib/postgresql/.local/share/pg_autoctl/var/lib/postgresql/11/main/pg_autoctl.init&#34;
+15:04:19 INFO  Successfully registered as &#34;single&#34; to the monitor.
+15:04:21 INFO  Initialising a PostgreSQL cluster at &#34;/var/lib/postgresql/11/main&#34;
+15:04:21 INFO  Postgres is not running, starting postgres
+15:04:21 INFO   /usr/lib/postgresql/11/bin/pg_ctl --pgdata /var/lib/postgresql/11/main --options &#34;-p 5432&#34; --options &#34;-h *&#34; --wait start
+15:04:21 INFO  CREATE DATABASE postgres;
+15:04:21 INFO  The database &#34;postgres&#34; already exists, skipping.
+15:04:21 INFO  FSM transition from &#34;init&#34; to &#34;single&#34;: Start as a single node
+15:04:21 INFO  Initialising postgres as a primary
+15:04:21 INFO  Transition complete: current state is now &#34;single&#34;
+15:04:21 INFO  Keeper has been succesfully initialized.
+2019-09-19 15:04:21 [administrator@pg-primary ~]$
+</code></pre><p><strong>啟動 pg_auto_failover master/primary node</strong></p>
+<pre tabindex="0"><code>2019-09-19 15:14:34 [administrator@pg-primary ~]$ sudo runuser -l postgres -c &#34;pg_autoctl run --pgdata /var/lib/postgresql/11/main&#34;
+15:15:11 INFO  Managing PostgreSQL installation at &#34;/var/lib/postgresql/11/main&#34;
+15:15:11 INFO  The version of extenstion &#34;pgautofailover&#34; is &#34;1.0&#34; on the monitor
+15:15:11 INFO  pg_autoctl service is starting
+15:15:11 INFO  Calling node_active for node default/1/0 with current state: single, PostgreSQL is running, sync_state is &#34;&#34;, WAL delta is -1.
+15:15:16 INFO  Calling node_active for node default/1/0 with current state: single, PostgreSQL is running, sync_state is &#34;&#34;, WAL delta is -1.
+15:15:21 INFO  Calling node_active for node default/1/0 with current state: single, PostgreSQL is running, sync_state is &#34;&#34;, WAL delta is -1.
+</code></pre><p>一樣，執行完之後，會停留在畫面上，所以開另一個視窗來執行以下檢查的指令</p>
+<pre tabindex="0"><code>2019-09-19 15:17:08 [administrator@pg-primary ~]$ sudo runuser -l postgres -c &#34;pg_autoctl show state --pgdata /var/lib/postgresql/11/main&#34;
+      Name |   Port | Group |  Node |     Current State |    Assigned State
+-----------+--------+-------+-------+-------------------+------------------
+pg-primary |   5432 |     0 |     1 |            single |            single
+
+2019-09-19 15:17:16 [administrator@pg-primary ~]$ 
+</code></pre><p>以上，master/primary node 設定結束</p>
+<hr>
+<p>####設定 slave/secondary node</p>
+<p><strong>建立 pg_auto_failover slave/secondary node</strong></p>
+<pre tabindex="0"><code>2019-09-19 07:04:08 [administrator@pg-slave ~]$ sudo runuser -l postgres -c &#34;pg_autoctl create postgres --pgdata /var/lib/postgresql/11/main --pgport 5432 --nodename pg-slave --monitor postgres://autoctl_node@monitor:5432/pg_auto_failover&#34;
+07:19:57 INFO  Found pg_ctl for PostgreSQL 11.5 at /usr/lib/postgresql/11/bin/pg_ctl
+07:19:57 INFO  Registered node pg-slave:5432 with id 2 in formation &#34;default&#34;, group 0.
+07:19:57 INFO  Writing keeper init state file at &#34;/var/lib/postgresql/.local/share/pg_autoctl/var/lib/postgresql/11/main/pg_autoctl.init&#34;
+07:19:57 INFO  Successfully registered as &#34;wait_standby&#34; to the monitor.
+07:19:57 INFO  FSM transition from &#34;init&#34; to &#34;wait_standby&#34;: Start following a primary
+07:19:57 INFO  Transition complete: current state is now &#34;wait_standby&#34;
+07:20:02 INFO  FSM transition from &#34;wait_standby&#34; to &#34;catchingup&#34;: The primary is now ready to accept a standby
+07:20:02 INFO  The primary node returned by the monitor is pg-primary:5432
+07:20:02 INFO  Initialising PostgreSQL as a hot standby
+07:20:02 INFO  Running /usr/lib/postgresql/11/bin/pg_basebackup -w -h pg-primary -p 5432 --pgdata /var/lib/postgresql/11/backup -U pgautofailover_replicator --write-recovery-conf --max-rate 100M --wal-method=stream --slot pgautofailover_standby ...
+07:20:04 INFO  pg_basebackup: initiating base backup, waiting for checkpoint to complete
+pg_basebackup: checkpoint completed
+pg_basebackup: write-ahead log start point: 0/2000028 on timeline 1
+pg_basebackup: starting background WAL receiver
+    0/23751 kB (0%), 0/1 tablespace (...ostgresql/11/backup/backup_label)
+13103/23751 kB (55%), 0/1 tablespace (...gresql/11/backup/base/13091/2602)
+23761/23761 kB (100%), 0/1 tablespace (...esql/11/backup/global/pg_control)
+23761/23761 kB (100%), 1/1 tablespace                                         
+pg_basebackup: write-ahead log end point: 0/20000F8
+pg_basebackup: waiting for background process to finish streaming ...
+pg_basebackup: base backup completed
+
+07:20:04 INFO  Postgres is not running, starting postgres
+07:20:04 INFO   /usr/lib/postgresql/11/bin/pg_ctl --pgdata /var/lib/postgresql/11/main --options &#34;-p 5432&#34; --options &#34;-h *&#34; --wait start
+07:20:04 INFO  PostgreSQL started on port 5432
+07:20:04 INFO  Transition complete: current state is now &#34;catchingup&#34;
+07:20:04 INFO  Keeper has been succesfully initialized.
+2019-09-19 07:20:04 [administrator@pg-slave ~]$
+</code></pre><p>可以看到在建立slave/secondary node 的時候，就會開始第一次的同步</p>
+<p>**啟動 pg_auto_failover slave/secondary node</p>
+<pre tabindex="0"><code>2019-09-19 07:20:04 [administrator@pg-slave ~]$ sudo runuser -l postgres -c &#34;pg_autoctl run --pgdata /var/lib/postgresql/11/main&#34;
+07:21:33 INFO  Managing PostgreSQL installation at &#34;/var/lib/postgresql/11/main&#34;
+07:21:33 INFO  The version of extenstion &#34;pgautofailover&#34; is &#34;1.0&#34; on the monitor
+07:21:33 INFO  pg_autoctl service is starting
+07:21:33 INFO  Calling node_active for node default/2/0 with current state: catchingup, PostgreSQL is running, sync_state is &#34;&#34;, WAL delta is -1.
+07:21:33 INFO  FSM transition from &#34;catchingup&#34; to &#34;secondary&#34;: Convinced the monitor that I&#39;m up and running, and eligible for promotion again
+07:21:33 INFO  Transition complete: current state is now &#34;secondary&#34;
+07:21:34 INFO  Calling node_active for node default/2/0 with current state: secondary, PostgreSQL is running, sync_state is &#34;&#34;, WAL delta is 0.
+07:21:39 INFO  Calling node_active for node default/2/0 with current state: secondary, PostgreSQL is running, sync_state is &#34;&#34;, WAL delta is 0.
+</code></pre><p>開新視窗確認狀態</p>
+<pre tabindex="0"><code>2019-09-19 07:22:03 [administrator@pg-slave ~]$ sudo runuser -l postgres -c &#34;pg_autoctl show state --pgdata /var/lib/postgresql/11/main&#34;
+      Name |   Port | Group |  Node |     Current State |    Assigned State
+-----------+--------+-------+-------+-------------------+------------------
+pg-primary |   5432 |     0 |     1 |           primary |           primary
+  pg-slave |   5432 |     0 |     2 |         secondary |         secondary
+
+2019-09-19 07:22:45 [administrator@pg-slave ~]$ 
+</code></pre><p>正常的話，應該就是會出現兩個 node ，一個 pg-primary 一個pg-slave</p>
+<p><strong>generate URI for applications</strong></p>
+<p>這個步驟是用來產生給client/applications 連線用的連線字串(connection string)</p>
+<pre tabindex="0"><code>2019-09-19 07:29:56 [administrator@pg-slave ~]$ sudo runuser -l postgres -c &#34;pg_autoctl show uri --formation default --pgdata /var/lib/postgresql/11/main&#34;
+postgres://pg-slave:5432,pg-primary:5432/postgres?target_session_attrs=read-write
+2019-09-19 07:30:06 [administrator@pg-slave ~]$
+</code></pre><p>以後就都通過這個URI來存取這個cluster</p>
+<p>切記，<strong>不可以用系統內建的postgresql service，一定要用 pg_auto_failover 來啟動DB</strong></p>
+<p>以上 slave/secondary node 設定完成</p>
+<hr>
+<p>設定上並不複雜，比起keepalived 要簡單太多了..</p>
+<p>那就要評估看看在異常狀況發生，切換資料庫時的表現了</p>
+<p>接下來就繼續測試auto failover 的功能！</p>
+<hr>
+<h4 id="測試-auto-failover">測試 auto failover</h4>
+<p>首先，在 pg-prmiary node 上，透過上面產生的URI來進入psql</p>
+<p>然後建立一個測試db、建立一個測試table，插入幾筆資料</p>
+<pre tabindex="0"><code>2019-09-20 10:58:21 [administrator@pg-primary ~]$ sudo runuser -l postgres -c &#34;psql postgres://pg-slave:5432,pg-primary:5432/postgres?target_session_attrs=read-write&#34;
+psql (11.5 (Ubuntu 11.5-1.pgdg18.04+1))
+Type &#34;help&#34; for help.
+
+postgres=# create database testdb_1058;
+CREATE DATABASE
+postgres=# create table testtbl (serial int);
+CREATE TABLE
+postgres=# insert into testtbl values (111);
+INSERT 0 1
+postgres=# insert into testtbl values (222);
+INSERT 0 1
+postgres=# insert into testtbl values (3);
+INSERT 0 1
+postgres=# insert into testtbl values (444);
+INSERT 0 1
+postgres=# select * from testtbl;
+ serial 
+--------
+    111
+    222
+      3
+    444
+(4 rows)
+
+postgres=# \q
+2019-09-20 10:59:30 [administrator@pg-primary ~]$
+</code></pre><p>然後切換到 pg-slave ，一樣透過URI進入psql 撈看看資料</p>
+<pre tabindex="0"><code>2019-09-20 03:02:12 [administrator@pg-slave ~]$ sudo runuser -l postgres -c &#34;psql postgres://pg-slave:5432,pg-primary:5432/postgres?target_session_attrs=read-write&#34;
+psql (11.5 (Ubuntu 11.5-1.pgdg18.04+1))
+Type &#34;help&#34; for help.
+
+postgres=# select * from testtbl;
+ serial 
+--------
+    111
+    222
+      3
+    444
+(4 rows)
+
+postgres=# 
+</code></pre><p>確認透過URI的確是可以正常的存取資料</p>
+<p>在兩台單機上(master/slave)上也都可以看到同樣的資料，代表資料有正確的被同步到兩台node上</p>
+<p><strong>pg-slave</strong></p>
+<pre tabindex="0"><code>2019-09-20 03:03:06 [administrator@pg-slave ~]$ sudo runuser -l postgres -c psql
+psql (11.5 (Ubuntu 11.5-1.pgdg18.04+1))
+Type &#34;help&#34; for help.
+
+postgres=# \l
+                              List of databases
+    Name     |  Owner   | Encoding  | Collate | Ctype |   Access privileges   
+-------------+----------+-----------+---------+-------+-----------------------
+ nexus       | postgres | SQL_ASCII | C       | C     | 
+ postgres    | postgres | SQL_ASCII | C       | C     | 
+ template0   | postgres | SQL_ASCII | C       | C     | =c/postgres          +
+             |          |           |         |       | postgres=CTc/postgres
+ template1   | postgres | SQL_ASCII | C       | C     | =c/postgres          +
+             |          |           |         |       | postgres=CTc/postgres
+ testdb_1058 | postgres | SQL_ASCII | C       | C     | 
+(5 rows)
+
+postgres=# select * from testtbl;
+ serial 
+--------
+    111
+    222
+      3
+    444
+(4 rows)
+
+postgres=#
+</code></pre><p><strong>pg-master</strong></p>
+<pre tabindex="0"><code>2019-09-20 10:59:30 [administrator@pg-primary ~]$ sudo runuser -l postgres -c psql
+psql (11.5 (Ubuntu 11.5-1.pgdg18.04+1))
+Type &#34;help&#34; for help.
+
+postgres=# \l
+                              List of databases
+    Name     |  Owner   | Encoding  | Collate | Ctype |   Access privileges   
+-------------+----------+-----------+---------+-------+-----------------------
+ nexus       | postgres | SQL_ASCII | C       | C     | 
+ postgres    | postgres | SQL_ASCII | C       | C     | 
+ template0   | postgres | SQL_ASCII | C       | C     | =c/postgres          +
+             |          |           |         |       | postgres=CTc/postgres
+ template1   | postgres | SQL_ASCII | C       | C     | =c/postgres          +
+             |          |           |         |       | postgres=CTc/postgres
+ testdb_1058 | postgres | SQL_ASCII | C       | C     | 
+(5 rows)
+
+postgres=# select * from testtbl;
+ serial 
+--------
+    111
+    222
+      3
+    444
+(4 rows)
+
+postgres=# 
+</code></pre><p>接著來把本來是master的機器關掉，看看會有什麼變化</p>
+<p>首先，在pg-slave 這台機器上，就會看到cluster 有狀況，primary 不見了</p>
+<pre tabindex="0"><code>03:06:02 INFO  Calling node_active for node default/4/0 with current state: secondary, PostgreSQL is running, sync_state is &#34;&#34;, WAL delta is 0.
+03:06:08 INFO  Calling node_active for node default/4/0 with current state: secondary, PostgreSQL is running, sync_state is &#34;&#34;, WAL delta is 0.
+03:06:13 INFO  Calling node_active for node default/4/0 with current state: secondary, PostgreSQL is running, sync_state is &#34;&#34;, WAL delta is 0.
+03:06:18 ERROR PostgreSQL cannot reach the primary server: the system view pg_stat_wal_receiver has no rows.
+03:06:18 INFO  Calling node_active for node default/4/0 with current state: secondary, PostgreSQL is running, sync_state is &#34;&#34;, WAL delta is -1.
+03:06:23 ERROR PostgreSQL cannot reach the primary server: the system view pg_stat_wal_receiver has no rows.
+03:06:23 INFO  Calling node_active for node default/4/0 with current state: secondary, PostgreSQL is running, sync_state is &#34;&#34;, WAL delta is -1.
+03:06:28 ERROR PostgreSQL cannot reach the primary server: the system view pg_stat_wal_receiver has no rows.
+03:06:28 INFO  Calling node_active for node default/4/0 with current state: secondary, PostgreSQL is running, sync_state is &#34;&#34;, WAL delta is -1.
+03:06:33 ERROR PostgreSQL cannot reach the primary server: the system view pg_stat_wal_receiver has no rows.
+03:06:33 INFO  Calling node_active for node default/4/0 with current state: secondary, PostgreSQL is running, sync_state is &#34;&#34;, WAL delta is -1.
+03:06:38 ERROR PostgreSQL cannot reach the primary server: the system view pg_stat_wal_receiver has no rows.
+03:06:38 INFO  Calling node_active for node default/4/0 with current state: secondary, PostgreSQL is running, sync_state is &#34;&#34;, WAL delta is -1.
+</code></pre><p>這時候在pg-slave 還能不能透過URI 連線進去psql操作？</p>
+<pre tabindex="0"><code>2019-09-20 03:08:06 [administrator@pg-slave ~]$ sudo runuser -l postgres -c &#34;psql postgres://pg-slave:5432,pg-primary:5432/postgres?target_session_attrs=read-write&#34;
+psql (11.5 (Ubuntu 11.5-1.pgdg18.04+1))
+Type &#34;help&#34; for help.
+
+postgres=# \l
+                              List of databases
+    Name     |  Owner   | Encoding  | Collate | Ctype |   Access privileges   
+-------------+----------+-----------+---------+-------+-----------------------
+ nexus       | postgres | SQL_ASCII | C       | C     | 
+ postgres    | postgres | SQL_ASCII | C       | C     | 
+ template0   | postgres | SQL_ASCII | C       | C     | =c/postgres          +
+             |          |           |         |       | postgres=CTc/postgres
+ template1   | postgres | SQL_ASCII | C       | C     | =c/postgres          +
+             |          |           |         |       | postgres=CTc/postgres
+ testdb_1058 | postgres | SQL_ASCII | C       | C     | 
+(5 rows)
+
+postgres=# create database testdb_1108;
+CREATE DATABASE
+postgres=# create table testtbl_1108 (serial int);
+CREATE TABLE
+postgres=# insert into testtbl_1108 values (999);
+INSERT 0 1
+postgres=# insert into testtbl_1108 values (888);
+INSERT 0 1
+postgres=# insert into testtbl_1108 values (77);
+INSERT 0 1
+postgres=# insert into testtbl_1108 values (66);
+INSERT 0 1
+postgres=# insert into testtbl_1108 values (55);
+INSERT 0 1
+postgres=# \q
+2019-09-20 03:09:34 [administrator@pg-slave ~]$
+</code></pre><p>很好，看起來沒有問題，這時候把 pg-primary 打開，執行啟動 pg_auto_failover node 的指令，看看會發生什麼事</p>
+<pre tabindex="0"><code>2019-09-20 11:12:13 [administrator@pg-primary ~]$ sudo runuser -l postgres -c &#34;pg_autoctl run&#34;
+11:12:29 INFO  Managing PostgreSQL installation at &#34;/var/lib/postgresql/11/main&#34;
+11:12:29 INFO  The version of extenstion &#34;pgautofailover&#34; is &#34;1.0&#34; on the monitor
+11:12:29 INFO  pg_autoctl service is starting
+11:12:29 INFO  Calling node_active for node default/1/0 with current state: primary, PostgreSQL is not running, sync_state is &#34;&#34;, WAL delta is -1.
+11:12:29 INFO  Postgres is not running, starting postgres
+11:12:29 INFO   /usr/lib/postgresql/11/bin/pg_ctl --pgdata /var/lib/postgresql/11/main --options &#34;-p 5432&#34; --options &#34;-h *&#34; --wait start
+11:12:30 WARN  PostgreSQL was not running, restarted with pid 1407
+11:12:30 INFO  FSM transition from &#34;primary&#34; to &#34;demoted&#34;: A failover occurred, no longer primary
+11:12:30 INFO  Transition complete: current state is now &#34;demoted&#34;
+11:12:30 INFO  Calling node_active for node default/1/0 with current state: demoted, PostgreSQL is not running, sync_state is &#34;&#34;, WAL delta is -1.
+11:12:30 INFO  FSM transition from &#34;demoted&#34; to &#34;catchingup&#34;: A new primary is available. First, try to rewind. If that fails, do a pg_basebackup.
+11:12:30 INFO  The primary node returned by the monitor is pg-slave:5432
+11:12:30 INFO  Rewinding PostgreSQL to follow new primary pg-slave:5432
+11:12:30 ERROR Connection to database failed: could not connect to server: No such file or directory
+	Is the server running locally and accepting
+	connections on Unix domain socket &#34;/var/run/postgresql/.s.PGSQL.5432&#34;?
+
+11:12:30 ERROR Failed to get the postgresql.conf path from the local postgres server, see above for details
+11:12:30 WARN  Failed to rewind demoted primary to standby, trying pg_basebackup instead
+11:12:30 INFO  Initialising PostgreSQL as a hot standby
+11:12:30 INFO  Target directory exists: &#34;/var/lib/postgresql/11/main&#34;, stopping PostgreSQL
+11:12:30 INFO  pg_ctl: no server running
+
+11:12:30 INFO  pg_ctl stop failed, but PostgreSQL is not running anyway
+11:12:30 INFO  Running /usr/lib/postgresql/11/bin/pg_basebackup -w -h pg-slave -p 5432 --pgdata /var/lib/postgresql/11/backup -U pgautofailover_replicator --write-recovery-conf --max-rate 100M --wal-method=stream --slot pgautofailover_standby ...
+11:12:33 INFO  pg_basebackup: initiating base backup, waiting for checkpoint to complete
+pg_basebackup: checkpoint completed
+pg_basebackup: write-ahead log start point: 0/12000028 on timeline 6
+pg_basebackup: starting background WAL receiver
+    0/46937 kB (0%), 0/1 tablespace (...ostgresql/11/backup/backup_label)
+46947/46947 kB (100%), 0/1 tablespace (...esql/11/backup/global/pg_control)
+46947/46947 kB (100%), 1/1 tablespace                                         
+pg_basebackup: write-ahead log end point: 0/120000F8
+pg_basebackup: waiting for background process to finish streaming ...
+pg_basebackup: base backup completed
+
+11:12:33 INFO  Postgres is not running, starting postgres
+11:12:33 INFO   /usr/lib/postgresql/11/bin/pg_ctl --pgdata /var/lib/postgresql/11/main --options &#34;-p 5432&#34; --options &#34;-h *&#34; --wait start
+11:12:33 INFO  PostgreSQL started on port 5432
+11:12:33 INFO  Drop replication slot &#34;pgautofailover_standby&#34;
+11:12:33 INFO  Transition complete: current state is now &#34;catchingup&#34;
+11:12:33 INFO  Calling node_active for node default/1/0 with current state: catchingup, PostgreSQL is running, sync_state is &#34;&#34;, WAL delta is -1.
+11:12:38 INFO  Calling node_active for node default/1/0 with current state: catchingup, PostgreSQL is running, sync_state is &#34;&#34;, WAL delta is -1.
+11:12:43 INFO  Calling node_active for node default/1/0 with current state: catchingup, PostgreSQL is running, sync_state is &#34;&#34;, WAL delta is -1.
+11:12:48 INFO  Calling node_active for node default/1/0 with current state: catchingup, PostgreSQL is running, sync_state is &#34;&#34;, WAL delta is -1.
+11:12:48 INFO  FSM transition from &#34;catchingup&#34; to &#34;secondary&#34;: Convinced the monitor that I&#39;m up and running, and eligible for promotion again
+11:12:48 INFO  Transition complete: current state is now &#34;secondary&#34;
+11:12:48 INFO  Calling node_active for node default/1/0 with current state: secondary, PostgreSQL is running, sync_state is &#34;&#34;, WAL delta is 0.
+11:12:53 INFO  Calling node_active for node default/1/0 with current state: secondary, PostgreSQL is running, sync_state is &#34;&#34;, WAL delta is 0.
+11:12:58 INFO  Calling node_active for node default/1/0 with current state: secondary, PostgreSQL is running, sync_state is &#34;&#34;, WAL delta is 0.
+11:13:03 INFO  Calling node_active for node default/1/0 with current state: secondary, PostgreSQL is running, sync_state is &#34;&#34;, WAL delta is 0.
+</code></pre><p>可以看到 pg_auto_failover 偵測到了cluster node 有意異動，開始同步資料，然後切換角色，從primary變成了 secondary</p>
+<p>同一時間，在pg-slave 的訊息也有變動</p>
+<pre tabindex="0"><code>03:12:34 INFO  Calling node_active for node default/4/0 with current state: wait_primary, PostgreSQL is running, sync_state is &#34;async&#34;, WAL delta is 0.
+03:12:39 INFO  Calling node_active for node default/4/0 with current state: wait_primary, PostgreSQL is running, sync_state is &#34;async&#34;, WAL delta is 0.
+03:12:45 INFO  Calling node_active for node default/4/0 with current state: wait_primary, PostgreSQL is running, sync_state is &#34;async&#34;, WAL delta is 0.
+03:12:50 INFO  Calling node_active for node default/4/0 with current state: wait_primary, PostgreSQL is running, sync_state is &#34;async&#34;, WAL delta is 0.
+03:12:50 INFO  FSM transition from &#34;wait_primary&#34; to &#34;primary&#34;: A healthy secondary appeared
+03:12:50 INFO  Enabling synchronous replication
+03:12:50 INFO  Transition complete: current state is now &#34;primary&#34;
+03:12:50 INFO  Calling node_active for node default/4/0 with current state: primary, PostgreSQL is running, sync_state is &#34;sync&#34;, WAL delta is 0.
+03:12:55 INFO  Calling node_active for node default/4/0 with current state: primary, PostgreSQL is running, sync_state is &#34;sync&#34;, WAL delta is 0.
+</code></pre><p>pg-slave 的狀態從原本的secondary 變成了 primary</p>
+<p>來檢查看看</p>
+<pre tabindex="0"><code>2019-09-20 03:19:04 [administrator@pg-slave ~]$ sudo runuser -l postgres -c &#34;pg_autoctl show state&#34;
+      Name |   Port | Group |  Node |     Current State |    Assigned State
+-----------+--------+-------+-------+-------------------+------------------
+pg-primary |   5432 |     0 |     1 |         secondary |         secondary
+  pg-slave |   5432 |     0 |     4 |           primary |           primary
+
+2019-09-20 03:19:07 [administrator@pg-slave ~]$ 
+</code></pre><p>跟上面第一次執行的結果不同了，兩台角色互換了，這也是預期中的結果</p>
+<p>那在pg-master 離線期間的異動資料呢？在 pg-master上查得到嗎？</p>
+<p>先透過 URI存取DB 檢查看看</p>
+<pre tabindex="0"><code>2019-09-20 11:12:16 [administrator@pg-primary ~]$ sudo runuser -l postgres -c &#34;psql postgres://pg-slave:5432,pg-primary:5432/postgres?target_session_attrs=read-write&#34;
+psql (11.5 (Ubuntu 11.5-1.pgdg18.04+1))
+Type &#34;help&#34; for help.
+
+postgres=# \l
+                              List of databases
+    Name     |  Owner   | Encoding  | Collate | Ctype |   Access privileges   
+-------------+----------+-----------+---------+-------+-----------------------
+ nexus       | postgres | SQL_ASCII | C       | C     | 
+ postgres    | postgres | SQL_ASCII | C       | C     | 
+ template0   | postgres | SQL_ASCII | C       | C     | =c/postgres          +
+             |          |           |         |       | postgres=CTc/postgres
+ template1   | postgres | SQL_ASCII | C       | C     | =c/postgres          +
+             |          |           |         |       | postgres=CTc/postgres
+ testdb_1058 | postgres | SQL_ASCII | C       | C     | 
+ testdb_1108 | postgres | SQL_ASCII | C       | C     | 
+(6 rows)
+
+postgres=# select * from testtbl_1108;
+ serial 
+--------
+    999
+    888
+     77
+     66
+     55
+(5 rows)
+
+postgres=#
+</code></pre><p>GOOD！看來資料也同步過來了</p>
+<p>再來看看單機的狀態</p>
+<pre tabindex="0"><code>2019-09-20 11:22:07 [administrator@pg-primary ~]$ sudo runuser -l postgres -c &#34;psql&#34;
+psql (11.5 (Ubuntu 11.5-1.pgdg18.04+1))
+Type &#34;help&#34; for help.
+
+postgres=# \l
+                              List of databases
+    Name     |  Owner   | Encoding  | Collate | Ctype |   Access privileges   
+-------------+----------+-----------+---------+-------+-----------------------
+ nexus       | postgres | SQL_ASCII | C       | C     | 
+ postgres    | postgres | SQL_ASCII | C       | C     | 
+ template0   | postgres | SQL_ASCII | C       | C     | =c/postgres          +
+             |          |           |         |       | postgres=CTc/postgres
+ template1   | postgres | SQL_ASCII | C       | C     | =c/postgres          +
+             |          |           |         |       | postgres=CTc/postgres
+ testdb_1058 | postgres | SQL_ASCII | C       | C     | 
+ testdb_1108 | postgres | SQL_ASCII | C       | C     | 
+(6 rows)
+
+postgres=# select * from testtbl_1108;
+ serial 
+--------
+    999
+    888
+     77
+     66
+     55
+(5 rows)
+
+postgres=# 
+</code></pre><p>很好，確認資料有正確的抄寫過來！</p>
+<hr>
+<p>以上測試可以發現 pg_auto_failover 這個postgresql的extension 還真的很好用！</p>
+<p>設定簡單、快速、方便，設定完成後也不用傷腦筋，反正有異常，會自動幫你搞定master-slave之間的主從關係</p>
+<p>資料也都會自動同步好，真的是非常推薦啊！</p>
+<p>UPDATE</p>
+<h4 id="將-pg_auto_failover-用-systemd-管理">將 pg_auto_failover 用 systemd 管理</h4>
+<p>每次都要手動執行 pg_autoctl run 太麻煩了，應該用systemd 或者是 supervisor 來管理</p>
+<p>而pg_auto_failover 有指令可以做成 systemd 的service 檔案</p>
+<p>既然人家都做好了，當然就直接用 systemd 來做</p>
+<p>執行以下指令，產生 systemd configuration</p>
+<pre tabindex="0"><code>sudo runuser -l postgres -c &#34;pg_autoctl -q show systemd&#34; | sudo tee /etc/systemd/system/pgautofailover.service
+</code></pre><p>在/etc/systemd/system底下會多出一個 pgautofailover.service檔案</p>
+<p>內容就是 pg_auto_failover 所提供的 systemd config</p>
+<p>接下來就可以直接用 sudo service pgautofailover start 來啟動</p>
+<p>沒有什麼問題，不過呢，這樣的作法，會在 /var/log/syslog 塞滿了 pg_auto_failover 的紀錄</p>
+<pre tabindex="0"><code>Sep 20 14:59:34 pg-primary systemd[1]: Started pg_auto_failover.
+Sep 20 14:59:34 pg-primary pg_autoctl[7817]: 14:59:34 INFO  Managing PostgreSQL installation at &#34;/var/lib/postgresql/11/main&#34;
+Sep 20 14:59:34 pg-primary pg_autoctl[7817]: 14:59:34 INFO  Found a stale pidfile at &#34;/tmp/pg_autoctl/var/lib/postgresql/11/main/pg_autoctl.pid&#34;
+Sep 20 14:59:34 pg-primary pg_autoctl[7817]: 14:59:34 WARN  Removing the stale pid file &#34;/tmp/pg_autoctl/var/lib/postgresql/11/main/pg_autoctl.pid&#34;
+Sep 20 14:59:34 pg-primary pg_autoctl[7817]: 14:59:34 INFO  The version of extenstion &#34;pgautofailover&#34; is &#34;1.0&#34; on the monitor
+Sep 20 14:59:34 pg-primary pg_autoctl[7817]: 14:59:34 INFO  pg_autoctl service is starting
+Sep 20 14:59:34 pg-primary pg_autoctl[7817]: 14:59:34 INFO  Calling node_active for node default/1/0 with current state: secondary, PostgreSQL is running, sync_state is &#34;&#34;, WAL delta is 0.
+Sep 20 14:59:39 pg-primary pg_autoctl[7817]: 14:59:39 INFO  Calling node_active for node default/1/0 with current state: secondary, PostgreSQL is running, sync_state is &#34;&#34;, WAL delta is 0.
+Sep 20 14:59:44 pg-primary pg_autoctl[7817]: 14:59:44 INFO  Calling node_active for node default/1/0 with current state: secondary, PostgreSQL is running, sync_state is &#34;&#34;, WAL delta is 0.
+Sep 20 14:59:49 pg-primary pg_autoctl[7817]: 14:59:49 INFO  Calling node_active for node default/1/0 with current state: secondary, PostgreSQL is running, sync_state is &#34;&#34;, WAL delta is 0.
+Sep 20 14:59:54 pg-primary pg_autoctl[7817]: 14:59:54 INFO  Calling node_active for node default/1/0 with current state: secondary, PostgreSQL is running, sync_state is &#34;&#34;, WAL delta is 0.
+Sep 20 14:59:59 pg-primary pg_autoctl[7817]: 14:59:59 INFO  Calling node_active for node default/1/0 with current state: secondary, PostgreSQL is running, sync_state is &#34;&#34;, WAL delta is 0.
+Sep 20 15:00:04 pg-primary pg_autoctl[7817]: 15:00:04 INFO  Calling node_active for node default/1/0 with current state: secondary, PostgreSQL is running, sync_state is &#34;&#34;, WAL delta is 0.
+Sep 20 15:00:09 pg-primary pg_autoctl[7817]: 15:00:09 INFO  Calling node_active for node default/1/0 with current state: secondary, PostgreSQL is running, sync_state is &#34;&#34;, WAL delta is 0.
+Sep 20 15:00:15 pg-primary pg_autoctl[7817]: 15:00:14 INFO  Calling node_active for node default/1/0 with current state: secondary, PostgreSQL is running, sync_state is &#34;&#34;, WAL delta is 0.
+Sep 20 15:00:20 pg-primary pg_autoctl[7817]: 15:00:20 INFO  Calling node_active for node default/1/0 with current state: secondary, PostgreSQL is running, sync_state is &#34;&#34;, WAL delta is 0.
+Sep 20 15:00:25 pg-primary pg_autoctl[7817]: 15:00:25 INFO  Calling node_active for node default/1/0 with current state: secondary, PostgreSQL is running, sync_state is &#34;&#34;, WAL delta is 0.
+Sep 20 15:00:30 pg-primary pg_autoctl[7817]: 15:00:30 INFO  Calling node_active for node default/1/0 with current state: secondary, PostgreSQL is running, sync_state is &#34;&#34;, WAL delta is 0.
+Sep 20 15:00:35 pg-primary pg_autoctl[7817]: 15:00:35 INFO  Calling node_active for node default/1/0 with current state: secondary, PostgreSQL is running, sync_state is &#34;&#34;, WAL delta is 0.
+Sep 20 15:00:40 pg-primary pg_autoctl[7817]: 15:00:40 INFO  Calling node_active for node default/1/0 with current state: secondary, PostgreSQL is running, sync_state is &#34;&#34;, WAL delta is 0.
+Sep 20 15:00:45 pg-primary pg_autoctl[7817]: 15:00:45 INFO  Calling node_active for node default/1/0 with current state: secondary, PostgreSQL is running, sync_state is &#34;&#34;, WAL delta is 0.
+Sep 20 15:00:50 pg-primary pg_autoctl[7817]: 15:00:50 INFO  Calling node_active for node default/1/0 with current state: secondary, PostgreSQL is running, sync_state is &#34;&#34;, WAL delta is 0.
+Sep 20 15:00:55 pg-primary pg_autoctl[7817]: 15:00:55 INFO  Calling node_active for node default/1/0 with current state: secondary, PostgreSQL is running, sync_state is &#34;&#34;, WAL delta is 0.
+Sep 20 15:01:00 pg-primary pg_autoctl[7817]: 15:01:00 INFO  Calling node_active for node default/1/0 with current state: secondary, PostgreSQL is running, sync_state is &#34;&#34;, WAL delta is 0.
+Sep 20 15:01:05 pg-primary pg_autoctl[7817]: 15:01:05 INFO  Calling node_active for node default/1/0 with current state: secondary, PostgreSQL is running, sync_state is &#34;&#34;, WAL delta is 0.
+Sep 20 15:01:10 pg-primary pg_autoctl[7817]: 15:01:10 INFO  Calling node_active for node default/1/0 with current state: secondary, PostgreSQL is running, sync_state is &#34;&#34;, WAL delta is 0.
+Sep 20 15:01:15 pg-primary pg_autoctl[7817]: 15:01:15 INFO  Calling node_active for node default/1/0 with current state: secondary, PostgreSQL is running, sync_state is &#34;&#34;, WAL delta is 0.
+Sep 20 15:01:20 pg-primary pg_autoctl[7817]: 15:01:20 INFO  Calling node_active for node default/1/0 with current state: secondary, PostgreSQL is running, sync_state is &#34;&#34;, WAL delta is 0.
+Sep 20 15:01:25 pg-primary pg_autoctl[7817]: 15:01:25 INFO  Calling node_active for node default/1/0 with current state: secondary, PostgreSQL is running, sync_state is &#34;&#34;, WAL delta is 0.
+Sep 20 15:01:30 pg-primary pg_autoctl[7817]: 15:01:30 INFO  Calling node_active for node default/1/0 with current state: secondary, PostgreSQL is running, sync_state is &#34;&#34;, WAL delta is 0.
+Sep 20 15:01:35 pg-primary pg_autoctl[7817]: 15:01:35 INFO  Calling node_active for node default/1/0 with current state: secondary, PostgreSQL is running, sync_state is &#34;&#34;, WAL delta is 0.
+Sep 20 15:01:40 pg-primary pg_autoctl[7817]: 15:01:40 INFO  Calling node_active for node default/1/0 with current state: secondary, PostgreSQL is running, sync_state is &#34;&#34;, WAL delta is 0.
+Sep 20 15:01:45 pg-primary pg_autoctl[7817]: 15:01:45 INFO  Calling node_active for node default/1/0 with current state: secondary, PostgreSQL is running, sync_state is &#34;&#34;, WAL delta is 0.
+Sep 20 15:01:50 pg-primary pg_autoctl[7817]: 15:01:50 INFO  Calling node_active for node default/1/0 with current state: secondary, PostgreSQL is running, sync_state is &#34;&#34;, WAL delta is 0.
+Sep 20 15:01:55 pg-primary pg_autoctl[7817]: 15:01:55 INFO  Calling node_active for node default/1/0 with current state: secondary, PostgreSQL is running, sync_state is &#34;&#34;, WAL delta is 0.
+Sep 20 15:02:00 pg-primary pg_autoctl[7817]: 15:02:00 INFO  Calling node_active for node default/1/0 with current state: secondary, PostgreSQL is running, sync_state is &#34;&#34;, WAL delta is 0.
+Sep 20 15:02:05 pg-primary pg_autoctl[7817]: 15:02:05 INFO  Calling node_active for node default/1/0 with current state: secondary, PostgreSQL is running, sync_state is &#34;&#34;, WAL delta is 0.
+Sep 20 15:02:10 pg-primary pg_autoctl[7817]: 15:02:10 INFO  Calling node_active for node default/1/0 with current state: secondary, PostgreSQL is running, sync_state is &#34;&#34;, WAL delta is 0.
+Sep 20 15:02:15 pg-primary pg_autoctl[7817]: 15:02:15 INFO  Calling node_active for node default/1/0 with current state: secondary, PostgreSQL is running, sync_state is &#34;&#34;, WAL delta is 0.
+Sep 20 15:02:20 pg-primary pg_autoctl[7817]: 15:02:20 INFO  Calling node_active for node default/1/0 with current state: secondary, PostgreSQL is running, sync_state is &#34;&#34;, WAL delta is 0.
+Sep 20 15:02:25 pg-primary pg_autoctl[7817]: 15:02:25 INFO  Calling node_active for node default/1/0 with current state: secondary, PostgreSQL is running, sync_state is &#34;&#34;, WAL delta is 0.
+Sep 20 15:02:30 pg-primary pg_autoctl[7817]: 15:02:30 INFO  Calling node_active for node default/1/0 with current state: secondary, PostgreSQL is running, sync_state is &#34;&#34;, WAL delta is 0.
+Sep 20 15:02:35 pg-primary pg_autoctl[7817]: 15:02:35 INFO  Calling node_active for node default/1/0 with current state: secondary, PostgreSQL is running, sync_state is &#34;&#34;, WAL delta is 0.
+Sep 20 15:02:40 pg-primary pg_autoctl[7817]: 15:02:40 INFO  Calling node_active for node default/1/0 with current state: secondary, PostgreSQL is running, sync_state is &#34;&#34;, WAL delta is 0.
+Sep 20 15:02:46 pg-primary pg_autoctl[7817]: 15:02:46 INFO  Calling node_active for node default/1/0 with current state: secondary, PostgreSQL is running, sync_state is &#34;&#34;, WAL delta is 0.
+Sep 20 15:02:51 pg-primary pg_autoctl[7817]: 15:02:51 INFO  Calling node_active for node default/1/0 with current state: secondary, PostgreSQL is running, sync_state is &#34;&#34;, WAL delta is 0.
+Sep 20 15:02:56 pg-primary pg_autoctl[7817]: 15:02:56 INFO  Calling node_active for node default/1/0 with current state: secondary, PostgreSQL is running, sync_state is &#34;&#34;, WAL delta is 0.
+Sep 20 15:03:01 pg-primary pg_autoctl[7817]: 15:03:01 INFO  Calling node_active for node default/1/0 with current state: secondary, PostgreSQL is running, sync_state is &#34;&#34;, WAL delta is 0.
+Sep 20 15:03:06 pg-primary pg_autoctl[7817]: 15:03:06 INFO  Calling node_active for node default/1/0 with current state: secondary, PostgreSQL is running, sync_state is &#34;&#34;, WAL delta is 0.
+Sep 20 15:03:11 pg-primary pg_autoctl[7817]: 15:03:11 INFO  Calling node_active for node default/1/0 with current state: secondary, PostgreSQL is running, sync_state is &#34;&#34;, WAL delta is 0.
+Sep 20 15:03:16 pg-primary pg_autoctl[7817]: 15:03:16 INFO  Calling node_active for node default/1/0 with current state: secondary, PostgreSQL is running, sync_state is &#34;&#34;, WAL delta is 0.
+Sep 20 15:03:21 pg-primary pg_autoctl[7817]: 15:03:21 INFO  Calling node_active for node default/1/0 with current state: secondary, PostgreSQL is running, sync_state is &#34;&#34;, WAL delta is 0.
+Sep 20 15:03:26 pg-primary pg_autoctl[7817]: 15:03:26 INFO  Calling node_active for node default/1/0 with current state: secondary, PostgreSQL is running, sync_state is &#34;&#34;, WAL delta is 0.
+Sep 20 15:03:31 pg-primary pg_autoctl[7817]: 15:03:31 INFO  Calling node_active for node default/1/0 with current state: secondary, PostgreSQL is running, sync_state is &#34;&#34;, WAL delta is 0.
+Sep 20 15:03:36 pg-primary pg_autoctl[7817]: 15:03:36 INFO  Calling node_active for node default/1/0 with current state: secondary, PostgreSQL is running, sync_state is &#34;&#34;, WAL delta is 0.
+Sep 20 15:03:41 pg-primary pg_autoctl[7817]: 15:03:41 INFO  Calling node_active for node default/1/0 with current state: secondary, PostgreSQL is running, sync_state is &#34;&#34;, WAL delta is 0.
+Sep 20 15:03:46 pg-primary pg_autoctl[7817]: 15:03:46 INFO  Calling node_active for node default/1/0 with current state: secondary, PostgreSQL is running, sync_state is &#34;&#34;, WAL delta is 0.
+Sep 20 15:03:51 pg-primary pg_autoctl[7817]: 15:03:51 INFO  Calling node_active for node default/1/0 with current state: secondary, PostgreSQL is running, sync_state is &#34;&#34;, WAL delta is 0.
+Sep 20 15:03:57 pg-primary pg_autoctl[7817]: 15:03:57 INFO  Calling node_active for node default/1/0 with current state: secondary, PostgreSQL is running, sync_state is &#34;&#34;, WAL delta is 0.
+Sep 20 15:04:02 pg-primary pg_autoctl[7817]: 15:04:02 INFO  Calling node_active for node default/1/0 with current state: secondary, PostgreSQL is running, sync_state is &#34;&#34;, WAL delta is 0.
+Sep 20 15:04:07 pg-primary pg_autoctl[7817]: 15:04:07 INFO  Calling node_active for node default/1/0 with current state: secondary, PostgreSQL is running, sync_state is &#34;&#34;, WAL delta is 0.
+Sep 20 15:04:12 pg-primary pg_autoctl[7817]: 15:04:12 INFO  Calling node_active for node default/1/0 with current state: secondary, PostgreSQL is running, sync_state is &#34;&#34;, WAL delta is 0.
+Sep 20 15:04:17 pg-primary pg_autoctl[7817]: 15:04:17 INFO  Calling node_active for node default/1/0 with current state: secondary, PostgreSQL is running, sync_state is &#34;&#34;, WAL delta is 0.
+Sep 20 15:04:22 pg-primary pg_autoctl[7817]: 15:04:22 INFO  Calling node_active for node default/1/0 with current state: secondary, PostgreSQL is running, sync_state is &#34;&#34;, WAL delta is 0.
+Sep 20 15:04:27 pg-primary pg_autoctl[7817]: 15:04:27 INFO  Calling node_active for node default/1/0 with current state: secondary, PostgreSQL is running, sync_state is &#34;&#34;, WAL delta is 0.
+Sep 20 15:04:32 pg-primary pg_autoctl[7817]: 15:04:32 INFO  Calling node_active for node default/1/0 with current state: secondary, PostgreSQL is running, sync_state is &#34;&#34;, WAL delta is 0.
+Sep 20 15:04:37 pg-primary pg_autoctl[7817]: 15:04:37 INFO  Calling node_active for node default/1/0 with current state: secondary, PostgreSQL is running, sync_state is &#34;&#34;, WAL delta is 0.
+Sep 20 15:04:42 pg-primary pg_autoctl[7817]: 15:04:42 INFO  Calling node_active for node default/1/0 with current state: secondary, PostgreSQL is running, sync_state is &#34;&#34;, WAL delta is 0.
+Sep 20 15:04:47 pg-primary pg_autoctl[7817]: 15:04:47 INFO  Calling node_active for node default/1/0 with current state: secondary, PostgreSQL is running, sync_state is &#34;&#34;, WAL delta is 0.
+Sep 20 15:04:52 pg-primary pg_autoctl[7817]: 15:04:52 INFO  Calling node_active for node default/1/0 with current state: secondary, PostgreSQL is running, sync_state is &#34;&#34;, WAL delta is 0.
+</code></pre><p>這樣下去不用多久，syslog 一定爆，而且嚴重干擾到其他的系統訊息</p>
+<p>所以要修改一下 config ，把log 寫到另外的檔案去</p>
+<p>在/etc/systemd/system/pgautofailover.service 加入底下兩行</p>
+<pre tabindex="0"><code>StandardOutput=file:/var/log/pgautofailover.log
+StandardError=file:/var/log/pgautofailover-error.log
+</code></pre><p>然後 sudo systemctl daemon-reload 接著重起 sudo service pgautofailover restart</p>
+<p>就會把訊息都寫到 /var/log/pgautofailover.log , /var/log/pgautofailover-error.log</p>
+<p>再用 logrotate 來管理就可以了</p>
+<p>這個動作需要在三台node都執行</p>
+<p>不過我在想應該是可以不要產生那麼多log ，只要紀錄 critical 就好了？來試試看加入 LogLevelMax=3 的效果</p>
+<p>在 /etc/systemd/system/pgautofailover.service 檔案中的service 區段 加入</p>
+<pre tabindex="0"><code>LogLevelMax=3
+</code></pre><p>loglevel 的等級定義看這邊</p>
+<p><a class="link" href="https://www.ctrl.blog/entry/systemd-log-levels.html"  target="_blank" rel="noopener"
+    >https://www.ctrl.blog/entry/systemd-log-levels.html</a></p>
+<ul>
+<li>emergency (0)</li>
+<li>alert (1)</li>
+<li>critical (2)</li>
+<li>error (3)</li>
+<li>warning (4)</li>
+<li>notice (5)</li>
+<li>info (6)</li>
+<li>debug (7)</li>
+</ul>
+<p>完成後，一樣執行</p>
+<pre tabindex="0"><code>sudo systemctl daemon-reload
+sudo service pgautofailover restart
+</code></pre><p>看一下檔案內容，怎麼就沒有訊息了！</p>
+<pre tabindex="0"><code>2019-09-20 15:23:15 [administrator@pg-primary ~]$ sudo tail -30 /var/log/pgautofailover.log 
+15:14:22 INFO  Calling node_active for node default/1/0 with current state: secondary, PostgreSQL is running, sync_state is &#34;&#34;, WAL delta is 0.
+15:14:27 INFO  Calling node_active for node default/1/0 with current state: secondary, PostgreSQL is running, sync_state is &#34;&#34;, WAL delta is 0.
+15:14:32 INFO  Calling node_active for node default/1/0 with current state: secondary, PostgreSQL is running, sync_state is &#34;&#34;, WAL delta is 0.
+15:14:37 INFO  Calling node_active for node default/1/0 with current state: secondary, PostgreSQL is running, sync_state is &#34;&#34;, WAL delta is 0.
+15:14:42 INFO  Calling node_active for node default/1/0 with current state: secondary, PostgreSQL is running, sync_state is &#34;&#34;, WAL delta is 0.
+15:14:47 INFO  Calling node_active for node default/1/0 with current state: secondary, PostgreSQL is running, sync_state is &#34;&#34;, WAL delta is 0.
+15:14:52 INFO  Calling node_active for node default/1/0 with current state: secondary, PostgreSQL is running, sync_state is &#34;&#34;, WAL delta is 0.
+15:14:57 INFO  Calling node_active for node default/1/0 with current state: secondary, PostgreSQL is running, sync_state is &#34;&#34;, WAL delta is 0.
+15:15:02 INFO  Calling node_active for node default/1/0 with current state: secondary, PostgreSQL is running, sync_state is &#34;&#34;, WAL delta is 0.
+15:15:07 INFO  Calling node_active for node default/1/0 with current state: secondary, PostgreSQL is running, sync_state is &#34;&#34;, WAL delta is 0.
+15:15:12 INFO  Calling node_active for node default/1/0 with current state: secondary, PostgreSQL is running, sync_state is &#34;&#34;, WAL delta is 0.
+15:15:17 INFO  Calling node_active for node default/1/0 with current state: secondary, PostgreSQL is running, sync_state is &#34;&#34;, WAL delta is 0.
+15:15:22 INFO  Calling node_active for node default/1/0 with current state: secondary, PostgreSQL is running, sync_state is &#34;&#34;, WAL delta is 0.
+15:15:27 INFO  Calling node_active for node default/1/0 with current state: secondary, PostgreSQL is running, sync_state is &#34;&#34;, WAL delta is 0.
+15:15:32 INFO  Calling node_active for node default/1/0 with current state: secondary, PostgreSQL is running, sync_state is &#34;&#34;, WAL delta is 0.
+15:15:37 INFO  Calling node_active for node default/1/0 with current state: secondary, PostgreSQL is running, sync_state is &#34;&#34;, WAL delta is 0.
+15:15:42 INFO  Calling node_active for node default/1/0 with current state: secondary, PostgreSQL is running, sync_state is &#34;&#34;, WAL delta is 0.
+15:15:47 INFO  Calling node_active for node default/1/0 with current state: secondary, PostgreSQL is running, sync_state is &#34;&#34;, WAL delta is 0.
+15:15:52 INFO  Calling node_active for node default/1/0 with current state: secondary, PostgreSQL is running, sync_state is &#34;&#34;, WAL delta is 0.
+15:15:58 INFO  Calling node_active for node default/1/0 with current state: secondary, PostgreSQL is running, sync_state is &#34;&#34;, WAL delta is 0.
+15:16:03 INFO  Calling node_active for node default/1/0 with current state: secondary, PostgreSQL is running, sync_state is &#34;&#34;, WAL delta is 0.
+15:16:08 INFO  Calling node_active for node default/1/0 with current state: secondary, PostgreSQL is running, sync_state is &#34;&#34;, WAL delta is 0.
+15:16:13 INFO  Calling node_active for node default/1/0 with current state: secondary, PostgreSQL is running, sync_state is &#34;&#34;, WAL delta is 0.
+15:16:18 INFO  Calling node_active for node default/1/0 with current state: secondary, PostgreSQL is running, sync_state is &#34;&#34;, WAL delta is 0.
+15:16:23 INFO  Calling node_active for node default/1/0 with current state: secondary, PostgreSQL is running, sync_state is &#34;&#34;, WAL delta is 0.
+15:16:28 INFO  Calling node_active for node default/1/0 with current state: secondary, PostgreSQL is running, sync_state is &#34;&#34;, WAL delta is 0.
+15:16:34 INFO  Calling node_active for node default/1/0 with current state: secondary, PostgreSQL is running, sync_state is &#34;&#34;, WAL delta is 0.
+15:16:39 INFO  Calling node_active for node default/1/0 with current state: secondary, PostgreSQL is running, sync_state is &#34;&#34;, WAL delta is 0.
+15:16:39 WARN  Smart shutdown: received signal Terminated
+15:16:39 INFO  pg_autoctl service stopping
+2019-09-20 15:23:29 [administrator@pg-primary ~]$ 
+</code></pre><p>可是我的服務活著啊！</p>
+<pre tabindex="0"><code>2019-09-20 15:23:29 [administrator@pg-primary ~]$ sudo service pgautofailover status
+● pgautofailover.service - pg_auto_failover
+   Loaded: loaded (/etc/systemd/system/pgautofailover.service; disabled; vendor preset: enabled)
+   Active: active (running) since Fri 2019-09-20 15:16:39 CST; 7min ago
+ Main PID: 8611 (pg_autoctl)
+    Tasks: 1 (limit: 2321)
+   CGroup: /system.slice/pgautofailover.service
+           └─8611 /usr/bin/pg_autoctl run
+
+Sep 20 15:16:39 pg-primary systemd[1]: Started pg_auto_failover.
+2019-09-20 15:23:56 [administrator@pg-primary ~]$
+</code></pre><p>拿另一台來做實驗，先不要加入 loglevelmax=3 ，看看log到底長怎樣！</p>
+<pre tabindex="0"><code>2019-09-20 07:25:34 [administrator@pg-slave ~]$ sudo service pgautofailover stop
+2019-09-20 07:25:58 [administrator@pg-slave ~]$ sudo tail -10 /var/log/syslog
+Sep 20 07:25:32 pg-slave pg_autoctl[5840]: 07:25:32 INFO  Calling node_active for node default/4/0 with current state: primary, PostgreSQL is running, sync_state is &#34;sync&#34;, WAL delta is 0.
+Sep 20 07:25:37 pg-slave pg_autoctl[5840]: 07:25:37 INFO  Calling node_active for node default/4/0 with current state: primary, PostgreSQL is running, sync_state is &#34;sync&#34;, WAL delta is 0.
+Sep 20 07:25:42 pg-slave pg_autoctl[5840]: 07:25:42 INFO  Calling node_active for node default/4/0 with current state: primary, PostgreSQL is running, sync_state is &#34;sync&#34;, WAL delta is 0.
+Sep 20 07:25:47 pg-slave pg_autoctl[5840]: 07:25:47 INFO  Calling node_active for node default/4/0 with current state: primary, PostgreSQL is running, sync_state is &#34;sync&#34;, WAL delta is 0.
+Sep 20 07:25:52 pg-slave pg_autoctl[5840]: 07:25:52 INFO  Calling node_active for node default/4/0 with current state: primary, PostgreSQL is running, sync_state is &#34;sync&#34;, WAL delta is 0.
+Sep 20 07:25:57 pg-slave pg_autoctl[5840]: 07:25:57 INFO  Calling node_active for node default/4/0 with current state: primary, PostgreSQL is running, sync_state is &#34;sync&#34;, WAL delta is 0.
+Sep 20 07:25:58 pg-slave systemd[1]: Stopping pg_auto_failover...
+Sep 20 07:25:58 pg-slave pg_autoctl[5840]: 07:25:58 WARN  Smart shutdown: received signal Terminated
+Sep 20 07:25:58 pg-slave pg_autoctl[5840]: 07:25:58 INFO  pg_autoctl service stopping
+Sep 20 07:25:58 pg-slave systemd[1]: Stopped pg_auto_failover.
+</code></pre><p>好吧，看不出有什麼差別！ 直接把primary 關機測試！ 結果還是看不出來 0rz</p>
+<p>放棄加入loglevel 的想法，就用logrotate 來管理吧！</p>
+<p>UPDATE</p>
+<p>用systemd 來管理的作法失敗了，重起之後， pgautofailover 不會自動啟動&hellip;</p>
+<p>找了很久找不出原因，改用 supervisor來做好了</p>
+<hr>
+<h4 id="設定-supervisor">設定 supervisor</h4>
+<p><strong>安裝supervisor</strong></p>
+<pre tabindex="0"><code>sudo apt install supervisor
+sudo vim /etc/supervisor/conf.d/pgautofailover.conf
+加入以下內容
+[program:pgautofailover]
+command = pg_autoctl run
+user = postgres
+autostart=true
+autorestart=true
+redirect_stderr = true
+environment=PGDATA=/var/lib/postgresql/11/main,HOME=/var/lib/postgresql
+</code></pre><p>重新啟動 supervisor &amp; 檢查狀態</p>
+<pre tabindex="0"><code>2019-09-20 17:26:22 [administrator@pg-primary postgresql]$ sudo service supervisor restart
+2019-09-20 17:26:57 [administrator@pg-primary postgresql]$ sudo supervisorctl status
+pgautofailover                   RUNNING   pid 14554, uptime 0:00:05
+2019-09-20 17:27:03 [administrator@pg-primary postgresql]$ 
+</code></pre><p>檢查 supervisor log</p>
+<pre tabindex="0"><code>2019-09-20 17:27:03 [administrator@pg-primary postgresql]$ sudo tail -30 /var/log/supervisor/pgautofailover-stdout---supervisor-5V8qET.log 
+17:26:58 INFO  Managing PostgreSQL installation at &#34;/var/lib/postgresql/11/main&#34;
+17:26:58 INFO  Found a stale pidfile at &#34;/tmp/pg_autoctl/var/lib/postgresql/11/main/pg_autoctl.pid&#34;
+17:26:58 WARN  Removing the stale pid file &#34;/tmp/pg_autoctl/var/lib/postgresql/11/main/pg_autoctl.pid&#34;
+17:26:58 INFO  The version of extenstion &#34;pgautofailover&#34; is &#34;1.0&#34; on the monitor
+17:26:58 INFO  pg_autoctl service is starting
+17:26:58 INFO  Calling node_active for node default/1/0 with current state: primary, PostgreSQL is running, sync_state is &#34;sync&#34;, WAL delta is 0.
+17:27:03 INFO  Calling node_active for node default/1/0 with current state: primary, PostgreSQL is running, sync_state is &#34;sync&#34;, WAL delta is 0.
+17:27:08 INFO  Calling node_active for node default/1/0 with current state: primary, PostgreSQL is running, sync_state is &#34;sync&#34;, WAL delta is 0.
+17:27:13 INFO  Calling node_active for node default/1/0 with current state: primary, PostgreSQL is running, sync_state is &#34;sync&#34;, WAL delta is 0.
+17:27:18 INFO  Calling node_active for node default/1/0 with current state: primary, PostgreSQL is running, sync_state is &#34;sync&#34;, WAL delta is 0.
+2019-09-20 17:27:21 [administrator@pg-primary postgresql]$ 
+</code></pre><p>簡單多了 &hellip; 在剩下的monitor/slave 也一樣操作安裝、設定supervisor 就可以了</p>
+<p>喔，順便把剛剛新增的 systemd config 給砍了..</p>
+<p>不過不砍也沒差，反正開機也不會自己啟動 = =+</p>
+<pre tabindex="0"><code>2019-09-20 17:24:17 [administrator@pg-slave ~]$ sudo rm -rf /etc/systemd/system/pgautofailover.service
+#安裝supervisor
+2019-09-20 17:23:08 [administrator@pg-slave ~]$ sudo apt install supervisor
+Reading package lists... Done
+Building dependency tree       
+Reading state information... Done
+The following additional packages will be installed:
+  python-meld3 python-pkg-resources
+Suggested packages:
+  python-setuptools supervisor-doc
+The following NEW packages will be installed:
+  python-meld3 python-pkg-resources supervisor
+0 upgraded, 3 newly installed, 0 to remove and 167 not upgraded.
+Need to get 415 kB of archives.
+After this operation, 2,138 kB of additional disk space will be used.
+Do you want to continue? [Y/n] y
+Get:1 http://archive.ubuntu.com/ubuntu bionic/main amd64 python-pkg-resources all 39.0.1-2 [128 kB]
+Get:2 http://archive.ubuntu.com/ubuntu bionic/universe amd64 python-meld3 all 1.0.2-2 [30.9 kB]
+Get:3 http://archive.ubuntu.com/ubuntu bionic/universe amd64 supervisor all 3.3.1-1.1 [256 kB]
+Fetched 415 kB in 0s (6,752 kB/s)   
+Selecting previously unselected package python-pkg-resources.
+(Reading database ... 103586 files and directories currently installed.)
+Preparing to unpack .../python-pkg-resources_39.0.1-2_all.deb ...
+Unpacking python-pkg-resources (39.0.1-2) ...
+Selecting previously unselected package python-meld3.
+Preparing to unpack .../python-meld3_1.0.2-2_all.deb ...
+Unpacking python-meld3 (1.0.2-2) ...
+Selecting previously unselected package supervisor.
+Preparing to unpack .../supervisor_3.3.1-1.1_all.deb ...
+Unpacking supervisor (3.3.1-1.1) ...
+Processing triggers for ureadahead (0.100.0-20) ...
+Setting up python-meld3 (1.0.2-2) ...
+Setting up python-pkg-resources (39.0.1-2) ...
+Setting up supervisor (3.3.1-1.1) ...
+Created symlink /etc/systemd/system/multi-user.target.wants/supervisor.service → /lib/systemd/system/supervisor.service.
+Processing triggers for systemd (237-3ubuntu10.29) ...
+Processing triggers for man-db (2.8.3-2) ...
+Processing triggers for ureadahead (0.100.0-20) ...
+2019-09-20 17:23:37 [administrator@pg-slave ~]$ sudo vim /etc/supervisor/conf.d/pgautofailover.conf
+#貼上上面的 conf 內容
+2019-09-20 17:30:12 [administrator@pg-slave ~]$ sudo service supervisor restart
+2019-09-20 17:30:58 [administrator@pg-slave ~]$ sudo supervisorctl status
+pgautofailover                   RUNNING   pid 2232, uptime 0:00:04
+2019-09-20 17:31:03 [administrator@pg-slave ~]$ sudo tail -30 /var/log/supervisor/pgautofailover-stdout---supervisor-LC_FG8.log 
+17:30:59 INFO  Managing PostgreSQL installation at &#34;/var/lib/postgresql/11/main&#34;
+17:30:59 INFO  Found a stale pidfile at &#34;/tmp/pg_autoctl/var/lib/postgresql/11/main/pg_autoctl.pid&#34;
+17:30:59 WARN  Removing the stale pid file &#34;/tmp/pg_autoctl/var/lib/postgresql/11/main/pg_autoctl.pid&#34;
+17:30:59 INFO  The version of extenstion &#34;pgautofailover&#34; is &#34;1.0&#34; on the monitor
+17:30:59 INFO  pg_autoctl service is starting
+17:30:59 INFO  Calling node_active for node default/4/0 with current state: secondary, PostgreSQL is running, sync_state is &#34;&#34;, WAL delta is 320.
+17:31:04 INFO  Calling node_active for node default/4/0 with current state: secondary, PostgreSQL is running, sync_state is &#34;&#34;, WAL delta is 320.
+17:31:09 INFO  Calling node_active for node default/4/0 with current state: secondary, PostgreSQL is running, sync_state is &#34;&#34;, WAL delta is 320.
+2019-09-20 17:31:13 [administrator@pg-slave ~]$ 
+</code></pre><p>搞定，收工！準備寫 ansible playbook！</p>
+<hr>
+<p>UPDATE</p>
+<p>新增用logrotate 來管理 pgautofailover logfile</p>
+<pre tabindex="0"><code>sudo vim /etc/logrotate.d/pgautofailover
+
+/var/log/supervisor/pgautofail*.log {
+    daily
+    rotate 7                                                         
+    copytruncate
+    delaycompress    # today and yesterday will not compress
+    compress
+    missingok
+    notifempty
+}    
+</code></pre><p>UPDATE</p>
+<p>當node 消失，需要手動在monitor上執行以下指令來移除node ，才能夠再次加入新的node</p>
+<pre tabindex="0"><code>2019-09-24 01:11:09 [administrator@monitor ~]$ sudo runuser -l postgres -c &#34;psql postgres://autoctl_node@monitor:5432/pg_auto_failover&#34;
+psql (11.5 (Ubuntu 11.5-1.pgdg18.04+1))
+Type &#34;help&#34; for help.
+
+pg_auto_failover=&gt; select pgautofailover.remove_node(&#39;pg-third&#39;)        
+pg_auto_failover-&gt; ;
+ remove_node 
+-------------
+ t
+(1 row)
+
+pg_auto_failover=&gt; 
+</code></pre>
+</section>
+
+
+    <footer class="article-footer">
+    
+    <section class="article-tags">
+        
+            <a href="/tags/postgresql/">postgresql</a>
+        
+            <a href="/tags/failover/">failover</a>
+        
+    </section>
+
+
+    </footer>
+
+
+    
+</article>
+
+    
+
+    
+
+<aside class="related-content--wrapper">
+    <h2 class="section-title">Related content</h2>
+    <div class="related-content">
+        <div class="flex article-list--tile">
+            
+                
+<article class="">
+    <a href="/post/postgresql-backup-restore-using-zfs-snapshot/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">[筆記] 用zfs的snapshot 快照功能來做 postgresql 的備份還原 / Postgresql Backup Restore Using Zfs Snapshot</h2>
+        </div>
+    </a>
+</article>
+
+            
+                
+<article class="">
+    <a href="/post/backup-restore-postgresql-with-pgbackrest/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">[筆記] 用pbackrest 備份還原 postgresql / Backup Restore Postgresql With Pgbackrest</h2>
+        </div>
+    </a>
+</article>
+
+            
+                
+<article class="">
+    <a href="/post/pgbarman-in-ubuntu-1804-postgresql-10-via-ssh/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">[筆記] 在Ubuntu 18.04 下 透過 pgbarman rsync/ssh backup 備份 postgresql 10 / backup postgresql 10 with pgbarman via ssh/rsync in ubuntu 18.04</h2>
+        </div>
+    </a>
+</article>
+
+            
+                
+<article class="">
+    <a href="/post/pgbarman-in-ubuntu-1804-postgresql-10/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">[筆記] 在Ubuntu 18.04 下 透過 pgbarman streaming backup 備份 postgresql 10/ backup postgresql 10 with pgbarman straming backup in ubuntu 18.04</h2>
+        </div>
+    </a>
+</article>
+
+            
+                
+<article class="">
+    <a href="/post/bencmark-with-external-internal-nvme-ssd-and-external-sata-ssd/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">[筆記] 測試 USB 3.1 Gen2 NVME SSD 外接盒 &amp; 內建pci-e ssd &amp; 外接SATA SSD / Bencmark With External Internal Nvme Ssd and External Sata Ssd</h2>
+        </div>
+    </a>
+</article>
+
+            
+        </div>
+    </div>
+</aside>
+
+     
+    
+        
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+        2023 My New Hugo Site
+    </section>
+    
+    <section class="powerby">
+        Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
+        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.16.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+    </section>
+</footer>
+
+
+    
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.min.css"crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css"crossorigin="anonymous"
+            >
+
+            </main>
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.6/dist/vibrant.min.js"integrity="sha256-awcR2jno4kI5X0zL8ex0vi2z&#43;KMkF24hUW8WePSA9HM="crossorigin="anonymous"
+                
+                >
+            </script><script type="text/javascript" src="/ts/main.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>

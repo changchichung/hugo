@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="en-us" dir="ltr">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='感覺最近應該會用到類似這樣的功能，趁著最近比較閒一點
+就把系統弄起來玩玩看，順便建立ansible 的playbook
+'>
+<meta name="keywords" content="key1, key2"><title>[筆記] 幾種可以自建服務的 File Sharing 系統比較</title>
+
+<link rel='canonical' href='https://h.cowbay.org/post/various-self-hosted-file-sharing-system-test/'>
+
+<link rel="stylesheet" href="/scss/style.min.8191399262444ab68b72a18c97392f5349be20a1615d77445be51e974c144cff.css"><meta property='og:title' content='[筆記] 幾種可以自建服務的 File Sharing 系統比較'>
+<meta property='og:description' content='感覺最近應該會用到類似這樣的功能，趁著最近比較閒一點
+就把系統弄起來玩玩看，順便建立ansible 的playbook
+'>
+<meta property='og:url' content='https://h.cowbay.org/post/various-self-hosted-file-sharing-system-test/'>
+<meta property='og:site_name' content='My New Hugo Site'>
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:published_time' content='2021-06-25T15:49:54&#43;08:00'/><meta property='article:modified_time' content='2021-06-25T15:49:54&#43;08:00'/><meta property='og:image' content='https://h.cowbay.org/images/post-default-18.jpg' />
+<meta name="twitter:title" content="[筆記] 幾種可以自建服務的 File Sharing 系統比較">
+<meta name="twitter:description" content="感覺最近應該會用到類似這樣的功能，趁著最近比較閒一點
+就把系統弄起來玩玩看，順便建立ansible 的playbook
+"><meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:image" content='https://h.cowbay.org/images/post-default-18.jpg' />
+    </head>
+    <body class="
+    article-page
+    ">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "auto");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.documentElement.dataset.scheme = 'dark';
+        } else {
+            document.documentElement.dataset.scheme = 'light';
+        }
+    })();
+</script>
+<div class="container main-container flex on-phone--column compact"><aside class="sidebar left-sidebar sticky ">
+    <button class="hamburger hamburger--spin" type="button" id="toggle-menu" aria-label="Toggle Menu">
+        <span class="hamburger-box">
+            <span class="hamburger-inner"></span>
+        </span>
+    </button>
+
+    <header>
+        
+            
+            <figure class="site-avatar">
+                <a href="/">
+                
+                    
+                    
+                    
+                        
+                        <img src="/img/avatar.png" width="300"
+                            height="300" class="site-logo" loading="lazy" alt="Avatar">
+                    
+                
+                </a>
+                
+            </figure>
+            
+        
+        
+        <div class="site-meta">
+            <h1 class="site-name"><a href="/">My New Hugo Site</a></h1>
+            <h2 class="site-description"></h2>
+        </div>
+    </header><ol class="menu" id="main-menu">
+        
+        
+        
+        <li >
+            <a href='/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-home" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="5 12 3 12 12 3 21 12 19 12" />
+  <path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-7" />
+  <path d="M9 21v-6a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v6" />
+</svg>
+
+
+
+                
+                <span>Home</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/page/about/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-user" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="7" r="4" />
+  <path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2" />
+</svg>
+
+
+
+                
+                <span>About</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/page/archives/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-archive" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <rect x="3" y="4" width="18" height="4" rx="2" />
+  <path d="M5 8v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-10" />
+  <line x1="10" y1="12" x2="14" y2="12" />
+</svg>
+
+
+
+                
+                <span>Archives</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/page/search/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="10" cy="10" r="7" />
+  <line x1="21" y1="21" x2="15" y2="15" />
+</svg>
+
+
+
+                
+                <span>Search</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/page/links/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-link" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M10 14a3.5 3.5 0 0 0 5 0l4 -4a3.5 3.5 0 0 0 -5 -5l-.5 .5" />
+  <path d="M14 10a3.5 3.5 0 0 0 -5 0l-4 4a3.5 3.5 0 0 0 5 5l.5 -.5" />
+</svg>
+
+
+
+                
+                <span>Links</span>
+            </a>
+        </li>
+        
+
+        <div class="menu-bottom-section">
+            
+            
+                <li id="dark-mode-toggle">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="8" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="16" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                    <span>Dark Mode</span>
+                </li>
+            
+        </div>
+    </ol>
+</aside>
+
+    
+
+            <main class="main full-width">
+    <article class="has-image main-article">
+    <header class="article-header">
+        <div class="article-image">
+            <a href="/post/various-self-hosted-file-sharing-system-test/">
+                
+                    <img src="/images/post-default-18.jpg" loading="lazy" alt="Featured image of post [筆記] 幾種可以自建服務的 File Sharing 系統比較" />
+                
+            </a>
+        </div>
+    
+
+    <div class="article-details">
+    
+    <header class="article-category">
+        
+            <a href="/categories/%E7%AD%86%E8%A8%98/" >
+                筆記
+            </a>
+        
+    </header>
+    
+
+    <div class="article-title-wrapper">
+        <h2 class="article-title">
+            <a href="/post/various-self-hosted-file-sharing-system-test/">[筆記] 幾種可以自建服務的 File Sharing 系統比較</a>
+        </h2>
+    
+        
+    </div>
+
+    
+    
+    
+    
+    <footer class="article-time">
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M11.795 21h-6.795a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
+  <circle cx="18" cy="18" r="4" />
+  <path d="M15 3v4" />
+  <path d="M7 3v4" />
+  <path d="M3 11h16" />
+  <path d="M18 16.496v1.504l1 1" />
+</svg>
+                <time class="article-time--published">Jun 25, 2021</time>
+            </div>
+        
+
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+                <time class="article-time--reading">
+                    1 minute read
+                </time>
+            </div>
+        
+    </footer>
+    
+
+    
+</div>
+
+</header>
+
+    <section class="article-content">
+    
+    
+    <p>感覺最近應該會用到類似這樣的功能，趁著最近比較閒一點</p>
+<p>就把系統弄起來玩玩看，順便建立ansible 的playbook</p>
+<h3 id="linx-server">linx-server</h3>
+<p><a class="link" href="https://github.com/andreimarcu/linx-server"  target="_blank" rel="noopener"
+    >https://github.com/andreimarcu/linx-server</a></p>
+<p>目前已經停止開發的樣子</p>
+<p>有Docker 版本，裝起來很容易，用起來也不難</p>
+<p>可以自行架設伺服器</p>
+<p>可以上傳任意類型的檔案</p>
+<p>可以直接線上分享文字</p>
+<p>可以自定分享密碼</p>
+<p>上傳界面可以鎖密碼，但是鎖了密碼之後，就沒辦法用命令上傳檔案(不知道怎麼帶KEY進去)</p>
+<h4 id="不支援整個目錄上傳">不支援整個目錄上傳</h4>
+<h4 id="關於api-如何使用沒有一個完整的說明">關於API 如何使用沒有一個完整的說明</h4>
+<h4 id="始終找不到怎麼建立api-key">始終找不到怎麼建立API KEY</h4>
+<p><img src="https://i.imgur.com/83WOenv.png"
+	
+	
+	
+	loading="lazy"
+	
+	
+></p>
+<p>在console 下，可以直接上傳並取得超連結</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>chchang@hqdc039:~/docker/linx-server$ cat linx-server.conf
+</span></span><span style="display:flex;"><span>bind <span style="color:#f92672">=</span> 0.0.0.0:7779
+</span></span><span style="display:flex;"><span>sitename <span style="color:#f92672">=</span> myLinx
+</span></span><span style="display:flex;"><span>siteurl <span style="color:#f92672">=</span> https://share.com.tw
+</span></span><span style="display:flex;"><span>maxsize <span style="color:#f92672">=</span> <span style="color:#ae81ff">4294967296</span>
+</span></span><span style="display:flex;"><span>maxexpiry <span style="color:#f92672">=</span> <span style="color:#ae81ff">43200</span>
+</span></span><span style="display:flex;"><span>selifpath <span style="color:#f92672">=</span> s
+</span></span><span style="display:flex;"><span>allowhotlink <span style="color:#f92672">=</span> false
+</span></span><span style="display:flex;"><span>remoteuploads <span style="color:#f92672">=</span> false
+</span></span><span style="display:flex;"><span>nologs <span style="color:#f92672">=</span> true
+</span></span><span style="display:flex;"><span>force-random-filename <span style="color:#f92672">=</span> true
+</span></span><span style="display:flex;"><span>cleanup-every-minutes <span style="color:#f92672">=</span> <span style="color:#ae81ff">5</span>
+</span></span><span style="display:flex;"><span>basicauth <span style="color:#f92672">=</span> false
+</span></span><span style="display:flex;"><span>authfile <span style="color:#f92672">=</span> /data/authfile
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>chchang@hqdc039:~/docker/linx-server$ docker-compose up -d
+</span></span><span style="display:flex;"><span>Creating linx-server ... <span style="color:#66d9ef">done</span>
+</span></span><span style="display:flex;"><span>chchang@hqdc039:~/docker/linx-server$ ./linx-client README.md 
+</span></span><span style="display:flex;"><span>Copied https://share.com.tw/fyd81h81.md into clipboard!              
+</span></span><span style="display:flex;"><span>chchang@hqdc039:~/docker/linx-server$ 
+</span></span></code></pre></div><h3 id="psitransfer">Psitransfer</h3>
+<p><a class="link" href="https://github.com/psi-4ward/psitransfer"  target="_blank" rel="noopener"
+    >https://github.com/psi-4ward/psitransfer</a></p>
+<p>不支援command 上傳</p>
+<p>有docker版本，架設容易</p>
+<p>適合給一般使用者用，可以自行設定密碼、保存期限</p>
+<p>比較特別的是下載的連結可以產生QRCODE</p>
+<p>上傳檔案的頁面也可以鎖密碼</p>
+<p><img src="https://i.imgur.com/UMnPo0W.png"
+	
+	
+	
+	loading="lazy"
+	
+	
+></p>
+<h3 id="pictshare">pictshare</h3>
+<p><a class="link" href="https://github.com/HaschekSolutions/pictshare"  target="_blank" rel="noopener"
+    >https://github.com/HaschekSolutions/pictshare</a></p>
+<p>有docker版本，但是需要自己手動調整</p>
+<p>不然調整過的config 都會被蓋掉</p>
+<p>調整過後的docker-compose.yml 我放了一份到github 上</p>
+<p><a class="link" href="https://github.com/changchichung/docker-compose-pictshare"  target="_blank" rel="noopener"
+    >https://github.com/changchichung/docker-compose-pictshare</a></p>
+<p>需要拿掉pictshare.sh 中，每次自動更新config的部分</p>
+<p>雖然web UI 有點醜，但是基本上想要的功能都有了</p>
+<p>可以用WEB傳，也可以用terminal 傳</p>
+<p>不限制上傳的檔案類型</p>
+<p>可以限制可以上傳的subnet</p>
+<p>回傳的URL 也可以有副檔名，所以可以直接連結當作圖床</p>
+<p>算是很不錯用的了</p>
+<p><img src="https://i.imgur.com/4ujMfRA.png"
+	
+	
+	
+	loading="lazy"
+	
+	
+></p>
+<h4 id="upload-in-terminal">upload in terminal</h4>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>chchang@hqdc039:~/docker/pictshare$ pict ~/Downloads/images/IMG_20190717_092723.jpg 
+</span></span><span style="display:flex;"><span>https://share.com.tw/1dpobr.jpg
+</span></span><span style="display:flex;"><span>chchang@hqdc039:~/docker/pictshare$ 
+</span></span></code></pre></div><p>就先決定用這個 <!-- raw HTML omitted -->pictshare<!-- raw HTML omitted --> 吧</p>
+<h3 id="另外推薦的工具-anypaste">另外推薦的工具 anypaste</h3>
+<p><a class="link" href="https://github.com/markasoftware/anypaste"  target="_blank" rel="noopener"
+    >https://github.com/markasoftware/anypaste</a></p>
+<p>這個雖然不能自己建立服務，需要依賴internet 上已經存在的多個網站服務</p>
+<p>像是 file.io imgur hastebin 等等</p>
+<p>不過呢，如果不是那麼計較安全性，要上傳的檔案不介意丟在internet上公開</p>
+<p>那真的很推薦這個指令，不用安裝有的沒的一大堆，anypaste 本身就是一個script 整合了各家服務的上傳指令</p>
+<p>所以「理論上」 要修改也不是太難..</p>
+<p>跑起來大概像這樣</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>chchang@hqdc039:~/docker/pictshare$ anypaste ~/Downloads/images/IMG_20190717_092723.jpg 
+</span></span><span style="display:flex;"><span>Current file: /home/chchang/Downloads/images/IMG_20190717_092723.jpg
+</span></span><span style="display:flex;"><span>Attempting to upload with plugin <span style="color:#e6db74">&#39;imgur&#39;</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">################################################################################################################# 100.0%</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>Link: https://imgur.com/y0Suzjf
+</span></span><span style="display:flex;"><span>Direct: https://i.imgur.com/y0Suzjf.jpg
+</span></span><span style="display:flex;"><span>Edit: https://imgur.com/edit?deletehashD
+</span></span><span style="display:flex;"><span>Delete: https://imgur.com/delete/fNJ
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>Upload complete.
+</span></span><span style="display:flex;"><span>Sucessfully uploaded: <span style="color:#e6db74">&#39;/home/chchang/Downloads/images/IMG_20190717_092723.jpg&#39;</span>
+</span></span><span style="display:flex;"><span>All files processed. Have a nice day!
+</span></span><span style="display:flex;"><span>chchang@hqdc039:~/docker/pictshare$ 
+</span></span></code></pre></div><p>也是非常方便的一個工具，值得推薦！</p>
+</section>
+
+
+    <footer class="article-footer">
+    
+
+    </footer>
+
+
+    
+</article>
+
+    
+
+    
+
+     
+    
+        
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+        2023 My New Hugo Site
+    </section>
+    
+    <section class="powerby">
+        Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
+        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.16.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+    </section>
+</footer>
+
+
+    
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.min.css"crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css"crossorigin="anonymous"
+            >
+
+            </main>
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.6/dist/vibrant.min.js"integrity="sha256-awcR2jno4kI5X0zL8ex0vi2z&#43;KMkF24hUW8WePSA9HM="crossorigin="anonymous"
+                
+                >
+            </script><script type="text/javascript" src="/ts/main.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>

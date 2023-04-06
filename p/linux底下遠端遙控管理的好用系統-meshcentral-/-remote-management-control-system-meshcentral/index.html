@@ -1,0 +1,807 @@
+<!DOCTYPE html>
+<html lang="en-us" dir="ltr">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='之前在LAN/windows環境下，一直都是用ultravnc/winvnc/tigervnc之類的VNC軟體
+但是如果要過 internet ，就會碰到各種開port的問題
+在這種環境下，就有了當時 teamviewer 的橫空出世
+解決了開PORT的問題，讓被控端(通常是資訊技術相對弱勢，需要接受幫助的一方)不需要懂太多
+只要下載teamviewer被控端，開啟後報ID 給協助者就好了
+'>
+<title>linux底下遠端遙控&amp;管理的好用系統 Meshcentral / Remote Management &amp; control system Meshcentral</title>
+
+<link rel='canonical' href='https://h.cowbay.org/p/linux%E5%BA%95%E4%B8%8B%E9%81%A0%E7%AB%AF%E9%81%99%E6%8E%A7%E7%AE%A1%E7%90%86%E7%9A%84%E5%A5%BD%E7%94%A8%E7%B3%BB%E7%B5%B1-meshcentral-/-remote-management-control-system-meshcentral/'>
+
+<link rel="stylesheet" href="/scss/style.min.8191399262444ab68b72a18c97392f5349be20a1615d77445be51e974c144cff.css"><meta property='og:title' content='linux底下遠端遙控&amp;管理的好用系統 Meshcentral / Remote Management &amp; control system Meshcentral'>
+<meta property='og:description' content='之前在LAN/windows環境下，一直都是用ultravnc/winvnc/tigervnc之類的VNC軟體
+但是如果要過 internet ，就會碰到各種開port的問題
+在這種環境下，就有了當時 teamviewer 的橫空出世
+解決了開PORT的問題，讓被控端(通常是資訊技術相對弱勢，需要接受幫助的一方)不需要懂太多
+只要下載teamviewer被控端，開啟後報ID 給協助者就好了
+'>
+<meta property='og:url' content='https://h.cowbay.org/p/linux%E5%BA%95%E4%B8%8B%E9%81%A0%E7%AB%AF%E9%81%99%E6%8E%A7%E7%AE%A1%E7%90%86%E7%9A%84%E5%A5%BD%E7%94%A8%E7%B3%BB%E7%B5%B1-meshcentral-/-remote-management-control-system-meshcentral/'>
+<meta property='og:site_name' content='MCの部落'>
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='linux' /><meta property='article:tag' content='remote' /><meta property='article:tag' content='meshcentral' /><meta property='article:published_time' content='2019-06-20T11:03:12&#43;08:00'/><meta property='article:modified_time' content='2019-06-20T11:03:12&#43;08:00'/>
+<meta name="twitter:title" content="linux底下遠端遙控&amp;管理的好用系統 Meshcentral / Remote Management &amp; control system Meshcentral">
+<meta name="twitter:description" content="之前在LAN/windows環境下，一直都是用ultravnc/winvnc/tigervnc之類的VNC軟體
+但是如果要過 internet ，就會碰到各種開port的問題
+在這種環境下，就有了當時 teamviewer 的橫空出世
+解決了開PORT的問題，讓被控端(通常是資訊技術相對弱勢，需要接受幫助的一方)不需要懂太多
+只要下載teamviewer被控端，開啟後報ID 給協助者就好了
+">
+<script type="application/javascript">
+var doNotTrack = false;
+if (!doNotTrack) {
+	(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+	(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+	m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+	})(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+	ga('create', 'UA-128770427-1', 'auto');
+	
+	ga('send', 'pageview');
+}
+</script>
+    </head>
+    <body class="
+    article-page
+    ">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "auto");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.documentElement.dataset.scheme = 'dark';
+        } else {
+            document.documentElement.dataset.scheme = 'light';
+        }
+    })();
+</script>
+<div class="container main-container flex on-phone--column extended"><aside class="sidebar left-sidebar sticky ">
+    <button class="hamburger hamburger--spin" type="button" id="toggle-menu" aria-label="切換選單">
+        <span class="hamburger-box">
+            <span class="hamburger-inner"></span>
+        </span>
+    </button>
+
+    <header>
+        
+            
+            <figure class="site-avatar">
+                <a href="/">
+                
+                    
+                    
+                    
+                        
+                        <img src="/img/avatar_hu85bfcf0e08404ecf606702eb99c7ed68_43560_300x0_resize_box_3.png" width="300"
+                            height="300" class="site-logo" loading="lazy" alt="Avatar">
+                    
+                
+                </a>
+                
+                    <span class="emoji">🍥</span>
+                
+            </figure>
+            
+        
+        
+        <div class="site-meta">
+            <h1 class="site-name"><a href="/">MCの部落</a></h1>
+            <h2 class="site-description">讀過兩年書，塵世中一個迷途小書僮</h2>
+        </div>
+    </header><ol class="social-menu">
+            
+                <li>
+                    <a 
+                        href='https://www.facebook.com'
+                        target="_blank"
+                        title="facebook"
+                        rel="me"
+                    >
+                        
+                        
+                            <?xml version="1.0" encoding="iso-8859-1"?>
+<!-- Uploaded to: SVG Repo, www.svgrepo.com, Generator: SVG Repo Mixer Tools -->
+<svg height="800px" width="800px" version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" 
+	 viewBox="0 0 512 512" xml:space="preserve">
+<path style="fill:#385C8E;" d="M134.941,272.691h56.123v231.051c0,4.562,3.696,8.258,8.258,8.258h95.159
+	c4.562,0,8.258-3.696,8.258-8.258V273.78h64.519c4.195,0,7.725-3.148,8.204-7.315l9.799-85.061c0.269-2.34-0.472-4.684-2.038-6.44
+	c-1.567-1.757-3.81-2.763-6.164-2.763h-74.316V118.88c0-16.073,8.654-24.224,25.726-24.224c2.433,0,48.59,0,48.59,0
+	c4.562,0,8.258-3.698,8.258-8.258V8.319c0-4.562-3.696-8.258-8.258-8.258h-66.965C309.622,0.038,308.573,0,307.027,0
+	c-11.619,0-52.006,2.281-83.909,31.63c-35.348,32.524-30.434,71.465-29.26,78.217v62.352h-58.918c-4.562,0-8.258,3.696-8.258,8.258
+	v83.975C126.683,268.993,130.379,272.691,134.941,272.691z"/>
+</svg>
+                        
+                    </a>
+                </li>
+            
+                <li>
+                    <a 
+                        href='https://github.com/CaiJimmy/hugo-theme-stack'
+                        target="_blank"
+                        title="GitHub"
+                        rel="me"
+                    >
+                        
+                        
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-github" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M9 19c-4.3 1.4 -4.3 -2.5 -6 -3m12 5v-3.5c0 -1 .1 -1.4 -.5 -2c2.8 -.3 5.5 -1.4 5.5 -6a4.6 4.6 0 0 0 -1.3 -3.2a4.2 4.2 0 0 0 -.1 -3.2s-1.1 -.3 -3.5 1.3a12.3 12.3 0 0 0 -6.2 0c-2.4 -1.6 -3.5 -1.3 -3.5 -1.3a4.2 4.2 0 0 0 -.1 3.2a4.6 4.6 0 0 0 -1.3 3.2c0 4.6 2.7 5.7 5.5 6c-.6 .6 -.6 1.2 -.5 2v3.5" />
+</svg>
+
+
+
+                        
+                    </a>
+                </li>
+            
+                <li>
+                    <a 
+                        href='https://twitter.com'
+                        target="_blank"
+                        title="Twitter"
+                        rel="me"
+                    >
+                        
+                        
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-twitter" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M22 4.01c-1 .49 -1.98 .689 -3 .99c-1.121 -1.265 -2.783 -1.335 -4.38 -.737s-2.643 2.06 -2.62 3.737v1c-3.245 .083 -6.135 -1.395 -8 -4c0 0 -4.182 7.433 4 11c-1.872 1.247 -3.739 2.088 -6 2c3.308 1.803 6.913 2.423 10.034 1.517c3.58 -1.04 6.522 -3.723 7.651 -7.742a13.84 13.84 0 0 0 .497 -3.753c-.002 -.249 1.51 -2.772 1.818 -4.013z" />
+</svg>
+
+
+
+                        
+                    </a>
+                </li>
+            
+        </ol><ol class="menu" id="main-menu">
+        
+        
+        
+        <li >
+            <a href='/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-home" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="5 12 3 12 12 3 21 12 19 12" />
+  <path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-7" />
+  <path d="M9 21v-6a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v6" />
+</svg>
+
+
+
+                
+                <span>Home</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/about/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-user" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="7" r="4" />
+  <path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2" />
+</svg>
+
+
+
+                
+                <span>About</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/archives/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-archive" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <rect x="3" y="4" width="18" height="4" rx="2" />
+  <path d="M5 8v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-10" />
+  <line x1="10" y1="12" x2="14" y2="12" />
+</svg>
+
+
+
+                
+                <span>Archives</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/search/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="10" cy="10" r="7" />
+  <line x1="21" y1="21" x2="15" y2="15" />
+</svg>
+
+
+
+                
+                <span>Search</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/links/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-link" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M10 14a3.5 3.5 0 0 0 5 0l4 -4a3.5 3.5 0 0 0 -5 -5l-.5 .5" />
+  <path d="M14 10a3.5 3.5 0 0 0 -5 0l-4 4a3.5 3.5 0 0 0 5 5l.5 -.5" />
+</svg>
+
+
+
+                
+                <span>Links</span>
+            </a>
+        </li>
+        
+
+        <div class="menu-bottom-section">
+                <li id="i18n-switch">  
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-language" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M4 5h7" />
+  <path d="M9 3v2c0 4.418 -2.239 8 -5 8" />
+  <path d="M5 9c-.003 2.144 2.952 3.908 6.7 4" />
+  <path d="M12 20l4 -9l4 9" />
+  <path d="M19.1 18h-6.2" />
+</svg>
+
+
+
+                    <select name="language" onchange="window.location.href = this.selectedOptions[0].value">
+                        
+                            <option value="https://h.cowbay.org/" selected>中文</option>
+                        
+                            <option value="https://h.cowbay.org/en/" >English</option>
+                        
+                    </select>
+                </li>
+            
+            
+            
+                <li id="dark-mode-toggle">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="8" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="16" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                    <span>夜晚模式</span>
+                </li>
+            
+        </div>
+    </ol>
+</aside>
+
+    <aside class="sidebar right-sidebar sticky">
+        
+            
+                
+    <section class="widget archives">
+        <div class="widget-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <line x1="5" y1="9" x2="19" y2="9" />
+  <line x1="5" y1="15" x2="19" y2="15" />
+  <line x1="11" y1="4" x2="7" y2="20" />
+  <line x1="17" y1="4" x2="13" y2="20" />
+</svg>
+
+
+
+        </div>
+        <h2 class="widget-title section-title">目錄</h2>
+        
+        <div class="widget--toc">
+            <nav id="TableOfContents">
+  <ol>
+    <li><a href="#meshcentral">Meshcentral</a>
+      <ol>
+        <li><a href="#安全性高">安全性高</a></li>
+        <li><a href="#速度快">速度快</a></li>
+        <li><a href="#操作簡單">操作簡單</a></li>
+        <li><a href="#安裝容易">安裝容易</a></li>
+        <li><a href="#meshcentral-簡易操作說明">Meshcentral 簡易操作說明</a></li>
+        <li><a href="#總結">總結</a></li>
+      </ol>
+    </li>
+  </ol>
+</nav>
+        </div>
+    </section>
+
+            
+        
+    </aside>
+
+
+            <main class="main full-width">
+    <article class="main-article">
+    <header class="article-header">
+
+    <div class="article-details">
+    
+    <header class="article-category">
+        
+            <a href="/categories/%E7%AD%86%E8%A8%98/" >
+                筆記
+            </a>
+        
+    </header>
+    
+
+    <div class="article-title-wrapper">
+        <h2 class="article-title">
+            <a href="/p/linux%E5%BA%95%E4%B8%8B%E9%81%A0%E7%AB%AF%E9%81%99%E6%8E%A7%E7%AE%A1%E7%90%86%E7%9A%84%E5%A5%BD%E7%94%A8%E7%B3%BB%E7%B5%B1-meshcentral-/-remote-management-control-system-meshcentral/">linux底下遠端遙控&amp;管理的好用系統 Meshcentral / Remote Management &amp; control system Meshcentral</a>
+        </h2>
+    
+        
+    </div>
+
+    
+    
+    
+    
+    <footer class="article-time">
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M11.795 21h-6.795a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
+  <circle cx="18" cy="18" r="4" />
+  <path d="M15 3v4" />
+  <path d="M7 3v4" />
+  <path d="M3 11h16" />
+  <path d="M18 16.496v1.504l1 1" />
+</svg>
+                <time class="article-time--published">2019-06-06</time>
+            </div>
+        
+
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+                <time class="article-time--reading">
+                    閱讀時間: 3 分鐘
+                </time>
+            </div>
+        
+    </footer>
+    
+
+    
+</div>
+
+</header>
+
+    <section class="article-content">
+    
+    
+    <p>之前在LAN/windows環境下，一直都是用ultravnc/winvnc/tigervnc之類的VNC軟體</p>
+<p>但是如果要過 internet ，就會碰到各種開port的問題</p>
+<p>在這種環境下，就有了當時 teamviewer 的橫空出世</p>
+<p>解決了開PORT的問題，讓被控端(通常是資訊技術相對弱勢，需要接受幫助的一方)不需要懂太多</p>
+<p>只要下載teamviewer被控端，開啟後報ID 給協助者就好了</p>
+<p>好景不常&hellip;ㄟ，好像也不能這麼說</p>
+<p>teamviewer 是一套商業授權軟體，要買license的</p>
+<p>不知道用什麼方式偵測，一開始可以用，但是後來會出現視窗警告，再來就不讓你用了。</p>
+<p>於是又有了 anydesk 的出現</p>
+<p>anydesk 的定義就是免費軟體，所以沒有授權問題</p>
+<p>可是 anydesk 在初期有頗多狀況，比如像是windows的UAC，或者是畫面反應速度過慢</p>
+<p>又或者是常常自動變成view only ，無法操作的狀況</p>
+<p>當使用者需要讓我用anydesk連線進去時，通常就已經是電腦有些什麼狀況了</p>
+<p>然後還要面對anydesk的種種問題，實在是讓人很抓狂！</p>
+<p>終於某次因緣際會，讓我找到了這篇的主角</p>
+<h2 id="meshcentral">Meshcentral</h2>
+<p>簡單介紹一下Meshcentral 的優點</p>
+<h3 id="安全性高">安全性高</h3>
+<p>teamviewer &amp; anydesk 之所以不需要開port，就是被控/遙控兩邊都是先連線到他們提供的伺服器(通常在國外)</p>
+<p>有人會擔心這樣畫面會不會被擷取之類的 我是認為想太多了啦，但就真的有人會擔心這種問題啊(嘆</p>
+<p>meshcentral則不同，他是安裝在LAN的機器上(當然，要跨WAN也可以，就開port吧)</p>
+<p>所以原則上從server到client這段的連線，都是在LAN中加密進行，不會有需要上傳到廠商伺服器的問題</p>
+<p>自然安全性就高了很多</p>
+<h3 id="速度快">速度快</h3>
+<p>如同前面所述，因為都在LAN中進行，不需要透過廠商在國外的Server，所以操作的速度很快！</p>
+<h3 id="操作簡單">操作簡單</h3>
+<p>一開始meshcentral 會需要在client 安裝agent，在比較早期一點的版本，這個動作需要先用anydesk連上被控端</p>
+<p>然後去開啟連結、以管理者權限進行安裝</p>
+<p>新版改善了這個問題，可以直接產生一個invite url ，直接發信給user ，請user去點連結進行安裝</p>
+<p>當然要先做好安裝步驟說明就是了，不然windows會判斷這個是有問題的檔案，不讓執行</p>
+<p>裝完之後，被控端就不會再看到這東西了(所以也無從關閉，除非從service.msc 去stop)</p>
+<p>而且也不會碰到煩人的UAC訊息跳出來時，畫面上的按鈕無法點選的問題(anydesk就有這種狀況，需要透過config去排除)</p>
+<h3 id="安裝容易">安裝容易</h3>
+<p>meshcentral的安裝很簡單，在ubuntu 18.04 server 的環境底下執行以下指令</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">#install nodejs/npm
+</span></span><span class="line"><span class="cl">sudo apt install nodejs npm 
+</span></span><span class="line"><span class="cl">#make meshcentral working folder
+</span></span><span class="line"><span class="cl">sudo mkdir -p /opt/meshcentral
+</span></span><span class="line"><span class="cl">#install meshcentral
+</span></span><span class="line"><span class="cl">cd /opt/meshcentral;npm install meshcentral
+</span></span><span class="line"><span class="cl"># start meshcentral
+</span></span><span class="line"><span class="cl">cd /opt/meshcentral/node_modules/meshcentral;node meshcentral --cert {{ servier_ip_address }}
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>這樣就把meshcentral安裝&amp;啟動了</p>
+<p>應該是可以改用systemd or supervisor 來控制了，那個是另外的部份了</p>
+<hr>
+<h3 id="meshcentral-簡易操作說明">Meshcentral 簡易操作說明</h3>
+<p>meshcentral 在操作上也很簡單，第一次安裝成功後，開啟meshcentral的頁面</p>
+<p>首先建立一個管理者帳號，接著用管理者帳號進入後，建立一個group</p>
+<p>然後進入這個group ，會看到一個 invite的連結</p>
+<p><img src="https://i.imgur.com/MNrv2Sw.png"
+	
+	
+	
+	loading="lazy"
+	
+	
+></p>
+<p>點擊invite之後，會詢問要產生多長有效時間的連結，如果很懶，就直接選unlimited</p>
+<p>然後把這串URL記下來，發給所有user(最好自己先run過一遍，做一份安裝步驟一起發給使用者)</p>
+<p><img src="https://i.imgur.com/cXQBEWU.png"
+	
+	
+	
+	loading="lazy"
+	
+	
+></p>
+<p>等到user照說明，安裝agent之後，在管理界面上就會看到client出現了</p>
+<p><img src="https://i.imgur.com/bQL6JJE.png"
+	
+	
+	
+	loading="lazy"
+	
+	
+></p>
+<p>有亮起來的圖示就代表client online ，可以直接進去操作</p>
+<p>操作畫面可以操考以下影片，我是透過internet(兩邊都是CHT雙向100) 去控制遠端電腦播放youtube</p>
+<p>可以看到畫面是非常地流暢！</p>
+<div class="video-wrapper">
+    <iframe loading="lazy" 
+            src="https://www.youtube.com/embed/p6-BBYW51qc" 
+            allowfullscreen 
+            title="YouTube Video"
+    >
+    </iframe>
+</div>
+
+<h3 id="總結">總結</h3>
+<p>這麼好用的系統，還不快去裝一套起來！</p>
+</section>
+
+
+    <footer class="article-footer">
+    
+    <section class="article-tags">
+        
+            <a href="/tags/linux/">linux</a>
+        
+            <a href="/tags/remote/">remote</a>
+        
+            <a href="/tags/meshcentral/">meshcentral</a>
+        
+    </section>
+
+
+    
+    <section class="article-copyright">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <path d="M14.5 9a3.5 4 0 1 0 0 6" />
+</svg>
+
+
+
+        <span>Licensed under CC BY-NC-SA 4.0</span>
+    </section>
+    </footer>
+
+
+    
+</article>
+
+    
+
+    
+
+<aside class="related-content--wrapper">
+    <h2 class="section-title">相關文章</h2>
+    <div class="related-content">
+        <div class="flex article-list--tile">
+            
+                
+<article class="">
+    <a href="/p/%E7%AD%86%E8%A8%98-%E7%94%A8pxe-%E5%AE%89%E8%A3%9D%E7%B3%BB%E7%B5%B1%E5%AE%8C%E6%88%90%E5%BE%8C%E9%80%81%E5%87%BA%E9%83%B5%E4%BB%B6%E9%80%9A%E7%9F%A5-/-send-mail-notification-after-pxe-install/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">[筆記] 用pxe 安裝系統，完成後送出郵件通知 / send mail notification after pxe install</h2>
+        </div>
+    </a>
+</article>
+
+            
+                
+<article class="">
+    <a href="/p/%E7%AD%86%E8%A8%98-inxi-%E8%92%90%E9%9B%86%E8%A9%B3%E7%9B%A1%E7%9A%84%E7%A1%AC%E9%AB%94%E8%B3%87%E8%A8%8A-/-inxi-collect-detail-hardware-info/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">[筆記] inxi 蒐集詳盡的硬體資訊 / inxi Collect Detail Hardware Info</h2>
+        </div>
+    </a>
+</article>
+
+            
+                
+<article class="">
+    <a href="/p/%E7%AD%86%E8%A8%98-%E7%94%A8rsync-%E7%A7%BB%E8%BD%89-centos-6.2%E7%9A%84%E8%80%81%E6%A9%9F%E5%99%A8-transfer-cent6.2-using-rsync/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">[筆記] 用rsync 移轉 centos 6.2的老機器 Transfer Cent6.2 using rsync</h2>
+        </div>
+    </a>
+</article>
+
+            
+                
+<article class="">
+    <a href="/p/%E7%AD%86%E8%A8%98-ansible-how-to-use-list-in-yaml-file/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">[筆記] Ansible how to use &#39;list&#39; in yaml file </h2>
+        </div>
+    </a>
+</article>
+
+            
+                
+<article class="">
+    <a href="/p/nice-du-report-tool-durep/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">Nice Du Report Tool Durep</h2>
+        </div>
+    </a>
+</article>
+
+            
+        </div>
+    </div>
+</aside>
+
+     
+    
+        
+    <div class="disqus-container">
+    <div id="disqus_thread"></div>
+<script type="application/javascript">
+    window.disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "h-cowbay-org" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+</div>
+
+<style>
+    .disqus-container {
+        background-color: var(--card-background);
+        border-radius: var(--card-border-radius);
+        box-shadow: var(--shadow-l1);
+        padding: var(--card-padding);
+    }
+</style>
+
+<script>
+    window.addEventListener('onColorSchemeChange', (e) => {
+        if (typeof DISQUS == 'object') {
+            DISQUS.reset({
+                reload: true
+            });
+        }
+    })
+</script>
+
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+            2020 - 
+        
+        2023 MCの部落
+    </section>
+    
+    <section class="powerby">
+        
+            鮮衣怒馬少年時 不負韶華行且知 <br/>
+        使用 <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> 建立 <br />
+        主題 <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.16.0">Stack</a></b> 由 <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a> 設計
+    </section>
+</footer>
+
+
+    
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.min.css"crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css"crossorigin="anonymous"
+            >
+
+            </main>
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.6/dist/vibrant.min.js"integrity="sha256-awcR2jno4kI5X0zL8ex0vi2z&#43;KMkF24hUW8WePSA9HM="crossorigin="anonymous"
+                
+                >
+            </script><script type="text/javascript" src="/ts/main.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>

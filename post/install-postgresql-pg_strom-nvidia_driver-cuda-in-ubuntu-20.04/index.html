@@ -1,0 +1,588 @@
+<!DOCTYPE html>
+<html lang="en-us" dir="ltr">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='最近又開始在亂搞postgresql ，一直想要玩玩看GPU運算的威力，大概一年多前，有測試了 ubuntu 18.04 &#43; postgresql &#43; pg_strom ，可是當時因為pg_strom 不支援當時手邊的顯示卡，只好作罷。
+Breaks here
+'>
+<meta name="keywords" content="postgresql, pg_strom"><title>ubuntu 20.04 install nvidia driver / CUDA / postgresql / pg_strom</title>
+
+<link rel='canonical' href='https://h.cowbay.org/post/install-postgresql-pg_strom-nvidia_driver-cuda-in-ubuntu-20.04/'>
+
+<link rel="stylesheet" href="/scss/style.min.8191399262444ab68b72a18c97392f5349be20a1615d77445be51e974c144cff.css"><meta property='og:title' content='ubuntu 20.04 install nvidia driver / CUDA / postgresql / pg_strom'>
+<meta property='og:description' content='最近又開始在亂搞postgresql ，一直想要玩玩看GPU運算的威力，大概一年多前，有測試了 ubuntu 18.04 &#43; postgresql &#43; pg_strom ，可是當時因為pg_strom 不支援當時手邊的顯示卡，只好作罷。
+Breaks here
+'>
+<meta property='og:url' content='https://h.cowbay.org/post/install-postgresql-pg_strom-nvidia_driver-cuda-in-ubuntu-20.04/'>
+<meta property='og:site_name' content='My New Hugo Site'>
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='postgresql' /><meta property='article:tag' content='nvidia' /><meta property='article:tag' content='cuda' /><meta property='article:tag' content='pg_strom' /><meta property='article:tag' content='gpu' /><meta property='article:published_time' content='2020-11-18T14:24:30&#43;08:00'/><meta property='article:modified_time' content='2020-11-18T14:24:30&#43;08:00'/><meta property='og:image' content='https://h.cowbay.org/images/post-default-3.jpg' />
+<meta name="twitter:title" content="ubuntu 20.04 install nvidia driver / CUDA / postgresql / pg_strom">
+<meta name="twitter:description" content="最近又開始在亂搞postgresql ，一直想要玩玩看GPU運算的威力，大概一年多前，有測試了 ubuntu 18.04 &#43; postgresql &#43; pg_strom ，可是當時因為pg_strom 不支援當時手邊的顯示卡，只好作罷。
+Breaks here
+"><meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:image" content='https://h.cowbay.org/images/post-default-3.jpg' />
+    </head>
+    <body class="
+    article-page
+    ">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "auto");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.documentElement.dataset.scheme = 'dark';
+        } else {
+            document.documentElement.dataset.scheme = 'light';
+        }
+    })();
+</script>
+<div class="container main-container flex on-phone--column compact"><aside class="sidebar left-sidebar sticky ">
+    <button class="hamburger hamburger--spin" type="button" id="toggle-menu" aria-label="Toggle Menu">
+        <span class="hamburger-box">
+            <span class="hamburger-inner"></span>
+        </span>
+    </button>
+
+    <header>
+        
+            
+            <figure class="site-avatar">
+                <a href="/">
+                
+                    
+                    
+                    
+                        
+                        <img src="/img/avatar.png" width="300"
+                            height="300" class="site-logo" loading="lazy" alt="Avatar">
+                    
+                
+                </a>
+                
+            </figure>
+            
+        
+        
+        <div class="site-meta">
+            <h1 class="site-name"><a href="/">My New Hugo Site</a></h1>
+            <h2 class="site-description"></h2>
+        </div>
+    </header><ol class="menu" id="main-menu">
+        
+        
+        
+        <li >
+            <a href='/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-home" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="5 12 3 12 12 3 21 12 19 12" />
+  <path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-7" />
+  <path d="M9 21v-6a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v6" />
+</svg>
+
+
+
+                
+                <span>Home</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/page/about/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-user" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="7" r="4" />
+  <path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2" />
+</svg>
+
+
+
+                
+                <span>About</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/page/archives/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-archive" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <rect x="3" y="4" width="18" height="4" rx="2" />
+  <path d="M5 8v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-10" />
+  <line x1="10" y1="12" x2="14" y2="12" />
+</svg>
+
+
+
+                
+                <span>Archives</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/page/search/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="10" cy="10" r="7" />
+  <line x1="21" y1="21" x2="15" y2="15" />
+</svg>
+
+
+
+                
+                <span>Search</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/page/links/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-link" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M10 14a3.5 3.5 0 0 0 5 0l4 -4a3.5 3.5 0 0 0 -5 -5l-.5 .5" />
+  <path d="M14 10a3.5 3.5 0 0 0 -5 0l-4 4a3.5 3.5 0 0 0 5 5l.5 -.5" />
+</svg>
+
+
+
+                
+                <span>Links</span>
+            </a>
+        </li>
+        
+
+        <div class="menu-bottom-section">
+            
+            
+                <li id="dark-mode-toggle">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="8" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="16" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                    <span>Dark Mode</span>
+                </li>
+            
+        </div>
+    </ol>
+</aside>
+
+    
+
+            <main class="main full-width">
+    <article class="has-image main-article">
+    <header class="article-header">
+        <div class="article-image">
+            <a href="/post/install-postgresql-pg_strom-nvidia_driver-cuda-in-ubuntu-20.04/">
+                
+                    <img src="https://h.cowbay.org/images/post-default-3.jpg" loading="lazy" alt="Featured image of post ubuntu 20.04 install nvidia driver / CUDA / postgresql / pg_strom" />
+                
+            </a>
+        </div>
+    
+
+    <div class="article-details">
+    
+    <header class="article-category">
+        
+            <a href="/categories/%E7%AD%86%E8%A8%98/" >
+                筆記
+            </a>
+        
+    </header>
+    
+
+    <div class="article-title-wrapper">
+        <h2 class="article-title">
+            <a href="/post/install-postgresql-pg_strom-nvidia_driver-cuda-in-ubuntu-20.04/">ubuntu 20.04 install nvidia driver / CUDA / postgresql / pg_strom</a>
+        </h2>
+    
+        
+    </div>
+
+    
+    
+    
+    
+    <footer class="article-time">
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M11.795 21h-6.795a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
+  <circle cx="18" cy="18" r="4" />
+  <path d="M15 3v4" />
+  <path d="M7 3v4" />
+  <path d="M3 11h16" />
+  <path d="M18 16.496v1.504l1 1" />
+</svg>
+                <time class="article-time--published">Nov 18, 2020</time>
+            </div>
+        
+
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+                <time class="article-time--reading">
+                    2 minute read
+                </time>
+            </div>
+        
+    </footer>
+    
+
+    
+</div>
+
+</header>
+
+    <section class="article-content">
+    
+    
+    <p>最近又開始在亂搞postgresql ，一直想要玩玩看GPU運算的威力，大概一年多前，有測試了 ubuntu 18.04 + postgresql + pg_strom ，可是當時因為pg_strom 不支援當時手邊的顯示卡，只好作罷。</p>
+<p>Breaks here</p>
+<hr>
+<h2 id="title-ubuntu-2004-install-nvidia-driver--cuda--postgresql--pg_strom">title: &ldquo;ubuntu 20.04 install nvidia driver / CUDA / postgresql / pg_strom&rdquo;</h2>
+<p>這次搞到一張GTX 1030 顯示卡，作業系統也升級到了 ubuntu 20.04 ，就再來弄一次看看</p>
+<h3 id="安裝-nvidia-driver">安裝 nvidia Driver</h3>
+<p>我還是選擇用 apt 新增ppa 的方式來安裝</p>
+<pre tabindex="0"><code>sudo add-apt-repository ppa:graphics-drivers/ppa
+sudo apt update
+sudo apt install ubuntu-drivers-common
+sudo apt install nvidia-driver-450 
+sudo reboot 
+</code></pre><p>重開機後檢查一下是否有成功安裝</p>
+<pre tabindex="0"><code>chchang@hqdc039:~/git/pg-strom$ lsmod|grep nvidia 
+nvidia_uvm           1007616  2
+nvidia_drm             49152  9
+nvidia_modeset       1183744  11 nvidia_drm
+nvidia              19722240  622 nvidia_uvm,nvidia_modeset
+drm_kms_helper        184320  2 nvidia_drm,i915
+drm                   491520  13 drm_kms_helper,nvidia_drm,i915
+chchang@hqdc039:~/git/pg-strom$ 
+</code></pre><p>OK ，看起來應該是沒有問題，接著來安裝 CUDA</p>
+<h3 id="安裝-cuda">安裝 CUDA</h3>
+<h4 id="下載-cuda-安裝檔案">下載 CUDA 安裝檔案</h4>
+<pre tabindex="0"><code>axel -n 10 http://developer.download.nvidia.com/compute/cuda/10.1/Prod/local_installers/cuda_10.1.243_418.87.00_linux.run
+</code></pre><h4 id="執行安裝檔案進行安裝">執行安裝檔案進行安裝</h4>
+<p>注意在後面加上了 &ndash;override ，這是因為 ubuntu 20.04 預設的 gcc 是 9 ，但是 CUDA 目前還是只支援到 7 ，所以先用override 來解決這個問題，不然會出現 gcc version 的錯誤</p>
+<pre tabindex="0"><code>sudo bash cuda_10.1.243_418.87.00_linux.run --override
+</code></pre><p>安裝過程 nvidia 已經做成選單，就選擇要安裝的東西，記得<!-- raw HTML omitted -->不要<!-- raw HTML omitted -->選 Driver，因為剛剛已經安裝過了！</p>
+<p>安裝完成後，需要修改一下 bashrc
+<a class="link" href="https://cyfeng.science/2020/05/02/ubuntu-install-nvidia-driver-cuda-cudnn-suits/"  target="_blank" rel="noopener"
+    >https://cyfeng.science/2020/05/02/ubuntu-install-nvidia-driver-cuda-cudnn-suits/</a></p>
+<pre tabindex="0"><code>echo &#39;# CUDA Soft Link&#39; &gt;&gt; ~/.bashrc
+echo &#39;export PATH=/usr/local/cuda-10.1/bin${PATH:+:${PATH}}&#39; &gt;&gt; ~/.bashrc
+echo &#39;export LD_LIBRARY_PATH=/usr/local/cuda-10.1/lib64${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}&#39; &gt;&gt; ~/.bashrc
+source ~/.bashrc
+</code></pre><p>然後確認一下是不是正確安裝了</p>
+<pre tabindex="0"><code>chchang@hqdc039:~/git/pg-strom$ nvcc --version
+nvcc: NVIDIA (R) Cuda compiler driver
+Copyright (c) 2005-2019 NVIDIA Corporation
+Built on Sun_Jul_28_19:07:16_PDT_2019
+Cuda compilation tools, release 10.1, V10.1.243
+chchang@hqdc039:~/git/pg-strom$ 
+</code></pre><h3 id="安裝-postgresql">安裝 postgresql</h3>
+<p>ubuntu 20.04 預設就是搭載 postgresql 12 ，所以安裝很方便</p>
+<pre tabindex="0"><code>sudo apt install postgresql-12 postgresql-client-12 postgresql-client-common postgresql-client postgresql-common postgresql-contrib postgresql-server-dev-12
+</code></pre><h3 id="安裝-pg_strom">安裝 pg_strom</h3>
+<p>因為pg_strom 一樣也是不支援 gcc9 , g++9 ，所以先安裝會用到的套件</p>
+<pre tabindex="0"><code>sudo apt install libicu-dev gcc-7 g++-7 libpmem-dev
+</code></pre><p>然後改掉系統上的 gcc / g++</p>
+<pre tabindex="0"><code>sudo unlink /usr/bin/gcc
+sudo unlink /usr/bin/g++
+sudo ln -s /usr/bin/gcc-7 /usr/bin/gcc
+sudo ln -s /usr/bin/g++-7 /usr/bin/g++
+</code></pre><p>然後clone pg_strom 回來做編譯， pg_config 的位置要看安裝的版本來決定
+同時也要修改兩個檔案的link</p>
+<pre tabindex="0"><code>sudo ln -snf /usr/lib/postgresql/12/lib/libpgcommon.a /usr/lib/x86_64-linux-gnu/libpgcommon.a
+sudo ln -snf /usr/lib/postgresql/12/lib/libpgport.a /usr/lib/x86_64-linux-gnu/libpgport.a
+
+git clone https://github.com/heterodb/pg-strom.git
+cd pg-strom
+make PG_CONFIG=/usr/lib/postgresql/12/bin/pg_config
+sudo make install
+</code></pre><p>這邊成功編譯之後，要來修改一下 postgresql，在 /etc/postgresql/12/main/postgresql.conf 中，加入底下這行</p>
+<pre tabindex="0"><code>shared_preload_libraries = &#39;$libdir/pg_strom&#39;
+</code></pre><p>然後重啟 postgresql service ，觀察一下syslog 有沒有錯誤
+如果服務有起來，那基本上就安裝成功了</p>
+<p>之後再來找看看有什麼測試pg_strom 的方式</p>
+</section>
+
+
+    <footer class="article-footer">
+    
+    <section class="article-tags">
+        
+            <a href="/tags/postgresql/">postgresql</a>
+        
+            <a href="/tags/nvidia/">nvidia</a>
+        
+            <a href="/tags/cuda/">cuda</a>
+        
+            <a href="/tags/pg_strom/">pg_strom</a>
+        
+            <a href="/tags/gpu/">gpu</a>
+        
+    </section>
+
+
+    </footer>
+
+
+    
+</article>
+
+    
+
+    
+
+<aside class="related-content--wrapper">
+    <h2 class="section-title">Related content</h2>
+    <div class="related-content">
+        <div class="flex article-list--tile">
+            
+                
+<article class="has-image">
+    <a href="/post/postgresql-pgbench-benchmark/">
+        
+        
+            <div class="article-image">
+                
+                    <img src="https://h.cowbay.org/images/post-default-17.jpg" loading="lazy" data-key="" data-hash="https://h.cowbay.org/images/post-default-17.jpg"/>
+                
+            </div>
+        
+
+        <div class="article-details">
+            <h2 class="article-title">[筆記] postgresql 效能測試 / postgresql benchmakr using pgbench</h2>
+        </div>
+    </a>
+</article>
+
+            
+                
+<article class="has-image">
+    <a href="/post/test-pg_prewarm/">
+        
+        
+            <div class="article-image">
+                
+                    <img src="https://h.cowbay.org/images/post-default-9.jpg" loading="lazy" data-key="" data-hash="https://h.cowbay.org/images/post-default-9.jpg"/>
+                
+            </div>
+        
+
+        <div class="article-details">
+            <h2 class="article-title">[筆記] 測試 postgresql 的pg_prewarm 對效能的影響 / test pg_prewarm in postgresql 11</h2>
+        </div>
+    </a>
+</article>
+
+            
+                
+<article class="">
+    <a href="/post/pg_auto_failover_in_ubuntu_1804_psql_11/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">[筆記] 在ubuntu 18.04安裝psql 11 以及 pg_auto_failover / install psql 11 and pg_auto_failover in ubuntu 18.04</h2>
+        </div>
+    </a>
+</article>
+
+            
+                
+<article class="">
+    <a href="/post/postgresql-backup-restore-using-zfs-snapshot/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">[筆記] 用zfs的snapshot 快照功能來做 postgresql 的備份還原 / Postgresql Backup Restore Using Zfs Snapshot</h2>
+        </div>
+    </a>
+</article>
+
+            
+                
+<article class="">
+    <a href="/post/backup-restore-postgresql-with-pgbackrest/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">[筆記] 用pbackrest 備份還原 postgresql / Backup Restore Postgresql With Pgbackrest</h2>
+        </div>
+    </a>
+</article>
+
+            
+        </div>
+    </div>
+</aside>
+
+     
+    
+        
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+        2023 My New Hugo Site
+    </section>
+    
+    <section class="powerby">
+        Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
+        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.16.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+    </section>
+</footer>
+
+
+    
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.min.css"crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css"crossorigin="anonymous"
+            >
+
+            </main>
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.6/dist/vibrant.min.js"integrity="sha256-awcR2jno4kI5X0zL8ex0vi2z&#43;KMkF24hUW8WePSA9HM="crossorigin="anonymous"
+                
+                >
+            </script><script type="text/javascript" src="/ts/main.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>

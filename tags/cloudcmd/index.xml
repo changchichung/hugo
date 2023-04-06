@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+    <channel>
+        <title>cloudcmd on MCの部落</title>
+        <link>https://h.cowbay.org/tags/cloudcmd/</link>
+        <description>Recent content in cloudcmd on MCの部落</description>
+        <generator>Hugo -- gohugo.io</generator>
+        <language>en-us</language>
+        <lastBuildDate>Tue, 20 Jul 2021 09:19:47 +0800</lastBuildDate><atom:link href="https://h.cowbay.org/tags/cloudcmd/index.xml" rel="self" type="application/rss+xml" /><item>
+        <title>[筆記] WEB 檔案管理 Cloudcmd Web File Manager</title>
+        <link>https://h.cowbay.org/p/%E7%AD%86%E8%A8%98-web-%E6%AA%94%E6%A1%88%E7%AE%A1%E7%90%86-cloudcmd-web-file-manager/</link>
+        <pubDate>Tue, 20 Jul 2021 09:19:47 +0800</pubDate>
+        
+        <guid>https://h.cowbay.org/p/%E7%AD%86%E8%A8%98-web-%E6%AA%94%E6%A1%88%E7%AE%A1%E7%90%86-cloudcmd-web-file-manager/</guid>
+        <description>&lt;img src="https://h.cowbay.org/images/post-default-2.jpg" alt="Featured image of post [筆記] WEB 檔案管理 Cloudcmd Web File Manager" /&gt;&lt;p&gt;最近又接到之前處理過的需求，要讓使用者可以在外部上傳、編輯 yaml 檔案&lt;/p&gt;
+&lt;p&gt;之前是用 gohttpd 來做&lt;/p&gt;
+&lt;p&gt;可是不支援線上編輯 yaml 檔案&lt;/p&gt;
+&lt;p&gt;這次找到了 cloudcmd&lt;/p&gt;
+&lt;p&gt;&lt;a class=&#34;link&#34; href=&#34;https://github.com/coderaiser/cloudcmd&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;https://github.com/coderaiser/cloudcmd&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;簡單好用、不需要太多設定，但是想要的設定大致上也都有、有提供docker-compose&lt;/p&gt;
+&lt;p&gt;同時也支援多種檔案的預覽、編輯功能&lt;/p&gt;
+&lt;p&gt;算是很不錯的一個web-based 的檔案管理系統&lt;/p&gt;
+&lt;h3 id=&#34;登入時會詢問帳號密碼&#34;&gt;登入時，會詢問帳號密碼&lt;/h3&gt;
+&lt;p&gt;也可以設定成不詢問直接進入&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://i.imgur.com/29NVQ66.png&#34;
+	
+	
+	
+	loading=&#34;lazy&#34;
+	
+		alt=&#34;login&#34;
+	
+	
+&gt;&lt;/p&gt;
+&lt;h3 id=&#34;支援多種檔案的預覽和編輯&#34;&gt;支援多種檔案的預覽和編輯&lt;/h3&gt;
+&lt;p&gt;MP4 影片&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://i.imgur.com/9adI50o.png&#34;
+	
+	
+	
+	loading=&#34;lazy&#34;
+	
+		alt=&#34;previer1&#34;
+	
+	
+&gt;&lt;/p&gt;
+&lt;p&gt;JPG檔案&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://i.imgur.com/ZHQMgI7.png&#34;
+	
+	
+	
+	loading=&#34;lazy&#34;
+	
+		alt=&#34;preview_2&#34;
+	
+	
+&gt;&lt;/p&gt;
+&lt;p&gt;CSV 檔案&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://raw.githubusercontent.com/changchichung/imagebed/main/20210720091231-image.png&#34;
+	
+	
+	
+	loading=&#34;lazy&#34;
+	
+		alt=&#34;20210720091231-image.png&#34;
+	
+	
+&gt;&lt;/p&gt;
+&lt;p&gt;編輯YAML&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://raw.githubusercontent.com/changchichung/imagebed/main/20210720091330-image.png&#34;
+	
+	
+	
+	loading=&#34;lazy&#34;
+	
+		alt=&#34;20210720091330-image.png&#34;
+	
+	
+&gt;&lt;/p&gt;
+&lt;p&gt;空白處按右鍵的功能表&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://raw.githubusercontent.com/changchichung/imagebed/main/20210720091445-image.png&#34;
+	
+	
+	
+	loading=&#34;lazy&#34;
+	
+		alt=&#34;20210720091445-image.png&#34;
+	
+	
+&gt;&lt;/p&gt;
+&lt;p&gt;檔案功能表&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://raw.githubusercontent.com/changchichung/imagebed/main/20210720091514-image.png&#34;
+	
+	
+	
+	loading=&#34;lazy&#34;
+	
+		alt=&#34;20210720091514-image.png&#34;
+	
+	
+&gt;&lt;/p&gt;
+&lt;p&gt;系統功能設定&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://raw.githubusercontent.com/changchichung/imagebed/main/20210720091635-image.png&#34;
+	
+	
+	
+	loading=&#34;lazy&#34;
+	
+		alt=&#34;20210720091635-image.png&#34;
+	
+	
+&gt;&lt;/p&gt;
+&lt;p&gt;目前用起來感覺還不錯，應該會推薦這套上去給老闆決定要不要開給user使用！&lt;/p&gt;</description>
+        </item>
+        
+    </channel>
+</rss>

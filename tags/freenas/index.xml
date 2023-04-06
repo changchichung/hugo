@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+    <channel>
+        <title>freenas on MCの部落</title>
+        <link>https://h.cowbay.org/tags/freenas/</link>
+        <description>Recent content in freenas on MCの部落</description>
+        <generator>Hugo -- gohugo.io</generator>
+        <language>en-us</language>
+        <lastBuildDate>Thu, 13 Dec 2018 17:40:20 +0800</lastBuildDate><atom:link href="https://h.cowbay.org/tags/freenas/index.xml" rel="self" type="application/rss+xml" /><item>
+        <title>[筆記] Freenas Smartd 啟動失敗 Smartd Failed to Start in Freenas</title>
+        <link>https://h.cowbay.org/p/%E7%AD%86%E8%A8%98-freenas-smartd-%E5%95%9F%E5%8B%95%E5%A4%B1%E6%95%97-smartd-failed-to-start-in-freenas/</link>
+        <pubDate>Thu, 13 Dec 2018 17:40:20 +0800</pubDate>
+        
+        <guid>https://h.cowbay.org/p/%E7%AD%86%E8%A8%98-freenas-smartd-%E5%95%9F%E5%8B%95%E5%A4%B1%E6%95%97-smartd-failed-to-start-in-freenas/</guid>
+        <description>&lt;p&gt;這兩天在弄兩台Freenas ，準備當作Proxmox 的Storage &amp;amp; Server Backup&lt;/p&gt;
+&lt;p&gt;因為伺服器的限制，只能接六個SATA，我接了六個2T的硬碟做raid10&lt;/p&gt;
+&lt;p&gt;然後把Freenas 安裝在隨身碟上&lt;/p&gt;
+&lt;p&gt;不過會一直出現Smartd failed to start 的錯誤訊息&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://i.imgur.com/mj6lCc7.png&#34;
+	
+	
+	
+	loading=&#34;lazy&#34;
+	
+		alt=&#34;Freenas smartd failed to start&#34;
+	
+	
+&gt;&lt;/p&gt;
+&lt;p&gt;翻了一下論壇，發現因為系統安裝在隨身碟上&lt;/p&gt;
+&lt;p&gt;然後預設會開啟隨身碟的smart&lt;/p&gt;
+&lt;p&gt;可是這樣反而會造成錯誤&lt;/p&gt;
+&lt;p&gt;所以只要去 Storage &amp;ndash;&amp;gt; View Disks 找到隨身碟的代號&lt;/p&gt;
+&lt;p&gt;然後點兩下進去編輯，把 enable S.M.A.R.T 關閉&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://i.imgur.com/WnvsQie.png&#34;
+	
+	
+	
+	loading=&#34;lazy&#34;
+	
+		alt=&#34;disable SMART on USB FLASH&#34;
+	
+	
+&gt;&lt;/p&gt;
+&lt;p&gt;接著再去啟動 SMART ，就不會有錯誤訊息了&lt;/p&gt;</description>
+        </item>
+        
+    </channel>
+</rss>

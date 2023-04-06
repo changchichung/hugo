@@ -1,0 +1,1111 @@
+<!DOCTYPE html>
+<html lang="en-us" dir="ltr">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='這兩天在測試pgbackrest ，簡單筆記一下測試狀況
+'>
+<meta name="keywords" content="postgresql, pgbackrest"><title>[筆記] 用pbackrest 備份還原 postgresql / Backup Restore Postgresql With Pgbackrest</title>
+
+<link rel='canonical' href='https://h.cowbay.org/p/%E7%AD%86%E8%A8%98-%E7%94%A8pbackrest-%E5%82%99%E4%BB%BD%E9%82%84%E5%8E%9F-postgresql-/-backup-restore-postgresql-with-pgbackrest/'>
+
+<link rel="stylesheet" href="/scss/style.min.8191399262444ab68b72a18c97392f5349be20a1615d77445be51e974c144cff.css"><meta property='og:title' content='[筆記] 用pbackrest 備份還原 postgresql / Backup Restore Postgresql With Pgbackrest'>
+<meta property='og:description' content='這兩天在測試pgbackrest ，簡單筆記一下測試狀況
+'>
+<meta property='og:url' content='https://h.cowbay.org/p/%E7%AD%86%E8%A8%98-%E7%94%A8pbackrest-%E5%82%99%E4%BB%BD%E9%82%84%E5%8E%9F-postgresql-/-backup-restore-postgresql-with-pgbackrest/'>
+<meta property='og:site_name' content='MCの部落'>
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='postgresql' /><meta property='article:published_time' content='2019-09-05T11:42:28&#43;08:00'/><meta property='article:modified_time' content='2019-09-05T11:42:28&#43;08:00'/>
+<meta name="twitter:title" content="[筆記] 用pbackrest 備份還原 postgresql / Backup Restore Postgresql With Pgbackrest">
+<meta name="twitter:description" content="這兩天在測試pgbackrest ，簡單筆記一下測試狀況
+">
+<script type="application/javascript">
+var doNotTrack = false;
+if (!doNotTrack) {
+	(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+	(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+	m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+	})(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+	ga('create', 'UA-128770427-1', 'auto');
+	
+	ga('send', 'pageview');
+}
+</script>
+    </head>
+    <body class="
+    article-page
+    ">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "auto");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.documentElement.dataset.scheme = 'dark';
+        } else {
+            document.documentElement.dataset.scheme = 'light';
+        }
+    })();
+</script>
+<div class="container main-container flex on-phone--column extended"><aside class="sidebar left-sidebar sticky ">
+    <button class="hamburger hamburger--spin" type="button" id="toggle-menu" aria-label="切換選單">
+        <span class="hamburger-box">
+            <span class="hamburger-inner"></span>
+        </span>
+    </button>
+
+    <header>
+        
+            
+            <figure class="site-avatar">
+                <a href="/">
+                
+                    
+                    
+                    
+                        
+                        <img src="/img/avatar_hu85bfcf0e08404ecf606702eb99c7ed68_43560_300x0_resize_box_3.png" width="300"
+                            height="300" class="site-logo" loading="lazy" alt="Avatar">
+                    
+                
+                </a>
+                
+                    <span class="emoji">🍥</span>
+                
+            </figure>
+            
+        
+        
+        <div class="site-meta">
+            <h1 class="site-name"><a href="/">MCの部落</a></h1>
+            <h2 class="site-description">讀過兩年書，塵世中一個迷途小書僮</h2>
+        </div>
+    </header><ol class="social-menu">
+            
+                <li>
+                    <a 
+                        href='https://www.facebook.com'
+                        target="_blank"
+                        title="facebook"
+                        rel="me"
+                    >
+                        
+                        
+                            <?xml version="1.0" encoding="iso-8859-1"?>
+<!-- Uploaded to: SVG Repo, www.svgrepo.com, Generator: SVG Repo Mixer Tools -->
+<svg height="800px" width="800px" version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" 
+	 viewBox="0 0 512 512" xml:space="preserve">
+<path style="fill:#385C8E;" d="M134.941,272.691h56.123v231.051c0,4.562,3.696,8.258,8.258,8.258h95.159
+	c4.562,0,8.258-3.696,8.258-8.258V273.78h64.519c4.195,0,7.725-3.148,8.204-7.315l9.799-85.061c0.269-2.34-0.472-4.684-2.038-6.44
+	c-1.567-1.757-3.81-2.763-6.164-2.763h-74.316V118.88c0-16.073,8.654-24.224,25.726-24.224c2.433,0,48.59,0,48.59,0
+	c4.562,0,8.258-3.698,8.258-8.258V8.319c0-4.562-3.696-8.258-8.258-8.258h-66.965C309.622,0.038,308.573,0,307.027,0
+	c-11.619,0-52.006,2.281-83.909,31.63c-35.348,32.524-30.434,71.465-29.26,78.217v62.352h-58.918c-4.562,0-8.258,3.696-8.258,8.258
+	v83.975C126.683,268.993,130.379,272.691,134.941,272.691z"/>
+</svg>
+                        
+                    </a>
+                </li>
+            
+                <li>
+                    <a 
+                        href='https://github.com/CaiJimmy/hugo-theme-stack'
+                        target="_blank"
+                        title="GitHub"
+                        rel="me"
+                    >
+                        
+                        
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-github" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M9 19c-4.3 1.4 -4.3 -2.5 -6 -3m12 5v-3.5c0 -1 .1 -1.4 -.5 -2c2.8 -.3 5.5 -1.4 5.5 -6a4.6 4.6 0 0 0 -1.3 -3.2a4.2 4.2 0 0 0 -.1 -3.2s-1.1 -.3 -3.5 1.3a12.3 12.3 0 0 0 -6.2 0c-2.4 -1.6 -3.5 -1.3 -3.5 -1.3a4.2 4.2 0 0 0 -.1 3.2a4.6 4.6 0 0 0 -1.3 3.2c0 4.6 2.7 5.7 5.5 6c-.6 .6 -.6 1.2 -.5 2v3.5" />
+</svg>
+
+
+
+                        
+                    </a>
+                </li>
+            
+                <li>
+                    <a 
+                        href='https://twitter.com'
+                        target="_blank"
+                        title="Twitter"
+                        rel="me"
+                    >
+                        
+                        
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-twitter" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M22 4.01c-1 .49 -1.98 .689 -3 .99c-1.121 -1.265 -2.783 -1.335 -4.38 -.737s-2.643 2.06 -2.62 3.737v1c-3.245 .083 -6.135 -1.395 -8 -4c0 0 -4.182 7.433 4 11c-1.872 1.247 -3.739 2.088 -6 2c3.308 1.803 6.913 2.423 10.034 1.517c3.58 -1.04 6.522 -3.723 7.651 -7.742a13.84 13.84 0 0 0 .497 -3.753c-.002 -.249 1.51 -2.772 1.818 -4.013z" />
+</svg>
+
+
+
+                        
+                    </a>
+                </li>
+            
+        </ol><ol class="menu" id="main-menu">
+        
+        
+        
+        <li >
+            <a href='/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-home" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="5 12 3 12 12 3 21 12 19 12" />
+  <path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-7" />
+  <path d="M9 21v-6a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v6" />
+</svg>
+
+
+
+                
+                <span>Home</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/about/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-user" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="7" r="4" />
+  <path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2" />
+</svg>
+
+
+
+                
+                <span>About</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/archives/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-archive" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <rect x="3" y="4" width="18" height="4" rx="2" />
+  <path d="M5 8v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-10" />
+  <line x1="10" y1="12" x2="14" y2="12" />
+</svg>
+
+
+
+                
+                <span>Archives</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/search/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="10" cy="10" r="7" />
+  <line x1="21" y1="21" x2="15" y2="15" />
+</svg>
+
+
+
+                
+                <span>Search</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/links/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-link" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M10 14a3.5 3.5 0 0 0 5 0l4 -4a3.5 3.5 0 0 0 -5 -5l-.5 .5" />
+  <path d="M14 10a3.5 3.5 0 0 0 -5 0l-4 4a3.5 3.5 0 0 0 5 5l.5 -.5" />
+</svg>
+
+
+
+                
+                <span>Links</span>
+            </a>
+        </li>
+        
+
+        <div class="menu-bottom-section">
+                <li id="i18n-switch">  
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-language" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M4 5h7" />
+  <path d="M9 3v2c0 4.418 -2.239 8 -5 8" />
+  <path d="M5 9c-.003 2.144 2.952 3.908 6.7 4" />
+  <path d="M12 20l4 -9l4 9" />
+  <path d="M19.1 18h-6.2" />
+</svg>
+
+
+
+                    <select name="language" onchange="window.location.href = this.selectedOptions[0].value">
+                        
+                            <option value="https://h.cowbay.org/" selected>中文</option>
+                        
+                            <option value="https://h.cowbay.org/en/" >English</option>
+                        
+                    </select>
+                </li>
+            
+            
+            
+                <li id="dark-mode-toggle">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="8" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="16" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                    <span>夜晚模式</span>
+                </li>
+            
+        </div>
+    </ol>
+</aside>
+
+    <aside class="sidebar right-sidebar sticky">
+        
+            
+                
+    <section class="widget archives">
+        <div class="widget-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <line x1="5" y1="9" x2="19" y2="9" />
+  <line x1="5" y1="15" x2="19" y2="15" />
+  <line x1="11" y1="4" x2="7" y2="20" />
+  <line x1="17" y1="4" x2="13" y2="20" />
+</svg>
+
+
+
+        </div>
+        <h2 class="widget-title section-title">目錄</h2>
+        
+        <div class="widget--toc">
+            <nav id="TableOfContents">
+  <ol>
+    <li>
+      <ol>
+        <li>
+          <ol>
+            <li><a href="#install">install</a></li>
+            <li><a href="#config">config</a></li>
+            <li><a href="#config-內容">config 內容</a></li>
+            <li><a href="#簡單流程">簡單流程</a></li>
+            <li><a href="#其他部份">其他部份</a></li>
+            <li><a href="#設定-pgbackrest--postgresql">設定 pgbackrest &amp; postgresql</a></li>
+            <li><a href="#建立-stanza">建立 stanza</a></li>
+            <li><a href="#backup">backup</a></li>
+            <li><a href="#還原測試">還原測試</a></li>
+          </ol>
+        </li>
+      </ol>
+    </li>
+  </ol>
+</nav>
+        </div>
+    </section>
+
+            
+        
+    </aside>
+
+
+            <main class="main full-width">
+    <article class="main-article">
+    <header class="article-header">
+
+    <div class="article-details">
+    
+    <header class="article-category">
+        
+            <a href="/categories/%E7%AD%86%E8%A8%98/" >
+                筆記
+            </a>
+        
+    </header>
+    
+
+    <div class="article-title-wrapper">
+        <h2 class="article-title">
+            <a href="/p/%E7%AD%86%E8%A8%98-%E7%94%A8pbackrest-%E5%82%99%E4%BB%BD%E9%82%84%E5%8E%9F-postgresql-/-backup-restore-postgresql-with-pgbackrest/">[筆記] 用pbackrest 備份還原 postgresql / Backup Restore Postgresql With Pgbackrest</a>
+        </h2>
+    
+        
+    </div>
+
+    
+    
+    
+    
+    <footer class="article-time">
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M11.795 21h-6.795a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
+  <circle cx="18" cy="18" r="4" />
+  <path d="M15 3v4" />
+  <path d="M7 3v4" />
+  <path d="M3 11h16" />
+  <path d="M18 16.496v1.504l1 1" />
+</svg>
+                <time class="article-time--published">2019-09-09</time>
+            </div>
+        
+
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+                <time class="article-time--reading">
+                    閱讀時間: 5 分鐘
+                </time>
+            </div>
+        
+    </footer>
+    
+
+    
+</div>
+
+</header>
+
+    <section class="article-content">
+    
+    
+    <p>這兩天在測試pgbackrest ，簡單筆記一下測試狀況</p>
+<h4 id="install">install</h4>
+<p>在ubuntu 18.04 安裝pgbackrest 很簡單，內建在apt裡面，所以可以直接用</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">sudo apt install pgbackrest
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>進行安裝</p>
+<h4 id="config">config</h4>
+<p>pgbackrest 的設定檔在 /etc/pgbackrest/pgbackrest.conf
+如果是用apt 安裝，預設會建立一個 /etc/pgbackrest.conf
+但是這個路徑是錯誤的
+執行 pgbackrest的時候，預設還是會去讀取 /etc/pgbackrest/pgbackrest.conf
+要特別注意，要不就是每次都指定config路徑，要不就是把那個錯誤的設定檔幹掉</p>
+<h4 id="config-內容">config 內容</h4>
+<p>內容其實很簡單</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">postgres@hqdc039:~$ cat /etc/pgbackrest/pgbackrest.conf 
+</span></span><span class="line"><span class="cl">[demo]
+</span></span><span class="line"><span class="cl">pg1-path=/database/11/main
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">[global]
+</span></span><span class="line"><span class="cl">repo1-cipher-pass=zWaf6XtpjIVZC5444yXB+cgFDFl7MxGlgkZSaoPvTGirhPygu4jOKOXf9LO4vjfO
+</span></span><span class="line"><span class="cl">repo1-cipher-type=aes-256-cbc
+</span></span><span class="line"><span class="cl">repo1-path=/var/lib/pgbackrest
+</span></span><span class="line"><span class="cl">repo1-retention-full=2
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">[global:archive-push]
+</span></span><span class="line"><span class="cl">compress-level=3
+</span></span><span class="line"><span class="cl">process-max=4
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p><strong>[demo]</strong> 用來指定這個 &ldquo;stanza&rdquo; 的名稱</p>
+<ul>
+<li>pg1-path 是資料庫存放的路徑</li>
+</ul>
+<p><strong>[global]</strong> 中的兩個cipher 用途我不清楚，不設定也沒關係</p>
+<ul>
+<li>&ldquo;repo1-path&rdquo; 則是用來存放備份的路徑</li>
+<li>&ldquo;repo1-retention-full&rdquo; 定義要保留幾次 full backup</li>
+</ul>
+<p><strong>[global:archive-push]</strong> 似乎是用來定義在備份/還原時的選項</p>
+<ul>
+<li>process-max 指定要用多少process (平行處理)</li>
+</ul>
+<h4 id="簡單流程">簡單流程</h4>
+<ul>
+<li>config (pgbackrest &amp; postgresql )</li>
+<li>建立 stanza</li>
+<li>建立備份</li>
+<li>(還原，如果有需要的話)</li>
+</ul>
+<h4 id="其他部份">其他部份</h4>
+<ul>
+<li>清除 stanza (刪除備份)</li>
+<li>踩到的地雷</li>
+</ul>
+<hr>
+<h4 id="設定-pgbackrest--postgresql">設定 pgbackrest &amp; postgresql</h4>
+<p>pgbackrest 基本上設定很簡單，內容就跟上面的一樣就可以跑了。
+當然要新增其他進階的，就要自己研究了，內容有夠長
+<a class="link" href="https://pgbackrest.org/configuration.html"  target="_blank" rel="noopener"
+    >https://pgbackrest.org/configuration.html</a></p>
+<p>在postgresql 中，要新增一些設定，主要是 archive_command</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span><span class="lnt">9
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">postgres@hqdc039:~$ grep -A 100 &#34;for pgbackrest&#34; /etc/postgresql/11/main/postgresql.conf 
+</span></span><span class="line"><span class="cl">#for pgbackrest
+</span></span><span class="line"><span class="cl">archive_command = &#39;pgbackrest --stanza=demo archive-push %p&#39;
+</span></span><span class="line"><span class="cl">archive_mode = on
+</span></span><span class="line"><span class="cl">listen_addresses = &#39;*&#39;
+</span></span><span class="line"><span class="cl">log_line_prefix = &#39;&#39;
+</span></span><span class="line"><span class="cl">max_wal_senders = 3
+</span></span><span class="line"><span class="cl">wal_level = replica
+</span></span><span class="line"><span class="cl">postgres@hqdc039:~$
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p><strong>archive_command</strong>
+這個因為要帶stanza 名稱進來，所以<strong>需要跟pgbackrest.conf 裡面定義的名稱一致</strong></p>
+<p><strong>max_wal_senders</strong>
+簡單說就是定義在抄寫wal 的時候，可以同時抄給幾台
+這是postgresql 的說明</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">the maximum number of simultaneously running WAL sender processes
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p><strong>wal_level</strong>
+有三種等級，參考 <a class="link" href="https://blog.csdn.net/pg_hgdb/article/details/78666719"  target="_blank" rel="noopener"
+    >https://blog.csdn.net/pg_hgdb/article/details/78666719</a></p>
+<ul>
+<li>minimal &ndash;不能通过基础备份和wal日志恢复数据库。</li>
+<li>replica = 9.6版本以前的archive和hot_standby  &ndash;该级别支持wal归档和复制。</li>
+<li>logical &ndash;在replica级别的基础上添加了支持逻辑解码所需的信息。</li>
+</ul>
+<p>設定完成後，重起 postgresql 就可以了</p>
+<h4 id="建立-stanza">建立 stanza</h4>
+<p>stanza 這名詞我是第一次聽到，直接翻譯就是 <strong>&quot;&quot;（詩的）節，段&quot;</strong></p>
+<p><a class="link" href="https://dictionary.cambridge.org/zht/%E8%A9%9E%E5%85%B8/%E8%8B%B1%E8%AA%9E-%E6%BC%A2%E8%AA%9E-%E7%B9%81%E9%AB%94/stanza"  target="_blank" rel="noopener"
+    >https://dictionary.cambridge.org/zht/%E8%A9%9E%E5%85%B8/%E8%8B%B1%E8%AA%9E-%E6%BC%A2%E8%AA%9E-%E7%B9%81%E9%AB%94/stanza</a></p>
+<p>在pgbackrest中，可以一次定義多個 stanza，用來備份不同的DB
+這次環境很簡單，所以就只有設定一個
+依照上面的pgbackrest.conf 內容設定好了，需要先建立這個stanza
+指令:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">postgres@hqdc039:~$ pgbackrest --stanza=demo stanza-create --log-level-console=detail
+</span></span><span class="line"><span class="cl">2019-09-04 16:21:40.700 P00   INFO: stanza-create command begin 2.16: --log-level-console=detail --pg1-path=/database/11/main --repo1-cipher-pass=&lt;redacted&gt; --repo1-cipher-type=aes-256-cbc --repo1-path=/var/lib/pgbackrest --stanza=demo
+</span></span><span class="line"><span class="cl">2019-09-04 16:21:41.525 P00   INFO: stanza-create command end: completed successfully (825ms)
+</span></span><span class="line"><span class="cl">postgres@hqdc039:~$ 
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>接著就可以執行備份了</p>
+<h4 id="backup">backup</h4>
+<p>備份指令也很簡單，要注意的是，如果不帶參數，pgbackrest 會自行決定要用incremental或者是 full backup</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">postgres@hqdc039:~$ pgbackrest --stanza=demo  --log-level-console=detail backup
+</span></span><span class="line"><span class="cl">2019-09-04 16:41:17.458 P00   INFO: backup command begin 2.16: --log-level-console=detail --pg1-path=/database/11/main --repo1-cipher-pass=&lt;redacted&gt; --repo1-cipher-type=aes-256-cbc --repo1-path=/var/lib/pgbackrest --repo1-retention-full=2 --stanza=demo
+</span></span><span class="line"><span class="cl">2019-09-04 16:41:17.697 P00   INFO: last backup label = 20190904-134245F, version = 2.16
+</span></span><span class="line"><span class="cl">2019-09-04 16:41:18.607 P00   INFO: execute non-exclusive pg_start_backup() with label &#34;pgBackRest backup started at 2019-09-04 16:41:17&#34;: backup begins after the next regular checkpoint completes
+</span></span><span class="line"><span class="cl">2019-09-04 16:41:19.008 P00   INFO: backup start archive = 000000100000000E0000004A, lsn = E/4A000028
+</span></span><span class="line"><span class="cl">WARN: a timeline switch has occurred since the last backup, enabling delta checksum
+</span></span><span class="line"><span class="cl">2019-09-04 16:41:21.213 P01 DETAIL: match file from prior backup /database/11/main/base/51435/51488 (546.3MB, 20%) checksum 5eb4f73d9b1c535ebfdfb622d930dade87e23786
+</span></span><span class="line"><span class="cl">2019-09-04 16:41:21.821 P01 DETAIL: match file from prior backup /database/11/main/base/51435/51460 (455.3MB, 37%) checksum aa74bba2bea8823789ad4194e4574b44a020271a
+</span></span><span class="line"><span class="cl">...
+</span></span><span class="line"><span class="cl">...
+</span></span><span class="line"><span class="cl">...
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">2019-09-04 16:41:24.827 P01 DETAIL: match file from prior backup /database/11/main/PG_VERSION (3B, 100%) checksum dd71038f3463f511ee7403dbcbc87195302d891c
+</span></span><span class="line"><span class="cl">2019-09-04 16:41:24.835 P01   INFO: backup file /database/11/main/base/13125/51569 (0B, 100%)
+</span></span><span class="line"><span class="cl">2019-09-04 16:41:24.860 P00   INFO: incr backup size = 2.5GB
+</span></span><span class="line"><span class="cl">2019-09-04 16:41:24.860 P00   INFO: execute non-exclusive pg_stop_backup() and wait for all WAL segments to archive
+</span></span><span class="line"><span class="cl">2019-09-04 16:41:24.961 P00   INFO: backup stop archive = 000000100000000E0000004A, lsn = E/4A000130
+</span></span><span class="line"><span class="cl">2019-09-04 16:41:24.964 P00 DETAIL: wrote &#39;pg_data/backup_label&#39; file returned from pg_stop_backup()
+</span></span><span class="line"><span class="cl">2019-09-04 16:41:25.155 P00   INFO: new backup label = 20190904-134245F_20190904-164117I
+</span></span><span class="line"><span class="cl">2019-09-04 16:41:25.194 P00   INFO: backup command end: completed successfully (7736ms)
+</span></span><span class="line"><span class="cl">2019-09-04 16:41:25.194 P00   INFO: expire command begin
+</span></span><span class="line"><span class="cl">2019-09-04 16:41:25.214 P00   INFO: full backup total &lt; 2 - using oldest full backup for 11-1 archive retention
+</span></span><span class="line"><span class="cl">2019-09-04 16:41:25.214 P00 DETAIL: archive retention on backup 20190904-134245F, archiveId = 11-1, start = 0000000D0000000E00000048
+</span></span><span class="line"><span class="cl">2019-09-04 16:41:25.215 P00 DETAIL: no archive to remove, archiveId = 11-1
+</span></span><span class="line"><span class="cl">2019-09-04 16:41:25.215 P00   INFO: expire command end: completed successfully (21ms)
+</span></span><span class="line"><span class="cl">postgres@hqdc039:~$ 
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>執行後，可以檢查一下</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">postgres@hqdc039:~$ pgbackrest --stanza=demo  --log-level-console=info info
+</span></span><span class="line"><span class="cl">stanza: demo
+</span></span><span class="line"><span class="cl">    status: ok
+</span></span><span class="line"><span class="cl">    cipher: aes-256-cbc
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    db (current)
+</span></span><span class="line"><span class="cl">        wal archive min/max (11-1): 0000000D0000000E00000048/000000100000000E0000004A
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        full backup: 20190904-134245F
+</span></span><span class="line"><span class="cl">            timestamp start/stop: 2019-09-04 13:42:45 / 2019-09-04 13:48:54
+</span></span><span class="line"><span class="cl">            wal start/stop: 0000000D0000000E00000048 / 0000000D0000000E00000048
+</span></span><span class="line"><span class="cl">            database size: 2.6GB, backup size: 2.6GB
+</span></span><span class="line"><span class="cl">            repository size: 547MB, repository backup size: 547MB
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        incr backup: 20190904-134245F_20190904-164117I
+</span></span><span class="line"><span class="cl">            timestamp start/stop: 2019-09-04 16:41:17 / 2019-09-04 16:41:25
+</span></span><span class="line"><span class="cl">            wal start/stop: 000000100000000E0000004A / 000000100000000E0000004A
+</span></span><span class="line"><span class="cl">            database size: 2.6GB, backup size: 2.2MB
+</span></span><span class="line"><span class="cl">            repository size: 547MB, repository backup size: 220.4KB
+</span></span><span class="line"><span class="cl">            backup reference list: 20190904-134245F
+</span></span><span class="line"><span class="cl">postgres@hqdc039:~$
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h4 id="還原測試">還原測試</h4>
+<p>pgbackrest 的還原因為透過WAL ，所以有一些觀念需要先釐清
+本來我的測試是先做好備份，然後直接砍掉 DB，接著再用restore還原
+卻發現砍掉的DB居然沒有回來..
+後來看了這一篇，然後又研究了一下 <strong>Point-in-Time Recovery</strong>
+<a class="link" href="https://github.com/pgbackrest/pgbackrest/issues/800"  target="_blank" rel="noopener"
+    >https://github.com/pgbackrest/pgbackrest/issues/800</a>
+才找到正確的用法</p>
+<p>先把DB整個砍掉</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">postgres@hqdc034:/zp/database$ time dropdb demo
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>然後停止postgresql 服務</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">postgres@hqdc034:/zp/database$ pg_ctlcluster 10 main stop
+</span></span><span class="line"><span class="cl">  sudo systemctl stop postgresql@10-main
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>接著就可以來下指令還原了</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">postgres@hqdc034:/zp/database$ time pgbackrest --stanza=demo --log-level-console=info --delta --type=time &#34;--target=2019-09-05 11:00:00.268248+08&#34; --target-action=promote restore
+</span></span><span class="line"><span class="cl">2019-09-05 11:15:57.480 P00   INFO: restore command begin 2.13: --delta --log-level-console=info --pg1-path=/zp/database/10/main --process-max=4 --repo1-path=/var/lib/pgbackrest --stanza=demo --target=&#34;2019-09-05 11:00:00.268248+08&#34; --target-action=promote --type=time
+</span></span><span class="line"><span class="cl">2019-09-05 11:15:57.624 P00   INFO: restore backup set 20190905-111109F
+</span></span><span class="line"><span class="cl">2019-09-05 11:15:57.947 P00   INFO: remove invalid files/paths/links from /zp/database/10/main
+</span></span><span class="line"><span class="cl">2019-09-05 11:16:00.440 P01   INFO: restore file /zp/database/10/main/global/pg_control.pgbackrest.tmp (8KB, 99%) checksum e253f9d706ac59e1ec0408ba477d1d5bac41b20f
+</span></span><span class="line"><span class="cl">2019-09-05 11:16:00.791 P00   INFO: write /zp/database/10/main/recovery.conf
+</span></span><span class="line"><span class="cl">2019-09-05 11:16:00.797 P00   INFO: restore global/pg_control (performed last to ensure aborted restores cannot be started)
+</span></span><span class="line"><span class="cl">2019-09-05 11:16:00.800 P00   INFO: restore command end: completed successfully (3321ms)
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">real	0m3.328s
+</span></span><span class="line"><span class="cl">user	0m6.896s
+</span></span><span class="line"><span class="cl">sys	0m0.832s
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>在DB目錄中，會產生一個recovery.conf，這是用來給 postgresql 看的檔案，裡面會紀錄怎麼還原、以及還原的類型、時間點，這邊指定要恢復到 <em><strong>2019-09-05 11:00:00.268248+08</strong></em>
+這個時間格式要看資料庫的設定，可以藉由以下指令得到</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">postgres@hqdc034:/zp/database$ psql -Atc &#34;select current_timestamp&#34;
+</span></span><span class="line"><span class="cl">2019-09-05 11:14:27.268248+08
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>檢查一下recovery.conf</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">postgres@hqdc034:/zp/database$ cat /zp/database/10/main/recovery.conf 
+</span></span><span class="line"><span class="cl">restore_command = &#39;pgbackrest --log-level-console=info --stanza=demo archive-get %f &#34;%p&#34;&#39;
+</span></span><span class="line"><span class="cl">recovery_target_time = &#39;2019-09-05 11:00:00.268248+08&#39;
+</span></span><span class="line"><span class="cl">recovery_target_action = &#39;promote&#39;
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>重新啟動postgresql 然後看看被砍掉的demo DB有沒有回來</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">postgres@hqdc034:/zp/database$ pg_ctlcluster 10 main start
+</span></span><span class="line"><span class="cl">Warning: the cluster will not be running as a systemd service. Consider using systemctl:
+</span></span><span class="line"><span class="cl">  sudo systemctl start postgresql@10-main
+</span></span><span class="line"><span class="cl">postgres@hqdc034:/zp/database$ psql 
+</span></span><span class="line"><span class="cl">psql (10.8 (Ubuntu 10.8-1.pgdg14.04+1))
+</span></span><span class="line"><span class="cl">Type &#34;help&#34; for help.
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">postgres=# \l
+</span></span><span class="line"><span class="cl">                                  List of databases
+</span></span><span class="line"><span class="cl">   Name    |  Owner   | Encoding |   Collate   |    Ctype    |   Access privileges   
+</span></span><span class="line"><span class="cl">-----------+----------+----------+-------------+-------------+-----------------------
+</span></span><span class="line"><span class="cl"> demo      | postgres | UTF8     | en_US.UTF-8 | en_US.UTF-8 | 
+</span></span><span class="line"><span class="cl"> postgres  | postgres | UTF8     | en_US.UTF-8 | en_US.UTF-8 | 
+</span></span><span class="line"><span class="cl"> template0 | postgres | UTF8     | en_US.UTF-8 | en_US.UTF-8 | =c/postgres          +
+</span></span><span class="line"><span class="cl">           |          |          |             |             | postgres=CTc/postgres
+</span></span><span class="line"><span class="cl"> template1 | postgres | UTF8     | en_US.UTF-8 | en_US.UTF-8 | =c/postgres          +
+</span></span><span class="line"><span class="cl">           |          |          |             |             | postgres=CTc/postgres
+</span></span><span class="line"><span class="cl">(4 rows)
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">postgres=# \q
+</span></span><span class="line"><span class="cl">postgres@hqdc034:/zp/database$ 
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>很好， demo DB 有順利的還原回來了，先暫時測試到這邊。接下來要來玩postgresql on zfs</p>
+<p>後續如果想更深入測試 pgbackrest，可以試試看異機備份還原。</p>
+</section>
+
+
+    <footer class="article-footer">
+    
+    <section class="article-tags">
+        
+            <a href="/tags/postgresql/">postgresql</a>
+        
+    </section>
+
+
+    
+    <section class="article-copyright">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <path d="M14.5 9a3.5 4 0 1 0 0 6" />
+</svg>
+
+
+
+        <span>Licensed under CC BY-NC-SA 4.0</span>
+    </section>
+    </footer>
+
+
+    
+</article>
+
+    
+
+    
+
+<aside class="related-content--wrapper">
+    <h2 class="section-title">相關文章</h2>
+    <div class="related-content">
+        <div class="flex article-list--tile">
+            
+                
+<article class="has-image">
+    <a href="/p/ubuntu-20.04-install-nvidia-driver-/-cuda-/-postgresql-/-pg_strom/">
+        
+        
+            <div class="article-image">
+                
+                    <img src="https://h.cowbay.org/images/post-default-3.jpg" loading="lazy" data-key="" data-hash="https://h.cowbay.org/images/post-default-3.jpg"/>
+                
+            </div>
+        
+
+        <div class="article-details">
+            <h2 class="article-title">ubuntu 20.04 install nvidia driver / CUDA / postgresql / pg_strom</h2>
+        </div>
+    </a>
+</article>
+
+            
+                
+<article class="has-image">
+    <a href="/p/%E7%AD%86%E8%A8%98-postgresql-%E6%95%88%E8%83%BD%E6%B8%AC%E8%A9%A6-/-postgresql-benchmakr-using-pgbench/">
+        
+        
+            <div class="article-image">
+                
+                    <img src="https://h.cowbay.org/images/post-default-17.jpg" loading="lazy" data-key="" data-hash="https://h.cowbay.org/images/post-default-17.jpg"/>
+                
+            </div>
+        
+
+        <div class="article-details">
+            <h2 class="article-title">[筆記] postgresql 效能測試 / postgresql benchmakr using pgbench</h2>
+        </div>
+    </a>
+</article>
+
+            
+                
+<article class="has-image">
+    <a href="/p/%E7%AD%86%E8%A8%98-%E6%B8%AC%E8%A9%A6-postgresql-%E7%9A%84pg_prewarm-%E5%B0%8D%E6%95%88%E8%83%BD%E7%9A%84%E5%BD%B1%E9%9F%BF-/-test-pg_prewarm-in-postgresql-11/">
+        
+        
+            <div class="article-image">
+                
+                    <img src="https://h.cowbay.org/images/post-default-9.jpg" loading="lazy" data-key="" data-hash="https://h.cowbay.org/images/post-default-9.jpg"/>
+                
+            </div>
+        
+
+        <div class="article-details">
+            <h2 class="article-title">[筆記] 測試 postgresql 的pg_prewarm 對效能的影響 / test pg_prewarm in postgresql 11</h2>
+        </div>
+    </a>
+</article>
+
+            
+                
+<article class="">
+    <a href="/p/%E7%AD%86%E8%A8%98-%E5%9C%A8ubuntu-18.04%E5%AE%89%E8%A3%9Dpsql-11-%E4%BB%A5%E5%8F%8A-pg_auto_failover-/-install-psql-11-and-pg_auto_failover-in-ubuntu-18.04/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">[筆記] 在ubuntu 18.04安裝psql 11 以及 pg_auto_failover / install psql 11 and pg_auto_failover in ubuntu 18.04</h2>
+        </div>
+    </a>
+</article>
+
+            
+                
+<article class="">
+    <a href="/p/%E7%AD%86%E8%A8%98-%E6%B8%AC%E8%A9%A6-usb-3.1-gen2-nvme-ssd-%E5%A4%96%E6%8E%A5%E7%9B%92-%E5%85%A7%E5%BB%BApci-e-ssd-%E5%A4%96%E6%8E%A5sata-ssd-/-bencmark-with-external-internal-nvme-ssd-and-external-sata-ssd/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">[筆記] 測試 USB 3.1 Gen2 NVME SSD 外接盒 &amp; 內建pci-e ssd &amp; 外接SATA SSD / Bencmark With External Internal Nvme Ssd and External Sata Ssd</h2>
+        </div>
+    </a>
+</article>
+
+            
+        </div>
+    </div>
+</aside>
+
+     
+    
+        
+    <div class="disqus-container">
+    <div id="disqus_thread"></div>
+<script type="application/javascript">
+    window.disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "h-cowbay-org" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+</div>
+
+<style>
+    .disqus-container {
+        background-color: var(--card-background);
+        border-radius: var(--card-border-radius);
+        box-shadow: var(--shadow-l1);
+        padding: var(--card-padding);
+    }
+</style>
+
+<script>
+    window.addEventListener('onColorSchemeChange', (e) => {
+        if (typeof DISQUS == 'object') {
+            DISQUS.reset({
+                reload: true
+            });
+        }
+    })
+</script>
+
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+            2020 - 
+        
+        2023 MCの部落
+    </section>
+    
+    <section class="powerby">
+        
+            鮮衣怒馬少年時 不負韶華行且知 <br/>
+        使用 <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> 建立 <br />
+        主題 <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.16.0">Stack</a></b> 由 <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a> 設計
+    </section>
+</footer>
+
+
+    
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.min.css"crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css"crossorigin="anonymous"
+            >
+
+            </main>
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.6/dist/vibrant.min.js"integrity="sha256-awcR2jno4kI5X0zL8ex0vi2z&#43;KMkF24hUW8WePSA9HM="crossorigin="anonymous"
+                
+                >
+            </script><script type="text/javascript" src="/ts/main.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>

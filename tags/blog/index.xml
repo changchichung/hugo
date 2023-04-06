@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+    <channel>
+        <title>blog on MCの部落</title>
+        <link>https://h.cowbay.org/tags/blog/</link>
+        <description>Recent content in blog on MCの部落</description>
+        <generator>Hugo -- gohugo.io</generator>
+        <language>en-us</language>
+        <lastBuildDate>Sat, 25 Mar 2023 14:22:31 +0800</lastBuildDate><atom:link href="https://h.cowbay.org/tags/blog/index.xml" rel="self" type="application/rss+xml" /><item>
+        <title>又又又又重弄了一次部落格 / Restore Blog Again</title>
+        <link>https://h.cowbay.org/p/%E5%8F%88%E5%8F%88%E5%8F%88%E5%8F%88%E9%87%8D%E5%BC%84%E4%BA%86%E4%B8%80%E6%AC%A1%E9%83%A8%E8%90%BD%E6%A0%BC-/-restore-blog-again/</link>
+        <pubDate>Sat, 25 Mar 2023 14:22:31 +0800</pubDate>
+        
+        <guid>https://h.cowbay.org/p/%E5%8F%88%E5%8F%88%E5%8F%88%E5%8F%88%E9%87%8D%E5%BC%84%E4%BA%86%E4%B8%80%E6%AC%A1%E9%83%A8%E8%90%BD%E6%A0%BC-/-restore-blog-again/</guid>
+        <description>&lt;img src="https://h.cowbay.org/images/post-default-2.jpg" alt="Featured image of post 又又又又重弄了一次部落格 / Restore Blog Again" /&gt;&lt;p&gt;前幾天因為發現了little creek hosting 這個滿便宜的VPS&lt;/p&gt;
+&lt;p&gt;所以又又又把VPS 從上次的racknerd 給搬過來了&lt;/p&gt;
+&lt;p&gt;結果搬家的時候，光顧著在那邊搞docker 移轉，卻完全忘了 HUGO 這邊&lt;/p&gt;
+&lt;p&gt;所以整個HUGO 的工作目錄就直接被我砍了&amp;hellip;.&lt;/p&gt;
+&lt;p&gt;幸好當時有丟上去 gitlab 做備份&lt;/p&gt;
+&lt;p&gt;這一台VPS 的規格如下&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://i.imgur.com/H03ZEtn.png&#34;
+	
+	
+	
+	loading=&#34;lazy&#34;
+	
+	
+&gt;&lt;/p&gt;
+&lt;p&gt;8C/8G/160G/8T $7  算是很實惠方案，不像之前的記憶體和硬碟常常不夠用&lt;/p&gt;
+&lt;p&gt;用來抓BT 速度也是飛快，之前都是用Oracle 的免費VPS 在抓「影片」&lt;/p&gt;
+&lt;p&gt;但是那邊的硬碟空間好像也是只有40還是45G 隨便抓個兩片就放不下了&lt;/p&gt;
+&lt;p&gt;所以之後應該也會把BT 的任務轉到這台來，反正空間夠大，費用也便宜&lt;/p&gt;
+&lt;p&gt;至於racknerd 那邊，就等到期了就自動取消吧&amp;hellip;&lt;/p&gt;</description>
+        </item>
+        
+    </channel>
+</rss>

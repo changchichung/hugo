@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+    <channel>
+        <title>launcher on MCの部落</title>
+        <link>https://h.cowbay.org/tags/launcher/</link>
+        <description>Recent content in launcher on MCの部落</description>
+        <generator>Hugo -- gohugo.io</generator>
+        <language>en-us</language>
+        <lastBuildDate>Fri, 04 Oct 2019 14:12:15 +0800</lastBuildDate><atom:link href="https://h.cowbay.org/tags/launcher/index.xml" rel="self" type="application/rss+xml" /><item>
+        <title>[推薦] ulauncher ubuntu 18.04 底下，好用的 app launcher / Recommended Ulauncher in Ubuntu 1804</title>
+        <link>https://h.cowbay.org/p/%E6%8E%A8%E8%96%A6-ulauncher-ubuntu-18.04-%E5%BA%95%E4%B8%8B%E5%A5%BD%E7%94%A8%E7%9A%84-app-launcher-/-recommended-ulauncher-in-ubuntu-1804/</link>
+        <pubDate>Fri, 04 Oct 2019 14:12:15 +0800</pubDate>
+        
+        <guid>https://h.cowbay.org/p/%E6%8E%A8%E8%96%A6-ulauncher-ubuntu-18.04-%E5%BA%95%E4%B8%8B%E5%A5%BD%E7%94%A8%E7%9A%84-app-launcher-/-recommended-ulauncher-in-ubuntu-1804/</guid>
+        <description>&lt;p&gt;這兩天在找關於在 ubuntu 中做搜尋的軟體&lt;/p&gt;
+&lt;p&gt;意外找到一個非常好用的工具 ulauncher&lt;/p&gt;
+&lt;p&gt;官方網站： &lt;a class=&#34;link&#34; href=&#34;https://ulauncher.io/&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;https://ulauncher.io/&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;簡單的說，這東西可以讓你不需要ubuntu 的 dash 輸入關鍵字尋找 app&lt;/p&gt;
+&lt;p&gt;舉例來說&lt;/p&gt;
+&lt;p&gt;如果我想要啟動 libreoffice Calc&lt;/p&gt;
+&lt;p&gt;通常我會按一下鍵盤上的 windows/super 鍵，然後輸入calc&lt;/p&gt;
+&lt;p&gt;像是圖片中這樣&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://i.imgur.com/hlmtneN.png&#34;
+	
+	
+	
+	loading=&#34;lazy&#34;
+	
+	
+&gt;&lt;/p&gt;
+&lt;p&gt;OK ，那這樣有什麼問題呢？&lt;/p&gt;
+&lt;p&gt;最大的問題應該是fcitx 的 bug ，在這邊不能輸入中文搜尋，如果只是要找應用程式還好&lt;/p&gt;
+&lt;p&gt;但是要找檔案就會有問題了&lt;/p&gt;
+&lt;p&gt;那用 ulauncher 有什麼不同呢？&lt;/p&gt;
+&lt;p&gt;首先，因為 ulauncher 內建的呼叫快捷鍵是 ctrl+space&lt;/p&gt;
+&lt;p&gt;跟 fcitx (對，又是他) 切換中文的快捷鍵衝突&lt;/p&gt;
+&lt;p&gt;所以要改掉，可以改成自己喜歡的任意組合，像我就改成 ctl+ esc&lt;/p&gt;
+&lt;p&gt;叫出ulauncher 的視窗後，直接輸入 calc 也有一樣的效果&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://i.imgur.com/RTYBGeT.png&#34;
+	
+	
+	
+	loading=&#34;lazy&#34;
+	
+	
+&gt;&lt;/p&gt;
+&lt;p&gt;當然啦，如果只是這樣，那也沒什麼了不起的&lt;/p&gt;
+&lt;p&gt;ulauncher 最大的好處是他支援各式各樣的extension&lt;/p&gt;
+&lt;p&gt;可以在網站上瀏覽這些擴充套件，最好選擇 V2.0 的，他新舊版本不相容&lt;/p&gt;
+&lt;p&gt;&lt;a class=&#34;link&#34; href=&#34;https://ext.ulauncher.io/&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;https://ext.ulauncher.io/&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;拿幾個我裝的 extension 來示範&lt;/p&gt;
+&lt;p&gt;比如我常寫 ansible playbook&lt;/p&gt;
+&lt;p&gt;可是又很常忘記某些模組、語法怎麼用&lt;/p&gt;
+&lt;p&gt;所以我都要開著瀏覽器去 ansible 官網看資料&lt;/p&gt;
+&lt;p&gt;現在我可以用 DevDocs 這個extension 直接查語法&lt;/p&gt;
+&lt;p&gt;像是這樣&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://i.imgur.com/O3q9rqG.png&#34;
+	
+	
+	
+	loading=&#34;lazy&#34;
+	
+	
+&gt;&lt;/p&gt;
+&lt;p&gt;按下enter 或者 alt+1 就可以開啟相關語法的網頁&lt;/p&gt;
+&lt;p&gt;又或者是常常要去查 IP，也有相關的extension 可以用&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://i.imgur.com/9Xmv3pn.png&#34;
+	
+	
+	
+	loading=&#34;lazy&#34;
+	
+	
+&gt;&lt;/p&gt;
+&lt;p&gt;再來就是 unicode 字元查詢&lt;/p&gt;
+&lt;p&gt;可以很簡單的複製 unicode 裡面的特殊字元&lt;/p&gt;
+&lt;p&gt;像是狗貓牛豬&lt;/p&gt;
+&lt;p&gt;🐕🐈🐄🐖&lt;/p&gt;
+&lt;p&gt;房子車子孩子&lt;/p&gt;
+&lt;p&gt;🏠🚚👦&lt;/p&gt;
+&lt;p&gt;是不是很方便！(當然前提是平常有用到這些符號啦)&lt;/p&gt;
+&lt;p&gt;最後是我覺得最好用的搜尋檔案&lt;/p&gt;
+&lt;p&gt;之前在搜尋檔案的時候，都是先去點開檔案總管，然後用裡面的搜尋
+(好啦，我承認其實我很少用這個功能，檔案沒有多到記不得放在哪裡)
+(可是 👩 說很需要&amp;hellip;.)&lt;/p&gt;
+&lt;p&gt;不過這個功能要搭配 tracker 這個套件，我不確定 ubuntu 預設有沒有裝&lt;/p&gt;
+&lt;p&gt;裝好之後，做一些簡單的設定，就可以直接搜尋檔案名稱了&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://i.imgur.com/I5ZOY2m.png&#34;
+	
+	
+	
+	loading=&#34;lazy&#34;
+	
+	
+&gt;&lt;/p&gt;
+&lt;p&gt;根本殺手級套件啊！&lt;/p&gt;
+&lt;p&gt;強烈推薦大家一定要裝起來玩玩看！&lt;/p&gt;</description>
+        </item>
+        
+    </channel>
+</rss>

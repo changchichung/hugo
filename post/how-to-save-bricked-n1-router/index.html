@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="en-us" dir="ltr">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='不久前買了一台對岸斐訊出的 N1 路由器，這台的規格很強，又有大神破解了 boot loader
+所以可以被拿來安裝 openwrt/Armbian 之類的系統做其他的應用
+因為openwrt 玩很多了，所以這次想說來試試看 Armbian
+一開始只弄出了based on ubuntu bionic 的版本，因為覺得有點舊了，所以一直想要換成 ubuntu focal
+就在某次亂搞之後，N1 他變磚了&amp;hellip;開機完全沒有畫面，只好開始研究怎麼救磚了
+'>
+<meta name="keywords" content="N1, router"><title>[筆記] Phicomm 斐訊 N1 救磚的方法/ How to Save Bricked N1 Router</title>
+
+<link rel='canonical' href='https://h.cowbay.org/post/how-to-save-bricked-n1-router/'>
+
+<link rel="stylesheet" href="/scss/style.min.8191399262444ab68b72a18c97392f5349be20a1615d77445be51e974c144cff.css"><meta property='og:title' content='[筆記] Phicomm 斐訊 N1 救磚的方法/ How to Save Bricked N1 Router'>
+<meta property='og:description' content='不久前買了一台對岸斐訊出的 N1 路由器，這台的規格很強，又有大神破解了 boot loader
+所以可以被拿來安裝 openwrt/Armbian 之類的系統做其他的應用
+因為openwrt 玩很多了，所以這次想說來試試看 Armbian
+一開始只弄出了based on ubuntu bionic 的版本，因為覺得有點舊了，所以一直想要換成 ubuntu focal
+就在某次亂搞之後，N1 他變磚了&amp;hellip;開機完全沒有畫面，只好開始研究怎麼救磚了
+'>
+<meta property='og:url' content='https://h.cowbay.org/post/how-to-save-bricked-n1-router/'>
+<meta property='og:site_name' content='My New Hugo Site'>
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='n1' /><meta property='article:tag' content='router' /><meta property='article:published_time' content='2022-03-09T16:29:17&#43;08:00'/><meta property='article:modified_time' content='2022-03-09T16:29:17&#43;08:00'/><meta property='og:image' content='https://h.cowbay.org/images/post-default-14.jpg' />
+<meta name="twitter:title" content="[筆記] Phicomm 斐訊 N1 救磚的方法/ How to Save Bricked N1 Router">
+<meta name="twitter:description" content="不久前買了一台對岸斐訊出的 N1 路由器，這台的規格很強，又有大神破解了 boot loader
+所以可以被拿來安裝 openwrt/Armbian 之類的系統做其他的應用
+因為openwrt 玩很多了，所以這次想說來試試看 Armbian
+一開始只弄出了based on ubuntu bionic 的版本，因為覺得有點舊了，所以一直想要換成 ubuntu focal
+就在某次亂搞之後，N1 他變磚了&amp;hellip;開機完全沒有畫面，只好開始研究怎麼救磚了
+"><meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:image" content='https://h.cowbay.org/images/post-default-14.jpg' />
+    </head>
+    <body class="
+    article-page
+    ">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "auto");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.documentElement.dataset.scheme = 'dark';
+        } else {
+            document.documentElement.dataset.scheme = 'light';
+        }
+    })();
+</script>
+<div class="container main-container flex on-phone--column compact"><aside class="sidebar left-sidebar sticky ">
+    <button class="hamburger hamburger--spin" type="button" id="toggle-menu" aria-label="Toggle Menu">
+        <span class="hamburger-box">
+            <span class="hamburger-inner"></span>
+        </span>
+    </button>
+
+    <header>
+        
+            
+            <figure class="site-avatar">
+                <a href="/">
+                
+                    
+                    
+                    
+                        
+                        <img src="/img/avatar.png" width="300"
+                            height="300" class="site-logo" loading="lazy" alt="Avatar">
+                    
+                
+                </a>
+                
+            </figure>
+            
+        
+        
+        <div class="site-meta">
+            <h1 class="site-name"><a href="/">My New Hugo Site</a></h1>
+            <h2 class="site-description"></h2>
+        </div>
+    </header><ol class="menu" id="main-menu">
+        
+        
+        
+        <li >
+            <a href='/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-home" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="5 12 3 12 12 3 21 12 19 12" />
+  <path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-7" />
+  <path d="M9 21v-6a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v6" />
+</svg>
+
+
+
+                
+                <span>Home</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/page/about/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-user" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="7" r="4" />
+  <path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2" />
+</svg>
+
+
+
+                
+                <span>About</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/page/archives/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-archive" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <rect x="3" y="4" width="18" height="4" rx="2" />
+  <path d="M5 8v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-10" />
+  <line x1="10" y1="12" x2="14" y2="12" />
+</svg>
+
+
+
+                
+                <span>Archives</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/page/search/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="10" cy="10" r="7" />
+  <line x1="21" y1="21" x2="15" y2="15" />
+</svg>
+
+
+
+                
+                <span>Search</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/page/links/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-link" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M10 14a3.5 3.5 0 0 0 5 0l4 -4a3.5 3.5 0 0 0 -5 -5l-.5 .5" />
+  <path d="M14 10a3.5 3.5 0 0 0 -5 0l-4 4a3.5 3.5 0 0 0 5 5l.5 -.5" />
+</svg>
+
+
+
+                
+                <span>Links</span>
+            </a>
+        </li>
+        
+
+        <div class="menu-bottom-section">
+            
+            
+                <li id="dark-mode-toggle">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="8" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="16" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                    <span>Dark Mode</span>
+                </li>
+            
+        </div>
+    </ol>
+</aside>
+
+    
+
+            <main class="main full-width">
+    <article class="has-image main-article">
+    <header class="article-header">
+        <div class="article-image">
+            <a href="/post/how-to-save-bricked-n1-router/">
+                
+                    <img src="https://h.cowbay.org/images/post-default-14.jpg" loading="lazy" alt="Featured image of post [筆記] Phicomm 斐訊 N1 救磚的方法/ How to Save Bricked N1 Router" />
+                
+            </a>
+        </div>
+    
+
+    <div class="article-details">
+    
+    <header class="article-category">
+        
+            <a href="/categories/%E7%AD%86%E8%A8%98/" >
+                筆記
+            </a>
+        
+    </header>
+    
+
+    <div class="article-title-wrapper">
+        <h2 class="article-title">
+            <a href="/post/how-to-save-bricked-n1-router/">[筆記] Phicomm 斐訊 N1 救磚的方法/ How to Save Bricked N1 Router</a>
+        </h2>
+    
+        
+    </div>
+
+    
+    
+    
+    
+    <footer class="article-time">
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M11.795 21h-6.795a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
+  <circle cx="18" cy="18" r="4" />
+  <path d="M15 3v4" />
+  <path d="M7 3v4" />
+  <path d="M3 11h16" />
+  <path d="M18 16.496v1.504l1 1" />
+</svg>
+                <time class="article-time--published">Mar 09, 2022</time>
+            </div>
+        
+
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+                <time class="article-time--reading">
+                    1 minute read
+                </time>
+            </div>
+        
+    </footer>
+    
+
+    
+</div>
+
+</header>
+
+    <section class="article-content">
+    
+    
+    <p>不久前買了一台對岸斐訊出的 N1 路由器，這台的規格很強，又有大神破解了 boot loader</p>
+<p>所以可以被拿來安裝 openwrt/Armbian 之類的系統做其他的應用</p>
+<p>因為openwrt 玩很多了，所以這次想說來試試看 Armbian</p>
+<p>一開始只弄出了based on ubuntu bionic 的版本，因為覺得有點舊了，所以一直想要換成 ubuntu focal</p>
+<p>就在某次亂搞之後，N1 他變磚了&hellip;開機完全沒有畫面，只好開始研究怎麼救磚了</p>
+<h3 id="n1-救磚的方法">N1 救磚的方法</h3>
+<p>筆記日期： 2022-03-04 17:15</p>
+<p>這個是已經確認 N1 變磚了，開機沒有boot loader 的狀況</p>
+<p>這方法不需要拆機，需要用到的檔案和線材如下</p>
+<ol>
+<li>雙公頭 USB $40-50 , shopee 買的</li>
+<li>02_Amlogic_USB_Burning_Tool.tgz <a class="link" href="https://nextcloud.slat.org/index.php/s/PC72sNQDwmk8tZ8"  target="_blank" rel="noopener"
+    >點我下載</a></li>
+<li>03_aml_upgrade_package.tgz <a class="link" href="https://nextcloud.slat.org/index.php/s/KTPWgrSJweZpn2E"  target="_blank" rel="noopener"
+    >點我下載</a></li>
+<li>04_balenaEtcher-Setup-1.7.7.exe <a class="link" href="https://nextcloud.slat.org/index.php/s/z8GjfErnYnZZrQQ"  target="_blank" rel="noopener"
+    >點我下載</a></li>
+<li>05_platform-tools_r33.0.0-windows.zip <a class="link" href="https://nextcloud.slat.org/index.php/s/pRcGTYzFeLGdQMr"  target="_blank" rel="noopener"
+    >點我下載</a></li>
+<li>06_T1_1.3T47_mod_by_webpad_v3_20180419_2.tgz <a class="link" href="https://nextcloud.slat.org/index.php/s/JGzqYwFzm2tG5Yx"  target="_blank" rel="noopener"
+    >點我下載</a></li>
+<li>一台Windows 筆電/桌機</li>
+</ol>
+<p>簡單描述一下我還記得的步驟，就不上圖了，反正重要的是這些檔案，操作過程其實容易的</p>
+<p>先把 02/03/06 的檔案傳到筆電上，該解壓縮的，該安裝的都做一做
+(在這邊至少要確定驅動程式有安裝成功，叫什麼WorldCup 有的沒的)</p>
+<p>02 的檔案解壓縮完會有一個license 的目錄，這個目錄要複製到 USB Burning Tool 的安裝目錄底下
+一般來說應該就是</p>
+<pre tabindex="0"><code>c:\program files(x86)\Amlogic\USB_BURNING_TOOL
+</code></pre><p>確認複製好、解壓縮也完成了，這時候拿出 N1 、雙公頭USB、電源線並且執行 USB Burning Tool</p>
+<p>進入USB Burning Tool 畫面，點一下 File &ndash;&gt; Import image</p>
+<p>選擇06 解壓縮的 06_T1_1.3T47_mod_by_webpad_v3_20180419_2.img</p>
+<p>因為我的N1 是連 Bootloader 都掛了，所以右邊有四個選項要勾選</p>
+<ol>
+<li>Erase flash</li>
+<li>Erase bootloader</li>
+<li>Overwrite key</li>
+<li>Secure Boot Key (跟圖片上的不會一樣)</li>
+</ol>
+<p>還是補個圖好了，借別人的來用</p>
+<p><img src="https://i.imgur.com/kUibBJY.png"
+	
+	
+	
+	loading="lazy"
+	
+	
+></p>
+<p>確認好之後，還先不要按開始，準備好 N1，電源接上插座，但先不要接到N1，USB 一頭接在電腦上，另一頭也是一樣先不要接到 N1</p>
+<p>接下來點一下USB Burning tool 的開始，然後快速的先插入電源接頭到 N1 ，然後接著插入 USB 接頭</p>
+<p>正常的話，這邊就會聽到聲音，然後 USB Burning Tool 就會開始燒錄，如果沒有看到開始燒錄的話，就多試幾次看看，</p>
+<p>我一開始就弄錯 USB 和電源的插入順序，一直沒成功</p>
+<p>在燒錄到21% 的時候，會跳出錯誤訊息，不用擔心，意料之中，</p>
+<p>這時候按下停止，然後一樣到 File &ndash;&gt; import image，這次選擇 03 解壓縮後的檔案aml_upgrade_package，</p>
+<p>右邊的選項也不用動，密鑰的部分會自動消失，然後保留上面兩個Erase flash/bootloader ，再點一次開始按鈕</p>
+<p>基本上這次就可以順利成功燒錄了，如果只是要救磚，到這邊就已經 OK</p>
+<p>這時候的機子韌體版本是 V2.19 ，如果想要可以繼續刷其他的韌體</p>
+<h3 id="刷-armbian-2210-focal-kernel-59">刷 Armbian 22.10 focal kernel 5.9</h3>
+<p>這部分已經成功了，只是還沒整理筆記(其實也沒很複雜啦)</p>
+<p>等到有心情想寫的時候再來補</p>
+</section>
+
+
+    <footer class="article-footer">
+    
+    <section class="article-tags">
+        
+            <a href="/tags/n1/">n1</a>
+        
+            <a href="/tags/router/">router</a>
+        
+    </section>
+
+
+    </footer>
+
+
+    
+</article>
+
+    
+
+    
+
+     
+    
+        
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+        2023 My New Hugo Site
+    </section>
+    
+    <section class="powerby">
+        Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
+        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.16.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+    </section>
+</footer>
+
+
+    
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.min.css"crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css"crossorigin="anonymous"
+            >
+
+            </main>
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.6/dist/vibrant.min.js"integrity="sha256-awcR2jno4kI5X0zL8ex0vi2z&#43;KMkF24hUW8WePSA9HM="crossorigin="anonymous"
+                
+                >
+            </script><script type="text/javascript" src="/ts/main.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>

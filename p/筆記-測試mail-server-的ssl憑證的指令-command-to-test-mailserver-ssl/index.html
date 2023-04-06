@@ -1,0 +1,965 @@
+<!DOCTYPE html>
+<html lang="en-us" dir="ltr">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='今天老闆出國，發slack說手機不能寄信，看了一下，似乎是因為用GMAIL的APP來收信
+然後google 不知道跟人家改了什麼，結果不接受原本的認證了&amp;hellip; WTF &amp;hellip;.
+然後，這問題應該很久了，結果現在才在講 &amp;hellip;.
+'>
+<title>[筆記] 測試mail server 的SSL憑證的指令 Command to test mailserver SSL</title>
+
+<link rel='canonical' href='https://h.cowbay.org/p/%E7%AD%86%E8%A8%98-%E6%B8%AC%E8%A9%A6mail-server-%E7%9A%84ssl%E6%86%91%E8%AD%89%E7%9A%84%E6%8C%87%E4%BB%A4-command-to-test-mailserver-ssl/'>
+
+<link rel="stylesheet" href="/scss/style.min.8191399262444ab68b72a18c97392f5349be20a1615d77445be51e974c144cff.css"><meta property='og:title' content='[筆記] 測試mail server 的SSL憑證的指令 Command to test mailserver SSL'>
+<meta property='og:description' content='今天老闆出國，發slack說手機不能寄信，看了一下，似乎是因為用GMAIL的APP來收信
+然後google 不知道跟人家改了什麼，結果不接受原本的認證了&amp;hellip; WTF &amp;hellip;.
+然後，這問題應該很久了，結果現在才在講 &amp;hellip;.
+'>
+<meta property='og:url' content='https://h.cowbay.org/p/%E7%AD%86%E8%A8%98-%E6%B8%AC%E8%A9%A6mail-server-%E7%9A%84ssl%E6%86%91%E8%AD%89%E7%9A%84%E6%8C%87%E4%BB%A4-command-to-test-mailserver-ssl/'>
+<meta property='og:site_name' content='MCの部落'>
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:published_time' content='2019-03-20T11:42:47&#43;08:00'/><meta property='article:modified_time' content='2019-03-20T11:42:47&#43;08:00'/>
+<meta name="twitter:title" content="[筆記] 測試mail server 的SSL憑證的指令 Command to test mailserver SSL">
+<meta name="twitter:description" content="今天老闆出國，發slack說手機不能寄信，看了一下，似乎是因為用GMAIL的APP來收信
+然後google 不知道跟人家改了什麼，結果不接受原本的認證了&amp;hellip; WTF &amp;hellip;.
+然後，這問題應該很久了，結果現在才在講 &amp;hellip;.
+">
+<script type="application/javascript">
+var doNotTrack = false;
+if (!doNotTrack) {
+	(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+	(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+	m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+	})(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+	ga('create', 'UA-128770427-1', 'auto');
+	
+	ga('send', 'pageview');
+}
+</script>
+    </head>
+    <body class="
+    article-page
+    ">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "auto");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.documentElement.dataset.scheme = 'dark';
+        } else {
+            document.documentElement.dataset.scheme = 'light';
+        }
+    })();
+</script>
+<div class="container main-container flex on-phone--column extended"><aside class="sidebar left-sidebar sticky ">
+    <button class="hamburger hamburger--spin" type="button" id="toggle-menu" aria-label="切換選單">
+        <span class="hamburger-box">
+            <span class="hamburger-inner"></span>
+        </span>
+    </button>
+
+    <header>
+        
+            
+            <figure class="site-avatar">
+                <a href="/">
+                
+                    
+                    
+                    
+                        
+                        <img src="/img/avatar_hu85bfcf0e08404ecf606702eb99c7ed68_43560_300x0_resize_box_3.png" width="300"
+                            height="300" class="site-logo" loading="lazy" alt="Avatar">
+                    
+                
+                </a>
+                
+                    <span class="emoji">🍥</span>
+                
+            </figure>
+            
+        
+        
+        <div class="site-meta">
+            <h1 class="site-name"><a href="/">MCの部落</a></h1>
+            <h2 class="site-description">讀過兩年書，塵世中一個迷途小書僮</h2>
+        </div>
+    </header><ol class="social-menu">
+            
+                <li>
+                    <a 
+                        href='https://www.facebook.com'
+                        target="_blank"
+                        title="facebook"
+                        rel="me"
+                    >
+                        
+                        
+                            <?xml version="1.0" encoding="iso-8859-1"?>
+<!-- Uploaded to: SVG Repo, www.svgrepo.com, Generator: SVG Repo Mixer Tools -->
+<svg height="800px" width="800px" version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" 
+	 viewBox="0 0 512 512" xml:space="preserve">
+<path style="fill:#385C8E;" d="M134.941,272.691h56.123v231.051c0,4.562,3.696,8.258,8.258,8.258h95.159
+	c4.562,0,8.258-3.696,8.258-8.258V273.78h64.519c4.195,0,7.725-3.148,8.204-7.315l9.799-85.061c0.269-2.34-0.472-4.684-2.038-6.44
+	c-1.567-1.757-3.81-2.763-6.164-2.763h-74.316V118.88c0-16.073,8.654-24.224,25.726-24.224c2.433,0,48.59,0,48.59,0
+	c4.562,0,8.258-3.698,8.258-8.258V8.319c0-4.562-3.696-8.258-8.258-8.258h-66.965C309.622,0.038,308.573,0,307.027,0
+	c-11.619,0-52.006,2.281-83.909,31.63c-35.348,32.524-30.434,71.465-29.26,78.217v62.352h-58.918c-4.562,0-8.258,3.696-8.258,8.258
+	v83.975C126.683,268.993,130.379,272.691,134.941,272.691z"/>
+</svg>
+                        
+                    </a>
+                </li>
+            
+                <li>
+                    <a 
+                        href='https://github.com/CaiJimmy/hugo-theme-stack'
+                        target="_blank"
+                        title="GitHub"
+                        rel="me"
+                    >
+                        
+                        
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-github" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M9 19c-4.3 1.4 -4.3 -2.5 -6 -3m12 5v-3.5c0 -1 .1 -1.4 -.5 -2c2.8 -.3 5.5 -1.4 5.5 -6a4.6 4.6 0 0 0 -1.3 -3.2a4.2 4.2 0 0 0 -.1 -3.2s-1.1 -.3 -3.5 1.3a12.3 12.3 0 0 0 -6.2 0c-2.4 -1.6 -3.5 -1.3 -3.5 -1.3a4.2 4.2 0 0 0 -.1 3.2a4.6 4.6 0 0 0 -1.3 3.2c0 4.6 2.7 5.7 5.5 6c-.6 .6 -.6 1.2 -.5 2v3.5" />
+</svg>
+
+
+
+                        
+                    </a>
+                </li>
+            
+                <li>
+                    <a 
+                        href='https://twitter.com'
+                        target="_blank"
+                        title="Twitter"
+                        rel="me"
+                    >
+                        
+                        
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-twitter" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M22 4.01c-1 .49 -1.98 .689 -3 .99c-1.121 -1.265 -2.783 -1.335 -4.38 -.737s-2.643 2.06 -2.62 3.737v1c-3.245 .083 -6.135 -1.395 -8 -4c0 0 -4.182 7.433 4 11c-1.872 1.247 -3.739 2.088 -6 2c3.308 1.803 6.913 2.423 10.034 1.517c3.58 -1.04 6.522 -3.723 7.651 -7.742a13.84 13.84 0 0 0 .497 -3.753c-.002 -.249 1.51 -2.772 1.818 -4.013z" />
+</svg>
+
+
+
+                        
+                    </a>
+                </li>
+            
+        </ol><ol class="menu" id="main-menu">
+        
+        
+        
+        <li >
+            <a href='/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-home" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="5 12 3 12 12 3 21 12 19 12" />
+  <path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-7" />
+  <path d="M9 21v-6a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v6" />
+</svg>
+
+
+
+                
+                <span>Home</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/about/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-user" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="7" r="4" />
+  <path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2" />
+</svg>
+
+
+
+                
+                <span>About</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/archives/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-archive" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <rect x="3" y="4" width="18" height="4" rx="2" />
+  <path d="M5 8v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-10" />
+  <line x1="10" y1="12" x2="14" y2="12" />
+</svg>
+
+
+
+                
+                <span>Archives</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/search/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="10" cy="10" r="7" />
+  <line x1="21" y1="21" x2="15" y2="15" />
+</svg>
+
+
+
+                
+                <span>Search</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/links/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-link" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M10 14a3.5 3.5 0 0 0 5 0l4 -4a3.5 3.5 0 0 0 -5 -5l-.5 .5" />
+  <path d="M14 10a3.5 3.5 0 0 0 -5 0l-4 4a3.5 3.5 0 0 0 5 5l.5 -.5" />
+</svg>
+
+
+
+                
+                <span>Links</span>
+            </a>
+        </li>
+        
+
+        <div class="menu-bottom-section">
+                <li id="i18n-switch">  
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-language" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M4 5h7" />
+  <path d="M9 3v2c0 4.418 -2.239 8 -5 8" />
+  <path d="M5 9c-.003 2.144 2.952 3.908 6.7 4" />
+  <path d="M12 20l4 -9l4 9" />
+  <path d="M19.1 18h-6.2" />
+</svg>
+
+
+
+                    <select name="language" onchange="window.location.href = this.selectedOptions[0].value">
+                        
+                            <option value="https://h.cowbay.org/" selected>中文</option>
+                        
+                            <option value="https://h.cowbay.org/en/" >English</option>
+                        
+                    </select>
+                </li>
+            
+            
+            
+                <li id="dark-mode-toggle">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="8" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="16" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                    <span>夜晚模式</span>
+                </li>
+            
+        </div>
+    </ol>
+</aside>
+
+    
+
+            <main class="main full-width">
+    <article class="main-article">
+    <header class="article-header">
+
+    <div class="article-details">
+    
+
+    <div class="article-title-wrapper">
+        <h2 class="article-title">
+            <a href="/p/%E7%AD%86%E8%A8%98-%E6%B8%AC%E8%A9%A6mail-server-%E7%9A%84ssl%E6%86%91%E8%AD%89%E7%9A%84%E6%8C%87%E4%BB%A4-command-to-test-mailserver-ssl/">[筆記] 測試mail server 的SSL憑證的指令 Command to test mailserver SSL</a>
+        </h2>
+    
+        
+    </div>
+
+    
+    
+    
+    
+    <footer class="article-time">
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M11.795 21h-6.795a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
+  <circle cx="18" cy="18" r="4" />
+  <path d="M15 3v4" />
+  <path d="M7 3v4" />
+  <path d="M3 11h16" />
+  <path d="M18 16.496v1.504l1 1" />
+</svg>
+                <time class="article-time--published">2019-03-03</time>
+            </div>
+        
+
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+                <time class="article-time--reading">
+                    閱讀時間: 3 分鐘
+                </time>
+            </div>
+        
+    </footer>
+    
+
+    
+</div>
+
+</header>
+
+    <section class="article-content">
+    
+    
+    <p>今天老闆出國，發slack說手機不能寄信，看了一下，似乎是因為用GMAIL的APP來收信</p>
+<p>然後google 不知道跟人家改了什麼，結果不接受原本的認證了&hellip; WTF &hellip;.</p>
+<p>然後，這問題應該很久了，結果現在才在講 &hellip;.</p>
+<p>底下都是用linux 主機來進行測試</p>
+<p>windows環境應該也可以，只是要自己去安裝 openssl 軟體</p>
+<p>To verify SSL, connect to any Linux server via SSH and use the instructions below:</p>
+<p><strong>測試 SSL-IMAP 993 port</strong></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">openssl s_client -showcerts -connect mail.example.com:993
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>結果應該會像是這樣</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span><span class="lnt">37
+</span><span class="lnt">38
+</span><span class="lnt">39
+</span><span class="lnt">40
+</span><span class="lnt">41
+</span><span class="lnt">42
+</span><span class="lnt">43
+</span><span class="lnt">44
+</span><span class="lnt">45
+</span><span class="lnt">46
+</span><span class="lnt">47
+</span><span class="lnt">48
+</span><span class="lnt">49
+</span><span class="lnt">50
+</span><span class="lnt">51
+</span><span class="lnt">52
+</span><span class="lnt">53
+</span><span class="lnt">54
+</span><span class="lnt">55
+</span><span class="lnt">56
+</span><span class="lnt">57
+</span><span class="lnt">58
+</span><span class="lnt">59
+</span><span class="lnt">60
+</span><span class="lnt">61
+</span><span class="lnt">62
+</span><span class="lnt">63
+</span><span class="lnt">64
+</span><span class="lnt">65
+</span><span class="lnt">66
+</span><span class="lnt">67
+</span><span class="lnt">68
+</span><span class="lnt">69
+</span><span class="lnt">70
+</span><span class="lnt">71
+</span><span class="lnt">72
+</span><span class="lnt">73
+</span><span class="lnt">74
+</span><span class="lnt">75
+</span><span class="lnt">76
+</span><span class="lnt">77
+</span><span class="lnt">78
+</span><span class="lnt">79
+</span><span class="lnt">80
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">2019-03-20 11:21:02 [changch@hqdc034 ~]$ openssl s_client -showcerts -connect mail.abc.com:993
+</span></span><span class="line"><span class="cl">CONNECTED(00000003)
+</span></span><span class="line"><span class="cl">depth=0 C = TW, ST = Taipei, L = Taipei, O = iredmail02.abc.com, OU = IT, CN = iredmail02.abc.com, emailAddress = root@iredmail02.abc.com
+</span></span><span class="line"><span class="cl">verify error:num=18:self signed certificate
+</span></span><span class="line"><span class="cl">verify return:1
+</span></span><span class="line"><span class="cl">depth=0 C = TW, ST = Taipei, L = Taipei, O = iredmail02.abc.com, OU = IT, CN = iredmail02.abc.com, emailAddress = root@iredmail02.abc.com
+</span></span><span class="line"><span class="cl">verify return:1
+</span></span><span class="line"><span class="cl">---
+</span></span><span class="line"><span class="cl">Certificate chain
+</span></span><span class="line"><span class="cl"> 0 s:/C=TW/ST=Taipei/L=Taipei/O=iredmail02.abc.com/OU=IT/CN=iredmail02.abc.com/emailAddress=root@iredmail02.abc.com
+</span></span><span class="line"><span class="cl">   i:/C=TW/ST=Taipei/L=Taipei/O=iredmail02.abc.com/OU=IT/CN=iredmail02.abc.com/emailAddress=root@iredmail02.abc.com
+</span></span><span class="line"><span class="cl">-----BEGIN CERTIFICATE-----
+</span></span><span class="line"><span class="cl">MIIEQTCCAymgAwIBAgIJAJksSxoDSMTLMA0GCSqGSIb3DQEBCwUAMIG2MQswCQYD
+</span></span><span class="line"><span class="cl">VQQGEwJUVzEPMA0GA1UECAwGVGFpcGVpMQ8wDQYDVQQHDAZUYWlwZWkxIzAhBgNV
+</span></span><span class="line"><span class="cl">BAoMGmlyZWRtYWlsMDIuZW1hdHRlcnMuY29tLnR3MQswCQYDVQQLDAJJVDEjMCEG
+</span></span><span class="line"><span class="cl">A1UEAwwaaXJlZG1haWwwMi5lbWF0dGVycy5jb20udHcxLjAsBgkqhkiG9w0BCQEW
+</span></span><span class="line"><span class="cl">H3Jvb3RAaXJlZG1haWwwMi5lbWF0dGVycy5jb20udHcwHhcNMTQwOTI0MTA1MjA2
+</span></span><span class="line"><span class="cl">WhcNMjQwOTIxMTA1MjA2WjCBtjELMAkGA1UEBhMCVFcxDzANBgNVBAgMBlRhaXBl
+</span></span><span class="line"><span class="cl">aTEPMA0GA1UEBwwGVGFpcGVpMSMwIQYDVQQKDBppcmVkbWFpbDAyLmVtYXR0ZXJz
+</span></span><span class="line"><span class="cl">LmNvbS50dzELMAkGA1UECwwCSVQxIzAhBgNVBAMMGmlyZWRtYWlsMDIuZW1hdHRl
+</span></span><span class="line"><span class="cl">cnMuY29tLnR3MS4wLAYJKoZIhvcNAQkBFh9yb290QGlyZWRtYWlsMDIuZW1hdHRl
+</span></span><span class="line"><span class="cl">cnMuY29tLnR3MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAvwNtZSdi
+</span></span><span class="line"><span class="cl">tDxSLNtFiIFv4Ww0+TwtuJAs6yUjQmfHa8CQDoSO/5EmUE2n4VA/78Qb/l/Si5tR
+</span></span><span class="line"><span class="cl">1FcTY2fifzXJfKkC5kMfoxkevyVqGCw3ZKku/QclaGunmLr/xCndbxbmx28T6PYJ
+</span></span><span class="line"><span class="cl">73ZrM9viRsE9Cn397IXZWOK+YFIxShhUFZrz1RxDk3cIU+MubBq7/A9Af8Izq9RK
+</span></span><span class="line"><span class="cl">w1vYK8+Jg81rOerQy71THxuUO5t+uFRzHuKGl8w8TnTt+Gnqx02UWFyHHtlVvhYV
+</span></span><span class="line"><span class="cl">Bi985OtvP0liApUQM7X4FPK/9cgNIlnXIi+SzQ2qtjqLNUHfO4P7GZ0IezIlFCHJ
+</span></span><span class="line"><span class="cl">ylx7GAj/tXm7HQIDAQABo1AwTjAdBgNVHQ4EFgQUgedf/rCzYD2FkR9C+kurh3Tj
+</span></span><span class="line"><span class="cl">2jcwHwYDVR0jBBgwFoAUgedf/rCzYD2FkR9C+kurh3Tj2jcwDAYDVR0TBAUwAwEB
+</span></span><span class="line"><span class="cl">/zANBgkqhkiG9w0BAQsFAAOCAQEAdFwoT/Y+76bDVxKn6ZW2hY0zcRe71MV4M6L1
+</span></span><span class="line"><span class="cl">AaObMEEBFg3C4oDZJTEyLItT2YNQ8SyNue9GstTwoZeMBiJ+sTt82f4d3KuaPynO
+</span></span><span class="line"><span class="cl">3ArnEGEektuaOs449eLHqLZVyGgMl7LMjThLntlTfBqD6cnmrcRpGdMUffCVAL9o
+</span></span><span class="line"><span class="cl">xzT9cgS6nOQIDo4uTPi7V8hqo+ioBzQXernomETW8TYocezw+XoaZB0rx4oo7uj9
+</span></span><span class="line"><span class="cl">zBih574GxNMcLreus5b8shEVWWlvReYkGjiHO70j818zOv4pmeJgNmkIEUW068TV
+</span></span><span class="line"><span class="cl">EybQFb6GZt3n3HWAbCc/ohaqUAoHc6S0P38xWRpLKyqvKEtjzw==
+</span></span><span class="line"><span class="cl">-----END CERTIFICATE-----
+</span></span><span class="line"><span class="cl">---
+</span></span><span class="line"><span class="cl">Server certificate
+</span></span><span class="line"><span class="cl">subject=/C=TW/ST=Taipei/L=Taipei/O=iredmail02.abc.com/OU=IT/CN=iredmail02.abc.com/emailAddress=root@iredmail02.abc.com
+</span></span><span class="line"><span class="cl">issuer=/C=TW/ST=Taipei/L=Taipei/O=iredmail02.abc.com/OU=IT/CN=iredmail02.abc.com/emailAddress=root@iredmail02.abc.com
+</span></span><span class="line"><span class="cl">---
+</span></span><span class="line"><span class="cl">No client certificate CA names sent
+</span></span><span class="line"><span class="cl">---
+</span></span><span class="line"><span class="cl">SSL handshake has read 1784 bytes and written 453 bytes
+</span></span><span class="line"><span class="cl">---
+</span></span><span class="line"><span class="cl">New, TLSv1/SSLv3, Cipher is ECDHE-RSA-AES256-GCM-SHA384
+</span></span><span class="line"><span class="cl">Server public key is 2048 bit
+</span></span><span class="line"><span class="cl">Secure Renegotiation IS supported
+</span></span><span class="line"><span class="cl">Compression: NONE
+</span></span><span class="line"><span class="cl">Expansion: NONE
+</span></span><span class="line"><span class="cl">SSL-Session:
+</span></span><span class="line"><span class="cl">    Protocol  : TLSv1.2
+</span></span><span class="line"><span class="cl">    Cipher    : ECDHE-RSA-AES256-GCM-SHA384
+</span></span><span class="line"><span class="cl">    Session-ID: 44738AF637D8531FE4554D30FC2D33428A17BD3B63C38C9D51EA18567D77F9F4
+</span></span><span class="line"><span class="cl">    Session-ID-ctx: 
+</span></span><span class="line"><span class="cl">    Master-Key: BEC2C876D0BE5066B7A1EC6BC06B8B72169FF6D6ADC77C45A080F6B7FCB23911134F815802BA80FC106C1E39F5FD28C3
+</span></span><span class="line"><span class="cl">    Key-Arg   : None
+</span></span><span class="line"><span class="cl">    PSK identity: None
+</span></span><span class="line"><span class="cl">    PSK identity hint: None
+</span></span><span class="line"><span class="cl">    SRP username: None
+</span></span><span class="line"><span class="cl">    TLS session ticket lifetime hint: 300 (seconds)
+</span></span><span class="line"><span class="cl">    TLS session ticket:
+</span></span><span class="line"><span class="cl">    0000 - 22 77 be c5 f2 e7 14 e1-b0 dc 1d 0b 00 a1 11 47   &#34;w.............G
+</span></span><span class="line"><span class="cl">    0010 - a0 c5 b5 26 fb 15 b7 07-60 9a 79 8a a6 a5 45 77   ...&amp;....`.y...Ew
+</span></span><span class="line"><span class="cl">    0020 - 74 de 1f 1e 8f b6 4d 29-66 6e 07 38 f3 d5 d8 35   t.....M)fn.8...5
+</span></span><span class="line"><span class="cl">    0030 - 2a 83 36 56 6f d7 0e c6-19 95 60 c5 3f 3c 9b 25   *.6Vo.....`.?&lt;.%
+</span></span><span class="line"><span class="cl">    0040 - 75 0e 2a b6 57 cf 74 ad-36 e8 60 ee 37 30 ca e9   u.*.W.t.6.`.70..
+</span></span><span class="line"><span class="cl">    0050 - e1 42 b2 28 7e 03 df 1a-50 0c 31 ce d1 97 f2 84   .B.(~...P.1.....
+</span></span><span class="line"><span class="cl">    0060 - 2a 89 e1 c9 79 37 e1 37-9a f8 7f 8b 54 e0 ef 72   *...y7.7....T..r
+</span></span><span class="line"><span class="cl">    0070 - 4f 97 f1 92 24 b1 c5 9c-97 e1 03 cf 93 7b d8 e7   O...$........{..
+</span></span><span class="line"><span class="cl">    0080 - 72 6e 3d 33 a2 84 ea c3-9f 26 7f ae 99 29 88 04   rn=3.....&amp;...)..
+</span></span><span class="line"><span class="cl">    0090 - 20 86 63 d2 7d ef b1 da-46 6f 3b 3c 4d dc 39 f2    .c.}...Fo;&lt;M.9.
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    Start Time: 1553052073
+</span></span><span class="line"><span class="cl">    Timeout   : 300 (sec)
+</span></span><span class="line"><span class="cl">    Verify return code: 18 (self signed certificate)
+</span></span><span class="line"><span class="cl">---
+</span></span><span class="line"><span class="cl">* OK [CAPABILITY IMAP4rev1 LITERAL+ SASL-IR LOGIN-REFERRALS ID ENABLE IDLE AUTH=PLAIN AUTH=LOGIN] Dovecot (Ubuntu) ready.
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">2019-03-20 11:21:47 [changch@hqdc034 ~]$ 
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p><strong>測試SMTP TLS 587 port</strong></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">openssl s_client -starttls smtp -showcerts -connect mail.example.com:587
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>指令有點不同，要加上 startls smtp 的參數
+回應應該會是這樣</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span><span class="lnt">37
+</span><span class="lnt">38
+</span><span class="lnt">39
+</span><span class="lnt">40
+</span><span class="lnt">41
+</span><span class="lnt">42
+</span><span class="lnt">43
+</span><span class="lnt">44
+</span><span class="lnt">45
+</span><span class="lnt">46
+</span><span class="lnt">47
+</span><span class="lnt">48
+</span><span class="lnt">49
+</span><span class="lnt">50
+</span><span class="lnt">51
+</span><span class="lnt">52
+</span><span class="lnt">53
+</span><span class="lnt">54
+</span><span class="lnt">55
+</span><span class="lnt">56
+</span><span class="lnt">57
+</span><span class="lnt">58
+</span><span class="lnt">59
+</span><span class="lnt">60
+</span><span class="lnt">61
+</span><span class="lnt">62
+</span><span class="lnt">63
+</span><span class="lnt">64
+</span><span class="lnt">65
+</span><span class="lnt">66
+</span><span class="lnt">67
+</span><span class="lnt">68
+</span><span class="lnt">69
+</span><span class="lnt">70
+</span><span class="lnt">71
+</span><span class="lnt">72
+</span><span class="lnt">73
+</span><span class="lnt">74
+</span><span class="lnt">75
+</span><span class="lnt">76
+</span><span class="lnt">77
+</span><span class="lnt">78
+</span><span class="lnt">79
+</span><span class="lnt">80
+</span><span class="lnt">81
+</span><span class="lnt">82
+</span><span class="lnt">83
+</span><span class="lnt">84
+</span><span class="lnt">85
+</span><span class="lnt">86
+</span><span class="lnt">87
+</span><span class="lnt">88
+</span><span class="lnt">89
+</span><span class="lnt">90
+</span><span class="lnt">91
+</span><span class="lnt">92
+</span><span class="lnt">93
+</span><span class="lnt">94
+</span><span class="lnt">95
+</span><span class="lnt">96
+</span><span class="lnt">97
+</span><span class="lnt">98
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">2019-03-20 11:50:48 [changch@hqdc034 ~]$ openssl s_client -starttls smtp -showcerts -connect mail.abc.com:587
+</span></span><span class="line"><span class="cl">CONNECTED(00000003)
+</span></span><span class="line"><span class="cl">depth=1 C = US, O = Let&#39;s Encrypt, CN = Let&#39;s Encrypt Authority X3
+</span></span><span class="line"><span class="cl">verify error:num=20:unable to get local issuer certificate
+</span></span><span class="line"><span class="cl">verify return:0
+</span></span><span class="line"><span class="cl">---
+</span></span><span class="line"><span class="cl">Certificate chain
+</span></span><span class="line"><span class="cl"> 0 s:/CN=mail.abc.com
+</span></span><span class="line"><span class="cl">   i:/C=US/O=Let&#39;s Encrypt/CN=Let&#39;s Encrypt Authority X3
+</span></span><span class="line"><span class="cl">-----BEGIN CERTIFICATE-----
+</span></span><span class="line"><span class="cl">MIIFXjCCBEagAwIBAgISA1Tg+poqmT+Vztc+/L2IPUHiMA0GCSqGSIb3DQEBCwUA
+</span></span><span class="line"><span class="cl">MEoxCzAJBgNVBAYTAlVTMRYwFAYDVQQKEw1MZXQncyBFbmNyeXB0MSMwIQYDVQQD
+</span></span><span class="line"><span class="cl">ExpMZXQncyBFbmNyeXB0IEF1dGhvcml0eSBYMzAeFw0xOTAyMjAyMzM0MjZaFw0x
+</span></span><span class="line"><span class="cl">OTA1MjEyMzM0MjZaMB8xHTAbBgNVBAMTFG1haWwuZW1hdHRlcnMuY29tLnR3MIIB
+</span></span><span class="line"><span class="cl">IjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAuhyXC0sCNccrqteycHst8ykZ
+</span></span><span class="line"><span class="cl">JSLxXB/07GBkvpdaCSKqTFAjtUh9IpkyDna1+IMtQIX+jeDWvd/GMJ3lj1pCgM+X
+</span></span><span class="line"><span class="cl">je850oFBp+HxMXTSDN67RMPbZsgAt9I938uigYmICHCqn4+FrnlfEOuX24326Y5Z
+</span></span><span class="line"><span class="cl">qEnguvZIdXYbQ5fzdMjP4W4Byu9cQAR+IUEWpFZ+hFNETAOVlNFb5kzsESWPTwIk
+</span></span><span class="line"><span class="cl">XWpDeQLQN6Iixf/ISXduJZSbOsFknAk7Dfrfine2cN9uYFCaiI2MJzrZ472Gbx+d
+</span></span><span class="line"><span class="cl">RnR6OmCinJ6Pb4yFQl2wQfGxnNyVCKTGu8JC+DM+j/Jfg1YYkxF4r/RdepPOTQID
+</span></span><span class="line"><span class="cl">AQABo4ICZzCCAmMwDgYDVR0PAQH/BAQDAgWgMB0GA1UdJQQWMBQGCCsGAQUFBwMB
+</span></span><span class="line"><span class="cl">BggrBgEFBQcDAjAMBgNVHRMBAf8EAjAAMB0GA1UdDgQWBBSaA9/Ki7j6XwUFm5af
+</span></span><span class="line"><span class="cl">X4WYJQNFIDAfBgNVHSMEGDAWgBSoSmpjBH3duubRObemRWXv86jsoTBvBggrBgEF
+</span></span><span class="line"><span class="cl">BQcBAQRjMGEwLgYIKwYBBQUHMAGGImh0dHA6Ly9vY3NwLmludC14My5sZXRzZW5j
+</span></span><span class="line"><span class="cl">cnlwdC5vcmcwLwYIKwYBBQUHMAKGI2h0dHA6Ly9jZXJ0LmludC14My5sZXRzZW5j
+</span></span><span class="line"><span class="cl">cnlwdC5vcmcvMB8GA1UdEQQYMBaCFG1haWwuZW1hdHRlcnMuY29tLnR3MEwGA1Ud
+</span></span><span class="line"><span class="cl">IARFMEMwCAYGZ4EMAQIBMDcGCysGAQQBgt8TAQEBMCgwJgYIKwYBBQUHAgEWGmh0
+</span></span><span class="line"><span class="cl">dHA6Ly9jcHMubGV0c2VuY3J5cHQub3JnMIIBAgYKKwYBBAHWeQIEAgSB8wSB8ADu
+</span></span><span class="line"><span class="cl">AHUA4mlLribo6UAJ6IYbtjuD1D7n/nSI+6SPKJMBnd3x2/4AAAFpDXmYTAAABAMA
+</span></span><span class="line"><span class="cl">RjBEAiBwIf9s7zBBuh/HUso4GWcZcAaEp2LsqT3xuJNOt7EWDAIgXE+u1JRVVEit
+</span></span><span class="line"><span class="cl">vi0PWIyfmUhBV8HP9GZ7r7uv2/9vGoYAdQBj8tvN6DvMLM8LcoQnV2szpI1hd4+9
+</span></span><span class="line"><span class="cl">daY4scdoVEvYjQAAAWkNeZiVAAAEAwBGMEQCIAZHUtzIl+6UvusG0cpYTiN5cFav
+</span></span><span class="line"><span class="cl">hzFQMoGeA5L5bSRvAiARX/+xnhtF9lUcXOsJfST1Eghk4Gm7QGno8vbcD3JHnzAN
+</span></span><span class="line"><span class="cl">BgkqhkiG9w0BAQsFAAOCAQEAI3buq7vydxeDpwSYVToAockocOMwXTyORIo6tACg
+</span></span><span class="line"><span class="cl">Z8gmVVTU6jliwrGWGzsjGh/V0gU+beDtlKzJpsYqbAWGOne1uuuKoH++lHO1KrrB
+</span></span><span class="line"><span class="cl">Br0R+G/UlIhRIZuSCdUGylWkV1ZQbHPtfw3MBB4nNj6wU0/tluxrqHJme/tyRSCs
+</span></span><span class="line"><span class="cl">WiP/DSfzIUkGUSSXyd3oEjwBdmq7NAmck3FK24HgBcJ3PSExChw4+TsEmGicpCKP
+</span></span><span class="line"><span class="cl">Q5AKt+n4b52tnp51P7rBHSFdmNL4AZiiQtZNXVmAQ2GI9zCwKguQg2c3YJ2oF39m
+</span></span><span class="line"><span class="cl">1GnjpLMRQkv5x6GQi7rglwB9ROH92Lg+uSD1vzjfiFwQeQ==
+</span></span><span class="line"><span class="cl">-----END CERTIFICATE-----
+</span></span><span class="line"><span class="cl"> 1 s:/C=US/O=Let&#39;s Encrypt/CN=Let&#39;s Encrypt Authority X3
+</span></span><span class="line"><span class="cl">   i:/O=Digital Signature Trust Co./CN=DST Root CA X3
+</span></span><span class="line"><span class="cl">-----BEGIN CERTIFICATE-----
+</span></span><span class="line"><span class="cl">MIIEkjCCA3qgAwIBAgIQCgFBQgAAAVOFc2oLheynCDANBgkqhkiG9w0BAQsFADA/
+</span></span><span class="line"><span class="cl">MSQwIgYDVQQKExtEaWdpdGFsIFNpZ25hdHVyZSBUcnVzdCBDby4xFzAVBgNVBAMT
+</span></span><span class="line"><span class="cl">DkRTVCBSb290IENBIFgzMB4XDTE2MDMxNzE2NDA0NloXDTIxMDMxNzE2NDA0Nlow
+</span></span><span class="line"><span class="cl">SjELMAkGA1UEBhMCVVMxFjAUBgNVBAoTDUxldCdzIEVuY3J5cHQxIzAhBgNVBAMT
+</span></span><span class="line"><span class="cl">GkxldCdzIEVuY3J5cHQgQXV0aG9yaXR5IFgzMIIBIjANBgkqhkiG9w0BAQEFAAOC
+</span></span><span class="line"><span class="cl">AQ8AMIIBCgKCAQEAnNMM8FrlLke3cl03g7NoYzDq1zUmGSXhvb418XCSL7e4S0EF
+</span></span><span class="line"><span class="cl">q6meNQhY7LEqxGiHC6PjdeTm86dicbp5gWAf15Gan/PQeGdxyGkOlZHP/uaZ6WA8
+</span></span><span class="line"><span class="cl">SMx+yk13EiSdRxta67nsHjcAHJyse6cF6s5K671B5TaYucv9bTyWaN8jKkKQDIZ0
+</span></span><span class="line"><span class="cl">Z8h/pZq4UmEUEz9l6YKHy9v6Dlb2honzhT+Xhq+w3Brvaw2VFn3EK6BlspkENnWA
+</span></span><span class="line"><span class="cl">a6xK8xuQSXgvopZPKiAlKQTGdMDQMc2PMTiVFrqoM7hD8bEfwzB/onkxEz0tNvjj
+</span></span><span class="line"><span class="cl">/PIzark5McWvxI0NHWQWM6r6hCm21AvA2H3DkwIDAQABo4IBfTCCAXkwEgYDVR0T
+</span></span><span class="line"><span class="cl">AQH/BAgwBgEB/wIBADAOBgNVHQ8BAf8EBAMCAYYwfwYIKwYBBQUHAQEEczBxMDIG
+</span></span><span class="line"><span class="cl">CCsGAQUFBzABhiZodHRwOi8vaXNyZy50cnVzdGlkLm9jc3AuaWRlbnRydXN0LmNv
+</span></span><span class="line"><span class="cl">bTA7BggrBgEFBQcwAoYvaHR0cDovL2FwcHMuaWRlbnRydXN0LmNvbS9yb290cy9k
+</span></span><span class="line"><span class="cl">c3Ryb290Y2F4My5wN2MwHwYDVR0jBBgwFoAUxKexpHsscfrb4UuQdf/EFWCFiRAw
+</span></span><span class="line"><span class="cl">VAYDVR0gBE0wSzAIBgZngQwBAgEwPwYLKwYBBAGC3xMBAQEwMDAuBggrBgEFBQcC
+</span></span><span class="line"><span class="cl">ARYiaHR0cDovL2Nwcy5yb290LXgxLmxldHNlbmNyeXB0Lm9yZzA8BgNVHR8ENTAz
+</span></span><span class="line"><span class="cl">MDGgL6AthitodHRwOi8vY3JsLmlkZW50cnVzdC5jb20vRFNUUk9PVENBWDNDUkwu
+</span></span><span class="line"><span class="cl">Y3JsMB0GA1UdDgQWBBSoSmpjBH3duubRObemRWXv86jsoTANBgkqhkiG9w0BAQsF
+</span></span><span class="line"><span class="cl">AAOCAQEA3TPXEfNjWDjdGBX7CVW+dla5cEilaUcne8IkCJLxWh9KEik3JHRRHGJo
+</span></span><span class="line"><span class="cl">uM2VcGfl96S8TihRzZvoroed6ti6WqEBmtzw3Wodatg+VyOeph4EYpr/1wXKtx8/
+</span></span><span class="line"><span class="cl">wApIvJSwtmVi4MFU5aMqrSDE6ea73Mj2tcMyo5jMd6jmeWUHK8so/joWUoHOUgwu
+</span></span><span class="line"><span class="cl">X4Po1QYz+3dszkDqMp4fklxBwXRsW10KXzPMTZ+sOPAveyxindmjkW8lGy+QsRlG
+</span></span><span class="line"><span class="cl">PfZ+G6Z6h7mjem0Y+iWlkYcV4PIWL1iwBi8saCbGS5jN2p8M+X+Q7UNKEkROb3N6
+</span></span><span class="line"><span class="cl">KOqkqm57TH2H3eDJAkSnh6/DNFu0Qg==
+</span></span><span class="line"><span class="cl">-----END CERTIFICATE-----
+</span></span><span class="line"><span class="cl">---
+</span></span><span class="line"><span class="cl">Server certificate
+</span></span><span class="line"><span class="cl">subject=/CN=mail.abc.com
+</span></span><span class="line"><span class="cl">issuer=/C=US/O=Let&#39;s Encrypt/CN=Let&#39;s Encrypt Authority X3
+</span></span><span class="line"><span class="cl">---
+</span></span><span class="line"><span class="cl">No client certificate CA names sent
+</span></span><span class="line"><span class="cl">---
+</span></span><span class="line"><span class="cl">SSL handshake has read 3279 bytes and written 456 bytes
+</span></span><span class="line"><span class="cl">---
+</span></span><span class="line"><span class="cl">New, TLSv1/SSLv3, Cipher is ECDHE-RSA-AES256-GCM-SHA384
+</span></span><span class="line"><span class="cl">Server public key is 2048 bit
+</span></span><span class="line"><span class="cl">Secure Renegotiation IS supported
+</span></span><span class="line"><span class="cl">Compression: NONE
+</span></span><span class="line"><span class="cl">Expansion: NONE
+</span></span><span class="line"><span class="cl">SSL-Session:
+</span></span><span class="line"><span class="cl">    Protocol  : TLSv1.2
+</span></span><span class="line"><span class="cl">    Cipher    : ECDHE-RSA-AES256-GCM-SHA384
+</span></span><span class="line"><span class="cl">    Session-ID: F9FF6D75A3923A3B4E2CFBECC3DEAE2402FA99DA2B0746B6A2BF7E7E49F2E4D6
+</span></span><span class="line"><span class="cl">    Session-ID-ctx: 
+</span></span><span class="line"><span class="cl">    Master-Key: 62D845C4754634DCDAE1AB544B06929504C6310B3CD6E4512E3718535D871F1115A78DB46FA608159F52169DE4D9E12F
+</span></span><span class="line"><span class="cl">    Key-Arg   : None
+</span></span><span class="line"><span class="cl">    PSK identity: None
+</span></span><span class="line"><span class="cl">    PSK identity hint: None
+</span></span><span class="line"><span class="cl">    SRP username: None
+</span></span><span class="line"><span class="cl">    Start Time: 1553053873
+</span></span><span class="line"><span class="cl">    Timeout   : 300 (sec)
+</span></span><span class="line"><span class="cl">    Verify return code: 20 (unable to get local issuer certificate)
+</span></span><span class="line"><span class="cl">---
+</span></span><span class="line"><span class="cl">250 DSN
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p><strong>測試 SMTP SSL port 465</strong>
+指令</p>
+<!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<p>不過因為我沒開這個port ，所以就不測試了</p>
+</section>
+
+
+    <footer class="article-footer">
+    
+
+    
+    <section class="article-copyright">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <path d="M14.5 9a3.5 4 0 1 0 0 6" />
+</svg>
+
+
+
+        <span>Licensed under CC BY-NC-SA 4.0</span>
+    </section>
+    </footer>
+
+
+    
+</article>
+
+    
+
+    
+
+     
+    
+        
+    <div class="disqus-container">
+    <div id="disqus_thread"></div>
+<script type="application/javascript">
+    window.disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "h-cowbay-org" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+</div>
+
+<style>
+    .disqus-container {
+        background-color: var(--card-background);
+        border-radius: var(--card-border-radius);
+        box-shadow: var(--shadow-l1);
+        padding: var(--card-padding);
+    }
+</style>
+
+<script>
+    window.addEventListener('onColorSchemeChange', (e) => {
+        if (typeof DISQUS == 'object') {
+            DISQUS.reset({
+                reload: true
+            });
+        }
+    })
+</script>
+
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+            2020 - 
+        
+        2023 MCの部落
+    </section>
+    
+    <section class="powerby">
+        
+            鮮衣怒馬少年時 不負韶華行且知 <br/>
+        使用 <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> 建立 <br />
+        主題 <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.16.0">Stack</a></b> 由 <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a> 設計
+    </section>
+</footer>
+
+
+    
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.min.css"crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css"crossorigin="anonymous"
+            >
+
+            </main>
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.6/dist/vibrant.min.js"integrity="sha256-awcR2jno4kI5X0zL8ex0vi2z&#43;KMkF24hUW8WePSA9HM="crossorigin="anonymous"
+                
+                >
+            </script><script type="text/javascript" src="/ts/main.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>

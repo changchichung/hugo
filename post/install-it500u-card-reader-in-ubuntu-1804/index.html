@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="en-us" dir="ltr">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='早上忘了要幹什麼，去看到手上的自然人憑證到期日是今年的 4/17
+想說快到期了，看看能不能線上申請展延
+結果辦公室沒有Linux 可以用的讀卡機
+OOXX 咧，我們可是號稱全Linux 環境捏！
+結果居然沒有對應的硬體！？
+於是馬上敗了一台據說有支援 Linux 的 IT 850UM 讀卡機！
+'>
+<meta name="keywords" content="讀卡機, ubuntu"><title>[筆記] 在ubuntu 18.04 環境下 安裝 it 850UM 讀卡機 展延自然人憑證 / install it 850UM Card Reader in Ubuntu 18.04</title>
+
+<link rel='canonical' href='https://h.cowbay.org/post/install-it500u-card-reader-in-ubuntu-1804/'>
+
+<link rel="stylesheet" href="/scss/style.min.8191399262444ab68b72a18c97392f5349be20a1615d77445be51e974c144cff.css"><meta property='og:title' content='[筆記] 在ubuntu 18.04 環境下 安裝 it 850UM 讀卡機 展延自然人憑證 / install it 850UM Card Reader in Ubuntu 18.04'>
+<meta property='og:description' content='早上忘了要幹什麼，去看到手上的自然人憑證到期日是今年的 4/17
+想說快到期了，看看能不能線上申請展延
+結果辦公室沒有Linux 可以用的讀卡機
+OOXX 咧，我們可是號稱全Linux 環境捏！
+結果居然沒有對應的硬體！？
+於是馬上敗了一台據說有支援 Linux 的 IT 850UM 讀卡機！
+'>
+<meta property='og:url' content='https://h.cowbay.org/post/install-it500u-card-reader-in-ubuntu-1804/'>
+<meta property='og:site_name' content='My New Hugo Site'>
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:published_time' content='2020-02-19T16:22:38&#43;08:00'/><meta property='article:modified_time' content='2020-02-19T16:22:38&#43;08:00'/><meta property='og:image' content='https://h.cowbay.org/images/post-default-9.jpg' />
+<meta name="twitter:title" content="[筆記] 在ubuntu 18.04 環境下 安裝 it 850UM 讀卡機 展延自然人憑證 / install it 850UM Card Reader in Ubuntu 18.04">
+<meta name="twitter:description" content="早上忘了要幹什麼，去看到手上的自然人憑證到期日是今年的 4/17
+想說快到期了，看看能不能線上申請展延
+結果辦公室沒有Linux 可以用的讀卡機
+OOXX 咧，我們可是號稱全Linux 環境捏！
+結果居然沒有對應的硬體！？
+於是馬上敗了一台據說有支援 Linux 的 IT 850UM 讀卡機！
+"><meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:image" content='https://h.cowbay.org/images/post-default-9.jpg' />
+    </head>
+    <body class="
+    article-page
+    ">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "auto");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.documentElement.dataset.scheme = 'dark';
+        } else {
+            document.documentElement.dataset.scheme = 'light';
+        }
+    })();
+</script>
+<div class="container main-container flex on-phone--column compact"><aside class="sidebar left-sidebar sticky ">
+    <button class="hamburger hamburger--spin" type="button" id="toggle-menu" aria-label="Toggle Menu">
+        <span class="hamburger-box">
+            <span class="hamburger-inner"></span>
+        </span>
+    </button>
+
+    <header>
+        
+            
+            <figure class="site-avatar">
+                <a href="/">
+                
+                    
+                    
+                    
+                        
+                        <img src="/img/avatar.png" width="300"
+                            height="300" class="site-logo" loading="lazy" alt="Avatar">
+                    
+                
+                </a>
+                
+            </figure>
+            
+        
+        
+        <div class="site-meta">
+            <h1 class="site-name"><a href="/">My New Hugo Site</a></h1>
+            <h2 class="site-description"></h2>
+        </div>
+    </header><ol class="menu" id="main-menu">
+        
+        
+        
+        <li >
+            <a href='/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-home" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="5 12 3 12 12 3 21 12 19 12" />
+  <path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-7" />
+  <path d="M9 21v-6a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v6" />
+</svg>
+
+
+
+                
+                <span>Home</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/page/about/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-user" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="7" r="4" />
+  <path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2" />
+</svg>
+
+
+
+                
+                <span>About</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/page/archives/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-archive" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <rect x="3" y="4" width="18" height="4" rx="2" />
+  <path d="M5 8v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-10" />
+  <line x1="10" y1="12" x2="14" y2="12" />
+</svg>
+
+
+
+                
+                <span>Archives</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/page/search/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="10" cy="10" r="7" />
+  <line x1="21" y1="21" x2="15" y2="15" />
+</svg>
+
+
+
+                
+                <span>Search</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/page/links/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-link" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M10 14a3.5 3.5 0 0 0 5 0l4 -4a3.5 3.5 0 0 0 -5 -5l-.5 .5" />
+  <path d="M14 10a3.5 3.5 0 0 0 -5 0l-4 4a3.5 3.5 0 0 0 5 5l.5 -.5" />
+</svg>
+
+
+
+                
+                <span>Links</span>
+            </a>
+        </li>
+        
+
+        <div class="menu-bottom-section">
+            
+            
+                <li id="dark-mode-toggle">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="8" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="16" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                    <span>Dark Mode</span>
+                </li>
+            
+        </div>
+    </ol>
+</aside>
+
+    
+
+            <main class="main full-width">
+    <article class="has-image main-article">
+    <header class="article-header">
+        <div class="article-image">
+            <a href="/post/install-it500u-card-reader-in-ubuntu-1804/">
+                
+                    <img src="https://h.cowbay.org/images/post-default-9.jpg" loading="lazy" alt="Featured image of post [筆記] 在ubuntu 18.04 環境下 安裝 it 850UM 讀卡機 展延自然人憑證 / install it 850UM Card Reader in Ubuntu 18.04" />
+                
+            </a>
+        </div>
+    
+
+    <div class="article-details">
+    
+    <header class="article-category">
+        
+            <a href="/categories/%E7%AD%86%E8%A8%98/" >
+                筆記
+            </a>
+        
+    </header>
+    
+
+    <div class="article-title-wrapper">
+        <h2 class="article-title">
+            <a href="/post/install-it500u-card-reader-in-ubuntu-1804/">[筆記] 在ubuntu 18.04 環境下 安裝 it 850UM 讀卡機 展延自然人憑證 / install it 850UM Card Reader in Ubuntu 18.04</a>
+        </h2>
+    
+        
+    </div>
+
+    
+    
+    
+    
+    <footer class="article-time">
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M11.795 21h-6.795a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
+  <circle cx="18" cy="18" r="4" />
+  <path d="M15 3v4" />
+  <path d="M7 3v4" />
+  <path d="M3 11h16" />
+  <path d="M18 16.496v1.504l1 1" />
+</svg>
+                <time class="article-time--published">Feb 19, 2020</time>
+            </div>
+        
+
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+                <time class="article-time--reading">
+                    1 minute read
+                </time>
+            </div>
+        
+    </footer>
+    
+
+    
+</div>
+
+</header>
+
+    <section class="article-content">
+    
+    
+    <p>早上忘了要幹什麼，去看到手上的自然人憑證到期日是今年的 4/17</p>
+<p>想說快到期了，看看能不能線上申請展延</p>
+<p>結果辦公室沒有Linux 可以用的讀卡機</p>
+<p>OOXX 咧，我們可是號稱全Linux 環境捏！</p>
+<p>結果居然沒有對應的硬體！？</p>
+<p>於是馬上敗了一台據說有支援 Linux 的 IT 850UM 讀卡機！</p>
+<p>這是購買的網頁截圖，廠商號稱有支援Linux</p>
+<p><img src="https://i.imgur.com/ddAYSVD.png"
+	
+	
+	
+	loading="lazy"
+	
+	
+></p>
+<p>下午到手之後，直接接上去，發現ubuntu 18.04 還的確真的能抓到</p>
+<p>但是，這型號為什麼不太一樣啊？？？怎麼是 IT 500U ??</p>
+<p><img src="https://i.imgur.com/eZidz0h.png"
+	
+	
+	
+	loading="lazy"
+	
+	
+></p>
+<p>先不管，直接開自然人憑證的網頁看能不能抓到..</p>
+<p><a class="link" href="https://moica.nat.gov.tw/renewcert.html"  target="_blank" rel="noopener"
+    >https://moica.nat.gov.tw/renewcert.html</a></p>
+<p>當然，事情絕對沒有那麼簡單！</p>
+<p>開啟網頁之後，發現完全抓不到讀卡機！</p>
+<p>啊不是號稱支援 Linux ??</p>
+<p>於是開始翻google 看要怎麼處理</p>
+<p>看到了這篇</p>
+<p><a class="link" href="http://gholk.github.io/linux-iccard-ccid-compile.html"  target="_blank" rel="noopener"
+    >http://gholk.github.io/linux-iccard-ccid-compile.html</a></p>
+<p>不過這篇主要是在說其他的讀卡機，倒不是 it 850UM</p>
+<p>但是一法通、萬法通！</p>
+<p>就去文章裡面提到的連結看看</p>
+<p><a class="link" href="https://ccid.apdu.fr/"  target="_blank" rel="noopener"
+    >https://ccid.apdu.fr/</a></p>
+<p>同樣的，要從 git 下載比較新版的code 回來自己編譯</p>
+<pre tabindex="0"><code>git clone --recursive https://salsa.debian.org/rousseau/CCID.git
+cd CCID
+./bootstrap
+./configure
+make
+</code></pre><p>然後，就報錯了！</p>
+<pre tabindex="0"><code>/home/changch/git/CCID/missing: 列 81: flex：命令找不到
+WARNING: &#39;flex&#39; is missing on your system.
+         You should only need it if you modified a &#39;.l&#39; file.
+         You may want to install the Fast Lexical Analyzer package:
+         &lt;http://flex.sourceforge.net/&gt;
+Makefile:958: recipe for target &#39;tokenparser.c&#39; failed
+make[2]: *** [tokenparser.c] Error 127
+make[2]: Leaving directory &#39;/home/changch/git/CCID/src&#39;
+Makefile:437: recipe for target &#39;all-recursive&#39; failed
+make[1]: *** [all-recursive] Error 1
+make[1]: Leaving directory &#39;/home/changch/git/CCID&#39;
+Makefile:369: recipe for target &#39;all&#39; failed
+make: *** [all] Error 2
+</code></pre><p>少了個套件叫 flex，補安裝上去</p>
+<pre tabindex="0"><code>sudo apt install flex
+</code></pre><p>然後再跑一次</p>
+<pre tabindex="0"><code>./bootstrap
+./configure
+make
+sudo make install
+</code></pre><p>跑完之後，興沖沖的就去剛剛那個自然人憑證的網頁刷新！</p>
+<p>然後還是沒抓到讀卡機 XDDDD</p>
+<p>認份點，重新開機吧</p>
+<p>重開機之後，再開啟網頁，就可以選擇讀卡機了！</p>
+<p>接下來是關於自然人憑證展延的碎碎念</p>
+<p>在選好讀卡機、輸入個人資料(怪了，不是應該從卡片裡面讀出來嗎？)和PIN碼之後</p>
+<p>按下確認，然後網頁就卡住了&hellip;</p>
+<p>發現是因為會有彈跳視窗，被firefox 給攔下來，放行之後，再按一次確認</p>
+<p>就會看到跳出來的視窗、出現「寫入憑證中」，沒多久就關閉</p>
+<p>又出現一個視窗，出現「讀取憑證中」，也是沒多久就關閉</p>
+<p>然後咧？然後就沒有然後了！！</p>
+<p>視窗還在原地不動，沒有成功、沒有失敗的訊息</p>
+<p>就是個發呆的網頁！什麼提示都沒有！  WTF ！！！！</p>
+<p>想說有出現寫入憑證，應該OK了吧，關掉視窗再來一次，才發現日期已經展延成功了</p>
+<p><img src="https://i.imgur.com/Qe0Uksh.png"
+	
+	
+	
+	loading="lazy"
+	
+	
+></p>
+<p>真的是很糟糕啊！加個訊息提示很困難嗎？？</p>
+</section>
+
+
+    <footer class="article-footer">
+    
+
+    </footer>
+
+
+    
+</article>
+
+    
+
+    
+
+<aside class="related-content--wrapper">
+    <h2 class="section-title">Related content</h2>
+    <div class="related-content">
+        <div class="flex article-list--tile">
+            
+                
+<article class="has-image">
+    <a href="/post/add-system-wide-favorite-apps-in-dconf/">
+        
+        
+            <div class="article-image">
+                
+                    <img src="https://h.cowbay.org/images/post-default-2.jpg" loading="lazy" data-key="" data-hash="https://h.cowbay.org/images/post-default-2.jpg"/>
+                
+            </div>
+        
+
+        <div class="article-details">
+            <h2 class="article-title">在ubuntu 18.04中，透過 dconf 設定系統層級的「我的最愛」/ Add System Wide Favorite Apps in dock with Dconf in ubuntu 18.04</h2>
+        </div>
+    </a>
+</article>
+
+            
+        </div>
+    </div>
+</aside>
+
+     
+    
+        
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+        2023 My New Hugo Site
+    </section>
+    
+    <section class="powerby">
+        Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
+        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.16.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+    </section>
+</footer>
+
+
+    
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.min.css"crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css"crossorigin="anonymous"
+            >
+
+            </main>
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.6/dist/vibrant.min.js"integrity="sha256-awcR2jno4kI5X0zL8ex0vi2z&#43;KMkF24hUW8WePSA9HM="crossorigin="anonymous"
+                
+                >
+            </script><script type="text/javascript" src="/ts/main.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>

@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+<html lang="en-us" dir="ltr">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='最近有個任務，需要大量安裝client
+想用PXE來處理，只要user開機按F12(acer 桌機) 選擇PXE Boot
+然後選擇OS版本，就可以自動進行安裝
+安裝完成後，會自動重新開機，接著就用ansible來做user環境設定
+PXE的部份本來是沒有什麼問題，自動安裝系統的部份都做好了
+可是因為這次的量比較多，想說讓每一台在完成PXE安裝後的第一次重開機
+就送出一封郵件來通知我，說已經完成安裝，可以執行ansible 了
+看似很簡單的一件事情，卻搞了我兩天&amp;hellip;.
+'>
+<title>[筆記] 用pxe 安裝系統，完成後送出郵件通知 / send mail notification after pxe install</title>
+
+<link rel='canonical' href='https://h.cowbay.org/post/send-mail-to-notify-after-pxe-install/'>
+
+<link rel="stylesheet" href="/scss/style.min.8191399262444ab68b72a18c97392f5349be20a1615d77445be51e974c144cff.css"><meta property='og:title' content='[筆記] 用pxe 安裝系統，完成後送出郵件通知 / send mail notification after pxe install'>
+<meta property='og:description' content='最近有個任務，需要大量安裝client
+想用PXE來處理，只要user開機按F12(acer 桌機) 選擇PXE Boot
+然後選擇OS版本，就可以自動進行安裝
+安裝完成後，會自動重新開機，接著就用ansible來做user環境設定
+PXE的部份本來是沒有什麼問題，自動安裝系統的部份都做好了
+可是因為這次的量比較多，想說讓每一台在完成PXE安裝後的第一次重開機
+就送出一封郵件來通知我，說已經完成安裝，可以執行ansible 了
+看似很簡單的一件事情，卻搞了我兩天&amp;hellip;.
+'>
+<meta property='og:url' content='https://h.cowbay.org/post/send-mail-to-notify-after-pxe-install/'>
+<meta property='og:site_name' content='My New Hugo Site'>
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='PXE' /><meta property='article:tag' content='ubuntu' /><meta property='article:tag' content='linux' /><meta property='article:published_time' content='2019-07-31T11:06:33&#43;08:00'/><meta property='article:modified_time' content='2019-07-31T11:06:33&#43;08:00'/>
+<meta name="twitter:title" content="[筆記] 用pxe 安裝系統，完成後送出郵件通知 / send mail notification after pxe install">
+<meta name="twitter:description" content="最近有個任務，需要大量安裝client
+想用PXE來處理，只要user開機按F12(acer 桌機) 選擇PXE Boot
+然後選擇OS版本，就可以自動進行安裝
+安裝完成後，會自動重新開機，接著就用ansible來做user環境設定
+PXE的部份本來是沒有什麼問題，自動安裝系統的部份都做好了
+可是因為這次的量比較多，想說讓每一台在完成PXE安裝後的第一次重開機
+就送出一封郵件來通知我，說已經完成安裝，可以執行ansible 了
+看似很簡單的一件事情，卻搞了我兩天&amp;hellip;.
+">
+    </head>
+    <body class="
+    article-page
+    ">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "auto");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.documentElement.dataset.scheme = 'dark';
+        } else {
+            document.documentElement.dataset.scheme = 'light';
+        }
+    })();
+</script>
+<div class="container main-container flex on-phone--column compact"><aside class="sidebar left-sidebar sticky ">
+    <button class="hamburger hamburger--spin" type="button" id="toggle-menu" aria-label="Toggle Menu">
+        <span class="hamburger-box">
+            <span class="hamburger-inner"></span>
+        </span>
+    </button>
+
+    <header>
+        
+            
+            <figure class="site-avatar">
+                <a href="/">
+                
+                    
+                    
+                    
+                        
+                        <img src="/img/avatar.png" width="300"
+                            height="300" class="site-logo" loading="lazy" alt="Avatar">
+                    
+                
+                </a>
+                
+            </figure>
+            
+        
+        
+        <div class="site-meta">
+            <h1 class="site-name"><a href="/">My New Hugo Site</a></h1>
+            <h2 class="site-description"></h2>
+        </div>
+    </header><ol class="menu" id="main-menu">
+        
+        
+        
+        <li >
+            <a href='/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-home" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="5 12 3 12 12 3 21 12 19 12" />
+  <path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-7" />
+  <path d="M9 21v-6a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v6" />
+</svg>
+
+
+
+                
+                <span>Home</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/page/about/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-user" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="7" r="4" />
+  <path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2" />
+</svg>
+
+
+
+                
+                <span>About</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/page/archives/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-archive" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <rect x="3" y="4" width="18" height="4" rx="2" />
+  <path d="M5 8v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-10" />
+  <line x1="10" y1="12" x2="14" y2="12" />
+</svg>
+
+
+
+                
+                <span>Archives</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/page/search/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="10" cy="10" r="7" />
+  <line x1="21" y1="21" x2="15" y2="15" />
+</svg>
+
+
+
+                
+                <span>Search</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/page/links/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-link" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M10 14a3.5 3.5 0 0 0 5 0l4 -4a3.5 3.5 0 0 0 -5 -5l-.5 .5" />
+  <path d="M14 10a3.5 3.5 0 0 0 -5 0l-4 4a3.5 3.5 0 0 0 5 5l.5 -.5" />
+</svg>
+
+
+
+                
+                <span>Links</span>
+            </a>
+        </li>
+        
+
+        <div class="menu-bottom-section">
+            
+            
+                <li id="dark-mode-toggle">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="8" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="16" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                    <span>Dark Mode</span>
+                </li>
+            
+        </div>
+    </ol>
+</aside>
+
+    
+
+            <main class="main full-width">
+    <article class="main-article">
+    <header class="article-header">
+
+    <div class="article-details">
+    
+    <header class="article-category">
+        
+            <a href="/categories/%E7%AD%86%E8%A8%98/" >
+                筆記
+            </a>
+        
+    </header>
+    
+
+    <div class="article-title-wrapper">
+        <h2 class="article-title">
+            <a href="/post/send-mail-to-notify-after-pxe-install/">[筆記] 用pxe 安裝系統，完成後送出郵件通知 / send mail notification after pxe install</a>
+        </h2>
+    
+        
+    </div>
+
+    
+    
+    
+    
+    <footer class="article-time">
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M11.795 21h-6.795a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
+  <circle cx="18" cy="18" r="4" />
+  <path d="M15 3v4" />
+  <path d="M7 3v4" />
+  <path d="M3 11h16" />
+  <path d="M18 16.496v1.504l1 1" />
+</svg>
+                <time class="article-time--published">Jul 31, 2019</time>
+            </div>
+        
+
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+                <time class="article-time--reading">
+                    1 minute read
+                </time>
+            </div>
+        
+    </footer>
+    
+
+    
+</div>
+
+</header>
+
+    <section class="article-content">
+    
+    
+    <p>最近有個任務，需要大量安裝client</p>
+<p>想用PXE來處理，只要user開機按F12(acer 桌機) 選擇PXE Boot</p>
+<p>然後選擇OS版本，就可以自動進行安裝</p>
+<p>安裝完成後，會自動重新開機，接著就用ansible來做user環境設定</p>
+<p>PXE的部份本來是沒有什麼問題，自動安裝系統的部份都做好了</p>
+<p>可是因為這次的量比較多，想說讓每一台在完成PXE安裝後的第一次重開機</p>
+<p>就送出一封郵件來通知我，說已經完成安裝，可以執行ansible 了</p>
+<p>看似很簡單的一件事情，卻搞了我兩天&hellip;.</p>
+<p>本來在 preseed 檔案中，就有 preseed/late_command 可以用</p>
+<p>但是測試了很多遍，才終於找到正確的語法</p>
+<pre tabindex="0"><code>d-i preseed/late_command \
+        in-target apt-file update; \
+        in-target passwd --expire root  ;\
+        in-target /bin/sh -c &#39;echo &#34;hostname|mail -s pxe_install_complete admin@abc.com&#34; &gt; /etc/rc.local&#39;                                             
+</code></pre><p>這會把目標主機上的 /etc/rc.local 的內容改成只有一行</p>
+<pre tabindex="0"><code>hostname|mail -s pxe_install_complete admin@abc.com
+</code></pre><p>這樣就可以讓主機在完成系統安裝後，第一次重新開機時，送出郵件通知</p>
+<p>可是呢，因為ubuntu 開機時，本來就會去執行 /etc/rc.local</p>
+<p>所以「每次」開機後，都會送出郵件通知</p>
+<p>但是我只想要接到一次通知就好了啊</p>
+<p>有文章說可以用 s6-svc 來處理</p>
+<p>不過我沒弄懂怎麼用</p>
+<p>另一個是用ansible來處理</p>
+<p>又或者是，讓這個指令在送出郵件後，「自我還原」或者「自我更新」</p>
+<p>自我還原的部份可以這樣做</p>
+<pre tabindex="0"><code>hostname|mail -s pxe_install_complete admin@abc.com 
+echo &#34;#!/bin/sh -e\nexit 0&#34; &gt; /etc/rc.local
+</code></pre><p>所以preseed 那邊的語法就要改一下</p>
+<pre tabindex="0"><code>  in-target /bin/sh -c &#39;echo &#34;hostname|mail -s pxe_install_complete admin@abc.com;\&#34;exit 0\&#34; &gt; /etc/rc.local&#39; 
+</code></pre><p>這樣一來，在送出郵件後，/etc/rc.local 的檔案內容會被恢復成只有底下這一行</p>
+<pre tabindex="0"><code>exit 0
+</code></pre><p>暫時先這樣子處理</p>
+<h3 id="更新">更新</h3>
+<p>因為直接把 /etc/rc.local 的內容改掉，實在讓我有點不放心</p>
+<p>所以想到一個方式，先備份 /etc/rc.local 然後加入我要的功能</p>
+<p>因為我只需要它跑一次就好，所以就可以在最後面加入還原剛剛複製的備份檔案</p>
+<p>簡單說在preseed 檔案中 改成這樣</p>
+<pre tabindex="0"><code>d-i preseed/late_command \
+        in-target apt-file update; \
+        in-target passwd --expire root  ;\
+        in-target cp /etc/rc.local /etc/rc.local.bak ;\
+        in-target /bin/sh -c &#39;echo &#34;hostname|mail -s pxe_install_complete admin@abc.com&#34; &gt; /etc/rc.local&#39; ;\
+        in-target /bin/sh -c &#39;echo &#34;cp /etc/rc.local.bak /etc/rc.local&#34; &gt;&gt; /etc/rc.local&#39;
+</code></pre><p>在開機之後，會先送出郵件通知，然後會把剛剛複製的備份覆蓋回來，變成原本的 rc.local</p>
+<p>這樣就不會有什麼問題了</p>
+</section>
+
+
+    <footer class="article-footer">
+    
+    <section class="article-tags">
+        
+            <a href="/tags/pxe/">PXE</a>
+        
+            <a href="/tags/ubuntu/">ubuntu</a>
+        
+            <a href="/tags/linux/">linux</a>
+        
+    </section>
+
+
+    </footer>
+
+
+    
+</article>
+
+    
+
+    
+
+<aside class="related-content--wrapper">
+    <h2 class="section-title">Related content</h2>
+    <div class="related-content">
+        <div class="flex article-list--tile">
+            
+                
+<article class="">
+    <a href="/post/remote-management-system-meshcentral/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">linux底下遠端遙控&amp;管理的好用系統 Meshcentral / Remote Management &amp; control system Meshcentral</h2>
+        </div>
+    </a>
+</article>
+
+            
+                
+<article class="">
+    <a href="/post/transfer-file-content-using-xclip-in-terminal/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">Transfer File Content Using Xclip in Terminal</h2>
+        </div>
+    </a>
+</article>
+
+            
+                
+<article class="">
+    <a href="/post/inx-collect-detail-hardware-info/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">[筆記] inxi 蒐集詳盡的硬體資訊 / inxi Collect Detail Hardware Info</h2>
+        </div>
+    </a>
+</article>
+
+            
+                
+<article class="">
+    <a href="/post/transfer-cent62-using-rsync/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">[筆記] 用rsync 移轉 centos 6.2的老機器 Transfer Cent6.2 using rsync</h2>
+        </div>
+    </a>
+</article>
+
+            
+                
+<article class="">
+    <a href="/post/install-timeshift-on-ubuntu1804/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">Install Timeshift on Ubuntu1804</h2>
+        </div>
+    </a>
+</article>
+
+            
+        </div>
+    </div>
+</aside>
+
+     
+    
+        
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+        2023 My New Hugo Site
+    </section>
+    
+    <section class="powerby">
+        Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
+        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.16.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+    </section>
+</footer>
+
+
+    
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.min.css"crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css"crossorigin="anonymous"
+            >
+
+            </main>
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.6/dist/vibrant.min.js"integrity="sha256-awcR2jno4kI5X0zL8ex0vi2z&#43;KMkF24hUW8WePSA9HM="crossorigin="anonymous"
+                
+                >
+            </script><script type="text/javascript" src="/ts/main.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>

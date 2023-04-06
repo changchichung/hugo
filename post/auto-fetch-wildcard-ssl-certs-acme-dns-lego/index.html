@@ -1,0 +1,640 @@
+<!DOCTYPE html>
+<html lang="en-us" dir="ltr">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='auto fetch Wildcard ssl certs with lego &#43; acme-dns ( Domain Register : Namecheap) 自從用了 leproxy 之後，其實就很少在管ssl 憑證的問題，反正leproxy 都會自動處理好
+不過LAN裡面的機器越來越多，每次看到警告說沒有加密的訊息就有點不爽，之前用了很多方式去申請全域憑證，申請倒是還好，沒太多問題。但是一碰到要更新，就都無法自動，因為都會要求去修改DNS 的 TXT 或者是 CNAME 記錄。
+一般來說，如果是其他DNS 供應商，大部分都會提供API，那就還好。 BUT !! (對，然生就是離不開這個BUT &amp;hellip;) 我們的域名是老闆在 iwantmyname 買的，一開始是給 webfaction 代管，後來webfaction 被godaddy 買走，就轉到 namecheap 去(我也不知道為什麼不在godaddy 就好)。
+'>
+<meta name="keywords" content="acme, lego"><title>auto fetch  Wildcard ssl certs with lego &#43; acme-dns ( Domain Register : Namecheap)</title>
+
+<link rel='canonical' href='https://h.cowbay.org/post/auto-fetch-wildcard-ssl-certs-acme-dns-lego/'>
+
+<link rel="stylesheet" href="/scss/style.min.8191399262444ab68b72a18c97392f5349be20a1615d77445be51e974c144cff.css"><meta property='og:title' content='auto fetch  Wildcard ssl certs with lego &#43; acme-dns ( Domain Register : Namecheap)'>
+<meta property='og:description' content='auto fetch Wildcard ssl certs with lego &#43; acme-dns ( Domain Register : Namecheap) 自從用了 leproxy 之後，其實就很少在管ssl 憑證的問題，反正leproxy 都會自動處理好
+不過LAN裡面的機器越來越多，每次看到警告說沒有加密的訊息就有點不爽，之前用了很多方式去申請全域憑證，申請倒是還好，沒太多問題。但是一碰到要更新，就都無法自動，因為都會要求去修改DNS 的 TXT 或者是 CNAME 記錄。
+一般來說，如果是其他DNS 供應商，大部分都會提供API，那就還好。 BUT !! (對，然生就是離不開這個BUT &amp;hellip;) 我們的域名是老闆在 iwantmyname 買的，一開始是給 webfaction 代管，後來webfaction 被godaddy 買走，就轉到 namecheap 去(我也不知道為什麼不在godaddy 就好)。
+'>
+<meta property='og:url' content='https://h.cowbay.org/post/auto-fetch-wildcard-ssl-certs-acme-dns-lego/'>
+<meta property='og:site_name' content='My New Hugo Site'>
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='acme' /><meta property='article:tag' content='acme-dns' /><meta property='article:tag' content='lego' /><meta property='article:tag' content='ssl' /><meta property='article:published_time' content='2021-08-26T12:08:43&#43;08:00'/><meta property='article:modified_time' content='2021-08-26T12:08:43&#43;08:00'/><meta property='og:image' content='https://h.cowbay.org/images/post-default-8.jpg' />
+<meta name="twitter:title" content="auto fetch  Wildcard ssl certs with lego &#43; acme-dns ( Domain Register : Namecheap)">
+<meta name="twitter:description" content="auto fetch Wildcard ssl certs with lego &#43; acme-dns ( Domain Register : Namecheap) 自從用了 leproxy 之後，其實就很少在管ssl 憑證的問題，反正leproxy 都會自動處理好
+不過LAN裡面的機器越來越多，每次看到警告說沒有加密的訊息就有點不爽，之前用了很多方式去申請全域憑證，申請倒是還好，沒太多問題。但是一碰到要更新，就都無法自動，因為都會要求去修改DNS 的 TXT 或者是 CNAME 記錄。
+一般來說，如果是其他DNS 供應商，大部分都會提供API，那就還好。 BUT !! (對，然生就是離不開這個BUT &amp;hellip;) 我們的域名是老闆在 iwantmyname 買的，一開始是給 webfaction 代管，後來webfaction 被godaddy 買走，就轉到 namecheap 去(我也不知道為什麼不在godaddy 就好)。
+"><meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:image" content='https://h.cowbay.org/images/post-default-8.jpg' />
+    </head>
+    <body class="
+    article-page
+    ">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "auto");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.documentElement.dataset.scheme = 'dark';
+        } else {
+            document.documentElement.dataset.scheme = 'light';
+        }
+    })();
+</script>
+<div class="container main-container flex on-phone--column compact"><aside class="sidebar left-sidebar sticky ">
+    <button class="hamburger hamburger--spin" type="button" id="toggle-menu" aria-label="Toggle Menu">
+        <span class="hamburger-box">
+            <span class="hamburger-inner"></span>
+        </span>
+    </button>
+
+    <header>
+        
+            
+            <figure class="site-avatar">
+                <a href="/">
+                
+                    
+                    
+                    
+                        
+                        <img src="/img/avatar.png" width="300"
+                            height="300" class="site-logo" loading="lazy" alt="Avatar">
+                    
+                
+                </a>
+                
+            </figure>
+            
+        
+        
+        <div class="site-meta">
+            <h1 class="site-name"><a href="/">My New Hugo Site</a></h1>
+            <h2 class="site-description"></h2>
+        </div>
+    </header><ol class="menu" id="main-menu">
+        
+        
+        
+        <li >
+            <a href='/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-home" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="5 12 3 12 12 3 21 12 19 12" />
+  <path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-7" />
+  <path d="M9 21v-6a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v6" />
+</svg>
+
+
+
+                
+                <span>Home</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/page/about/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-user" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="7" r="4" />
+  <path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2" />
+</svg>
+
+
+
+                
+                <span>About</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/page/archives/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-archive" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <rect x="3" y="4" width="18" height="4" rx="2" />
+  <path d="M5 8v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-10" />
+  <line x1="10" y1="12" x2="14" y2="12" />
+</svg>
+
+
+
+                
+                <span>Archives</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/page/search/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="10" cy="10" r="7" />
+  <line x1="21" y1="21" x2="15" y2="15" />
+</svg>
+
+
+
+                
+                <span>Search</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/page/links/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-link" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M10 14a3.5 3.5 0 0 0 5 0l4 -4a3.5 3.5 0 0 0 -5 -5l-.5 .5" />
+  <path d="M14 10a3.5 3.5 0 0 0 -5 0l-4 4a3.5 3.5 0 0 0 5 5l.5 -.5" />
+</svg>
+
+
+
+                
+                <span>Links</span>
+            </a>
+        </li>
+        
+
+        <div class="menu-bottom-section">
+            
+            
+                <li id="dark-mode-toggle">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="8" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="16" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                    <span>Dark Mode</span>
+                </li>
+            
+        </div>
+    </ol>
+</aside>
+
+    
+
+            <main class="main full-width">
+    <article class="has-image main-article">
+    <header class="article-header">
+        <div class="article-image">
+            <a href="/post/auto-fetch-wildcard-ssl-certs-acme-dns-lego/">
+                
+                    <img src="https://h.cowbay.org/images/post-default-8.jpg" loading="lazy" alt="Featured image of post auto fetch  Wildcard ssl certs with lego &#43; acme-dns ( Domain Register : Namecheap)" />
+                
+            </a>
+        </div>
+    
+
+    <div class="article-details">
+    
+    <header class="article-category">
+        
+            <a href="/categories/%E7%AD%86%E8%A8%98/" >
+                筆記
+            </a>
+        
+    </header>
+    
+
+    <div class="article-title-wrapper">
+        <h2 class="article-title">
+            <a href="/post/auto-fetch-wildcard-ssl-certs-acme-dns-lego/">auto fetch  Wildcard ssl certs with lego &#43; acme-dns ( Domain Register : Namecheap)</a>
+        </h2>
+    
+        
+    </div>
+
+    
+    
+    
+    
+    <footer class="article-time">
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M11.795 21h-6.795a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
+  <circle cx="18" cy="18" r="4" />
+  <path d="M15 3v4" />
+  <path d="M7 3v4" />
+  <path d="M3 11h16" />
+  <path d="M18 16.496v1.504l1 1" />
+</svg>
+                <time class="article-time--published">Aug 26, 2021</time>
+            </div>
+        
+
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+                <time class="article-time--reading">
+                    4 minute read
+                </time>
+            </div>
+        
+    </footer>
+    
+
+    
+</div>
+
+</header>
+
+    <section class="article-content">
+    
+    
+    <h3 id="auto-fetch--wildcard-ssl-certs-with-lego--acme-dns--domain-register--namecheap">auto fetch  Wildcard ssl certs with lego + acme-dns ( Domain Register : Namecheap)</h3>
+<p>自從用了 <a class="link" href="https://github.com/artyom/leproxy"  target="_blank" rel="noopener"
+    >leproxy</a> 之後，其實就很少在管ssl 憑證的問題，反正<a class="link" href="https://github.com/artyom/leproxy"  target="_blank" rel="noopener"
+    >leproxy </a>都會自動處理好</p>
+<p>不過LAN裡面的機器越來越多，每次看到警告說沒有加密的訊息就有點不爽，之前用了很多方式去申請全域憑證，申請倒是還好，沒太多問題。但是一碰到要更新，就都無法自動，因為都會要求去修改DNS 的 TXT 或者是 CNAME 記錄。</p>
+<p>一般來說，如果是其他DNS 供應商，大部分都會提供API，那就還好。 BUT !! (對，然生就是離不開這個BUT &hellip;) 我們的域名是老闆在 iwantmyname 買的，一開始是給 webfaction 代管，後來webfaction 被godaddy 買走，就轉到 namecheap 去(我也不知道為什麼不在godaddy 就好)。</p>
+<p>DNS 管理基本上都是大同小異啦，可是namecheap 免費賬戶不提供 API ，應該說要使用namecheap 提供的API ，需要滿足以下的條件</p>
+<pre tabindex="0"><code>I want to enable API for my account. Are there any specific requirements?
+
+We have certain requirements for activation to prevent system abuse. In order to have API enabled for your account, you should meet one of the following requirements:
+
+- have at least 20 domains under your account;
+- have at least $50 on your account balance;
+- have at least $50 spent within the last 2 years.
+</code></pre><p>之前問過老闆，可不可以丟個50 鎂在賬戶裡面，好讓我可以用API 去修改DNS 來自動取得SSL 憑證，同樣地，也不知道為什麼，連50鎂也不給存&hellip;</p>
+<p>於是過了一段每幾個月就憑證過期，需要手動更新的日子&hellip;.想想實在不甘願，本來已經想說去買一些一塊美金一年的domain 然後通通移轉到namecheap ，來滿足上面的第一個條件。但是這又要自己花錢(我已經自掏腰包很多了在這邊買LAB設備)，最後決定還是用<a class="link" href="https://github.com/go-acme/lego"  target="_blank" rel="noopener"
+    >lego</a> + <a class="link" href="https://github.com/joohoi/acme-dns"  target="_blank" rel="noopener"
+    >acme-dns</a> 來做</p>
+<p>其實前兩年就有玩過 lego ，但是當時應該是功能上還沒完整，這次在找 acme-dns 的文件時，發現lego 一直有持續更新，所以這次才決定改用 lego + acme-dns 來達到「自動更新」 SSL 憑證的需求，底下就簡單說明一下設定步驟、內容</p>
+<h4 id="取得-lego--acme-dns">取得 lego &amp; acme-dns</h4>
+<p>lego 以及acme-dns 都是使用 golang 開發的，這也是為什麼我選用這兩個組合的原因之一，省去自己編譯還要安裝一堆有的沒的套件，兩個套件都有prebuild binary package，直接下載回來就可以了</p>
+<h5 id="lego">lego</h5>
+<p>wget <a class="link" href="https://github.com/go-acme/lego/releases/download/v4.4.0/lego_v4.4.0_linux_amd64.tar.gz"  target="_blank" rel="noopener"
+    >https://github.com/go-acme/lego/releases/download/v4.4.0/lego_v4.4.0_linux_amd64.tar.gz</a></p>
+<h5 id="acme-dns">acme-dns</h5>
+<p>wget <a class="link" href="https://github.com/joohoi/acme-dns/releases/download/v0.8/acme-dns_0.8_linux_amd64.tar.gz"  target="_blank" rel="noopener"
+    >https://github.com/joohoi/acme-dns/releases/download/v0.8/acme-dns_0.8_linux_amd64.tar.gz</a></p>
+<p>解壓縮後取得執行檔</p>
+<p>tar zxvf lego_v4.4.0_linux_amd64.tar.gz &amp;&amp; sudo mv lego /usr/local/bin/
+tar zxvf acme-dns_0.8_linux_amd64.tar.gz &amp;&amp; sudo mv acme-dns /usr/local/bin/</p>
+<hr>
+<h5 id="firewall-設定">Firewall 設定</h5>
+<p>firewall 上開啟port mapping ，把 UDP 53 轉給這臺跑 lego 的機器</p>
+<p>如果這臺機器上有軟體已經佔用 53 port ，要想辦法先解決。</p>
+<p>對，我說的就是那個超級討厭的 systemd-resolved</p>
+<p>本機如果有開firewall ，記得要放行 udp 53</p>
+<hr>
+<h4 id="設定acme-dns">設定acme-dns</h4>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span><span style="color:#75715e">#建立 acme-dns 目錄</span>
+</span></span><span style="display:flex;"><span>mkdir -p /etc/acme-dns
+</span></span><span style="display:flex;"><span>mkdir -p /var/lib/acme-dns
+</span></span><span style="display:flex;"><span><span style="color:#75715e">#建立 acme-dns 設定檔</span>
+</span></span><span style="display:flex;"><span>sudo vim /etc/acme-dns/config.cfg
+</span></span></code></pre></div><p>config 的內容如下，順便補上一些自己的註解</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span><span style="color:#75715e">#/etc/acme-dns/config.cfg</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>general<span style="color:#f92672">]</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># DNS interface</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 本來預設是只有 :53 在某些VPS 上會出錯，所以改成 0.0.0.0:53</span>
+</span></span><span style="display:flex;"><span>listen <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;0.0.0.0:53&#34;</span>
+</span></span><span style="display:flex;"><span>protocol <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;udp&#34;</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># domain name to serve the requests off of</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 不是要設定的 domain，而是這臺機器要負責的sub domain</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 總之就是輸入 acme 再加上原本的domain</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 不想用 acme 當然也可以</span>
+</span></span><span style="display:flex;"><span>domain <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;acme.abc.com&#34;</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># zone name server</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># ns1 再加上原本的 domain</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 一樣，不想用ns1 也可以，後面記得作對應的修改</span>
+</span></span><span style="display:flex;"><span>nsname <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;ns1.abc.com&#34;</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># admin email address, where @ is substituted with .</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 管理者email , admin + 原本的 domain</span>
+</span></span><span style="display:flex;"><span>nsadmin <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;admin.abc.com&#34;</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># predefined records served in addition to the TXT</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># </span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 前面兩筆 A 記錄對應上面的 domain , nsname</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 後面則是這臺機器的 WAN IP</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 第三筆 是NS 記錄</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 這三筆記錄等一下要新增到namecheap 的DNS </span>
+</span></span><span style="display:flex;"><span>records <span style="color:#f92672">=</span> <span style="color:#f92672">[</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#e6db74">&#34;acme.abc.com. A 11.22.33.44&#34;</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#e6db74">&#34;ns1.acme.abc.com. A 11.22.33.44&#34;</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#e6db74">&#34;acme.abc.com. NS ns1.abc.com.&#34;</span>,
+</span></span><span style="display:flex;"><span><span style="color:#f92672">]</span>
+</span></span><span style="display:flex;"><span>debug <span style="color:#f92672">=</span> false
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>database<span style="color:#f92672">]</span>
+</span></span><span style="display:flex;"><span>engine <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;sqlite3&#34;</span>
+</span></span><span style="display:flex;"><span>connection <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;/var/lib/acme-dns/acme-dns.db&#34;</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">### 要記一下port ，等等會用到</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>api<span style="color:#f92672">]</span>
+</span></span><span style="display:flex;"><span>api_domain <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;&#34;</span>
+</span></span><span style="display:flex;"><span>ip <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;127.0.0.1&#34;</span>
+</span></span><span style="display:flex;"><span>disable_registration <span style="color:#f92672">=</span> false
+</span></span><span style="display:flex;"><span>autocert_port <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;80&#34;</span>
+</span></span><span style="display:flex;"><span>port <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;9000&#34;</span>
+</span></span><span style="display:flex;"><span>tls <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;none&#34;</span>
+</span></span><span style="display:flex;"><span>corsorigins <span style="color:#f92672">=</span> <span style="color:#f92672">[</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#e6db74">&#34;*&#34;</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">]</span>
+</span></span><span style="display:flex;"><span>use_header <span style="color:#f92672">=</span> false
+</span></span><span style="display:flex;"><span>header_name <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;X-Forwarded-For&#34;</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>logconfig<span style="color:#f92672">]</span>
+</span></span><span style="display:flex;"><span>loglevel <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;debug&#34;</span>
+</span></span><span style="display:flex;"><span>logtype <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;stdout&#34;</span>
+</span></span><span style="display:flex;"><span>logformat <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;text&#34;</span>
+</span></span></code></pre></div><p>編輯完後，存檔離開。</p>
+<p>新增 acme-dns.service 的systemd config</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>sudo vim /etc/systemd/system/acme-dns.service
+</span></span></code></pre></div><p>內容如下</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span><span style="color:#75715e"># /etc/systemd/system/acme-dns.service</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>Unit<span style="color:#f92672">]</span>
+</span></span><span style="display:flex;"><span>Description<span style="color:#f92672">=</span>ACMD DNS
+</span></span><span style="display:flex;"><span>After<span style="color:#f92672">=</span>network.target
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>Service<span style="color:#f92672">]</span>
+</span></span><span style="display:flex;"><span>ExecStart<span style="color:#f92672">=</span>/usr/local/bin/acme-dns
+</span></span><span style="display:flex;"><span>Restart<span style="color:#f92672">=</span>on-failure
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>Install<span style="color:#f92672">]</span>
+</span></span><span style="display:flex;"><span>WantedBy<span style="color:#f92672">=</span>multi-user.target
+</span></span></code></pre></div><p>存檔離開，並啟用 acme-dns service</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>sudo systemctl daemon-reload 
+</span></span><span style="display:flex;"><span>sudo systemctl enable --now acme-dns.service
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 檢查一下狀態是否正常</span>
+</span></span><span style="display:flex;"><span>sudo systemctl status acme-dns
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 底下這個指令如果沒有回傳任何訊息，是正常的</span>
+</span></span><span style="display:flex;"><span>curl http://localhost:9000/health
+</span></span></code></pre></div><h4 id="設定namecheap-dns-記錄">設定namecheap DNS 記錄</h4>
+<p>總共要新增兩筆A 記錄，一筆 NS 記錄 (目前)，後面還會需要新增一筆 CNAME</p>
+<p>domain</p>
+<p><img src="https://raw.githubusercontent.com/changchichung/imagebed/main/20210826113826-image.png"
+	
+	
+	
+	loading="lazy"
+	
+		alt="20210826113826-image.png"
+	
+	
+></p>
+<p>nsname</p>
+<p><img src="https://raw.githubusercontent.com/changchichung/imagebed/main/20210826113946-image.png"
+	
+	
+	
+	loading="lazy"
+	
+		alt="20210826113946-image.png"
+	
+	
+></p>
+<p>NS record</p>
+<p><img src="https://raw.githubusercontent.com/changchichung/imagebed/main/20210826114027-image.png"
+	
+	
+	
+	loading="lazy"
+	
+		alt="20210826114027-image.png"
+	
+	
+></p>
+<p>然後休息個五分鐘十分鐘的，讓子彈飛一下，等DNS生效</p>
+<h5 id="透過lego-取得憑證">透過lego 取得憑證</h5>
+<p>只要確認上面的防火牆設定、acme-dns 設定、以及 DNS 的修改生效之後，剩下的lego 指令就很簡單了</p>
+<p><a class="link" href="https://go-acme.github.io/lego/dns/acme-dns/"  target="_blank" rel="noopener"
+    >https://go-acme.github.io/lego/dns/acme-dns/</a></p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span><span style="color:#75715e"># 第一個ACME_DNS_API_BASE是剛剛設定acme-dns API port</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 然後 ACME_DNS_STORAGE_PATH 是lego存放賬戶資料的地方</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 後面就是lego 的指令</span>
+</span></span><span style="display:flex;"><span>ACME_DNS_API_BASE<span style="color:#f92672">=</span>http://localhost:9000 ACME_DNS_STORAGE_PATH<span style="color:#f92672">=</span>/home/minion/.lego-acme-dns-accounts.json lego --email changch@abc.com --dns acme-dns --domains *.abc.com run
+</span></span></code></pre></div><p>執行完成後，會在目錄底下產生一個叫 .lego 的目錄，用來存放憑證檔案</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>2021-08-26 11:55:16 <span style="color:#f92672">[</span>minion@hqs058 ~<span style="color:#f92672">]</span>$ ls -la .lego/certificates/
+</span></span><span style="display:flex;"><span>total <span style="color:#ae81ff">28</span>
+</span></span><span style="display:flex;"><span>drwx------ <span style="color:#ae81ff">2</span> minion sudo <span style="color:#ae81ff">4096</span> Aug <span style="color:#ae81ff">26</span> 09:35 .
+</span></span><span style="display:flex;"><span>drwx------ <span style="color:#ae81ff">4</span> minion sudo <span style="color:#ae81ff">4096</span> Aug <span style="color:#ae81ff">26</span> 09:33 ..
+</span></span><span style="display:flex;"><span>-rw------- <span style="color:#ae81ff">1</span> minion sudo <span style="color:#ae81ff">5325</span> Aug <span style="color:#ae81ff">26</span> 09:35 _.abc.com.crt
+</span></span><span style="display:flex;"><span>-rw------- <span style="color:#ae81ff">1</span> minion sudo <span style="color:#ae81ff">3751</span> Aug <span style="color:#ae81ff">26</span> 09:35 _.abc.com.issuer.crt
+</span></span><span style="display:flex;"><span>-rw------- <span style="color:#ae81ff">1</span> minion sudo  <span style="color:#ae81ff">238</span> Aug <span style="color:#ae81ff">26</span> 09:35 _.abc.com.json
+</span></span><span style="display:flex;"><span>-rw------- <span style="color:#ae81ff">1</span> minion sudo  <span style="color:#ae81ff">227</span> Aug <span style="color:#ae81ff">26</span> 09:35 _.abc.com.key
+</span></span><span style="display:flex;"><span>2021-08-26 11:58:22 <span style="color:#f92672">[</span>minion@hqs058 ~<span style="color:#f92672">]</span>$ 
+</span></span></code></pre></div><p>沒錯，就這麼簡單!!</p>
+<p>甚至於我要撤銷這些憑證也很簡單!!!</p>
+<p>把最後面的 run 改成 revoke 就可以了！</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>ACME_DNS_API_BASE<span style="color:#f92672">=</span>http://localhost:9000 ACME_DNS_STORAGE_PATH<span style="color:#f92672">=</span>/home/minion/.lego-acme-dns-accounts.json lego --email changch@abc.com --dns acme-dns --domains *.abc.com revoke
+</span></span><span style="display:flex;"><span>2021/08/26 11:59:13 Trying to revoke certificate <span style="color:#66d9ef">for</span> domain *.abc.com
+</span></span><span style="display:flex;"><span>2021/08/26 11:59:14 Certificate was revoked.
+</span></span><span style="display:flex;"><span>2021/08/26 11:59:14 Certificate was archived <span style="color:#66d9ef">for</span> domain: *.abc.com
+</span></span></code></pre></div><p>再來跑一次申請新憑證測試看看</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>ACME_DNS_API_BASE<span style="color:#f92672">=</span>http://localhost:9000 ACME_DNS_STORAGE_PATH<span style="color:#f92672">=</span>/home/minion/.lego-acme-dns-accounts.json lego --email changch@abc.com --dns acme-dns --domains *.abc.com run
+</span></span><span style="display:flex;"><span>2021/08/26 12:00:51 <span style="color:#f92672">[</span>INFO<span style="color:#f92672">]</span> <span style="color:#f92672">[</span>*.abc.com<span style="color:#f92672">]</span> acme: Obtaining bundled SAN certificate
+</span></span><span style="display:flex;"><span>2021/08/26 12:00:52 <span style="color:#f92672">[</span>INFO<span style="color:#f92672">]</span> <span style="color:#f92672">[</span>*.abc.com<span style="color:#f92672">]</span> AuthURL: https://acme-v02.api.letsencrypt.org/acme/authz-v3/25150773810
+</span></span><span style="display:flex;"><span>2021/08/26 12:00:52 <span style="color:#f92672">[</span>INFO<span style="color:#f92672">]</span> <span style="color:#f92672">[</span>*.abc.com<span style="color:#f92672">]</span> acme: authorization already valid; skipping challenge
+</span></span><span style="display:flex;"><span>2021/08/26 12:00:52 <span style="color:#f92672">[</span>INFO<span style="color:#f92672">]</span> <span style="color:#f92672">[</span>*.abc.com<span style="color:#f92672">]</span> acme: Validations succeeded; requesting certificates
+</span></span><span style="display:flex;"><span>2021/08/26 12:00:53 <span style="color:#f92672">[</span>INFO<span style="color:#f92672">]</span> <span style="color:#f92672">[</span>*.abc.com<span style="color:#f92672">]</span> Server responded with a certificate.
+</span></span></code></pre></div><p>同樣地，會產生新的ssl 憑證</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>2021-08-26 12:00:53 <span style="color:#f92672">[</span>minion@hqs058 ~<span style="color:#f92672">]</span>$ ls -la .lego/certificates/
+</span></span><span style="display:flex;"><span>total <span style="color:#ae81ff">28</span>
+</span></span><span style="display:flex;"><span>drwx------ <span style="color:#ae81ff">2</span> minion sudo <span style="color:#ae81ff">4096</span> Aug <span style="color:#ae81ff">26</span> 12:00 .
+</span></span><span style="display:flex;"><span>drwx------ <span style="color:#ae81ff">5</span> minion sudo <span style="color:#ae81ff">4096</span> Aug <span style="color:#ae81ff">26</span> 11:59 ..
+</span></span><span style="display:flex;"><span>-rw------- <span style="color:#ae81ff">1</span> minion sudo <span style="color:#ae81ff">5325</span> Aug <span style="color:#ae81ff">26</span> 12:00 _.abc.com.crt
+</span></span><span style="display:flex;"><span>-rw------- <span style="color:#ae81ff">1</span> minion sudo <span style="color:#ae81ff">3751</span> Aug <span style="color:#ae81ff">26</span> 12:00 _.abc.com.issuer.crt
+</span></span><span style="display:flex;"><span>-rw------- <span style="color:#ae81ff">1</span> minion sudo  <span style="color:#ae81ff">238</span> Aug <span style="color:#ae81ff">26</span> 12:00 _.abc.com.json
+</span></span><span style="display:flex;"><span>-rw------- <span style="color:#ae81ff">1</span> minion sudo  <span style="color:#ae81ff">227</span> Aug <span style="color:#ae81ff">26</span> 12:00 _.abc.com.key
+</span></span><span style="display:flex;"><span>2021-08-26 12:02:37 <span style="color:#f92672">[</span>minion@hqs058 ~<span style="color:#f92672">]</span>$ 
+</span></span></code></pre></div><p>超方便的啊！！！！</p>
+<p>後面要更新就把指令最後的 run 改成 renew</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>ACME_DNS_API_BASE<span style="color:#f92672">=</span>http://localhost:9000 ACME_DNS_STORAGE_PATH<span style="color:#f92672">=</span>/home/minion/.lego-acme-dns-accounts.json lego --email changch@abc.com --dns acme-dns --domains *.abc.com renew
+</span></span><span style="display:flex;"><span>2021/08/26 12:04:00 <span style="color:#f92672">[</span>*.abc.com<span style="color:#f92672">]</span> The certificate expires in <span style="color:#ae81ff">89</span> days, the number of days defined to perform the renewal is 30: no renewal.
+</span></span></code></pre></div><p>因為是剛剛才要到的憑證，當然是不能更新啦&hellip;</p>
+<p>把這個指令寫到 crontab ，以後時間到了就會自動更新憑證</p>
+<p>後續再搭配 ansible 來抓新的憑證，派送到其他伺服器去</p>
+<p>終於可以不用再為ssl 憑證煩惱了！！！</p>
+</section>
+
+
+    <footer class="article-footer">
+    
+    <section class="article-tags">
+        
+            <a href="/tags/acme/">acme</a>
+        
+            <a href="/tags/acme-dns/">acme-dns</a>
+        
+            <a href="/tags/lego/">lego</a>
+        
+            <a href="/tags/ssl/">ssl</a>
+        
+    </section>
+
+
+    </footer>
+
+
+    
+</article>
+
+    
+
+    
+
+     
+    
+        
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+        2023 My New Hugo Site
+    </section>
+    
+    <section class="powerby">
+        Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
+        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.16.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+    </section>
+</footer>
+
+
+    
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.min.css"crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css"crossorigin="anonymous"
+            >
+
+            </main>
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.6/dist/vibrant.min.js"integrity="sha256-awcR2jno4kI5X0zL8ex0vi2z&#43;KMkF24hUW8WePSA9HM="crossorigin="anonymous"
+                
+                >
+            </script><script type="text/javascript" src="/ts/main.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>

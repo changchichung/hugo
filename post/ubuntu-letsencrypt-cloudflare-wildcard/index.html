@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html lang="en-us" dir="ltr">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='之前用caddy 作為反向代理，其中一個優勢就是caddy 會自動處理Letsencrypt 憑證的問題
+也不用煩惱怎麼去更新一堆有的沒的
+不過，實際應用上，還是偶爾會拿這些憑證檔案來用的狀況
+雖然可以從caddy 上面取得這些檔案
+但是基本上這些檔案都是綁定一個特定的hostname
+可是我想要有一個憑證，可以給同網域底下的機器用 ( Wildcard certificates )
+'>
+<meta name="keywords" content="certbot, Cloudflare, Letsencrypt"><title>[筆記] 在 ubuntu 20.04 底下，用certbot 透過Cloudflare 申請全域的 Letsencrypt 憑證</title>
+
+<link rel='canonical' href='https://h.cowbay.org/post/ubuntu-letsencrypt-cloudflare-wildcard/'>
+
+<link rel="stylesheet" href="/scss/style.min.8191399262444ab68b72a18c97392f5349be20a1615d77445be51e974c144cff.css"><meta property='og:title' content='[筆記] 在 ubuntu 20.04 底下，用certbot 透過Cloudflare 申請全域的 Letsencrypt 憑證'>
+<meta property='og:description' content='之前用caddy 作為反向代理，其中一個優勢就是caddy 會自動處理Letsencrypt 憑證的問題
+也不用煩惱怎麼去更新一堆有的沒的
+不過，實際應用上，還是偶爾會拿這些憑證檔案來用的狀況
+雖然可以從caddy 上面取得這些檔案
+但是基本上這些檔案都是綁定一個特定的hostname
+可是我想要有一個憑證，可以給同網域底下的機器用 ( Wildcard certificates )
+'>
+<meta property='og:url' content='https://h.cowbay.org/post/ubuntu-letsencrypt-cloudflare-wildcard/'>
+<meta property='og:site_name' content='My New Hugo Site'>
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='certbot' /><meta property='article:tag' content='Cloudflare' /><meta property='article:tag' content='Letsencrypt' /><meta property='article:published_time' content='2020-09-02T15:55:40&#43;08:00'/><meta property='article:modified_time' content='2020-09-02T15:55:40&#43;08:00'/><meta property='og:image' content='https://h.cowbay.org/images/post-default-4.jpg' />
+<meta name="twitter:title" content="[筆記] 在 ubuntu 20.04 底下，用certbot 透過Cloudflare 申請全域的 Letsencrypt 憑證">
+<meta name="twitter:description" content="之前用caddy 作為反向代理，其中一個優勢就是caddy 會自動處理Letsencrypt 憑證的問題
+也不用煩惱怎麼去更新一堆有的沒的
+不過，實際應用上，還是偶爾會拿這些憑證檔案來用的狀況
+雖然可以從caddy 上面取得這些檔案
+但是基本上這些檔案都是綁定一個特定的hostname
+可是我想要有一個憑證，可以給同網域底下的機器用 ( Wildcard certificates )
+"><meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:image" content='https://h.cowbay.org/images/post-default-4.jpg' />
+    </head>
+    <body class="
+    article-page
+    ">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "auto");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.documentElement.dataset.scheme = 'dark';
+        } else {
+            document.documentElement.dataset.scheme = 'light';
+        }
+    })();
+</script>
+<div class="container main-container flex on-phone--column compact"><aside class="sidebar left-sidebar sticky ">
+    <button class="hamburger hamburger--spin" type="button" id="toggle-menu" aria-label="Toggle Menu">
+        <span class="hamburger-box">
+            <span class="hamburger-inner"></span>
+        </span>
+    </button>
+
+    <header>
+        
+            
+            <figure class="site-avatar">
+                <a href="/">
+                
+                    
+                    
+                    
+                        
+                        <img src="/img/avatar.png" width="300"
+                            height="300" class="site-logo" loading="lazy" alt="Avatar">
+                    
+                
+                </a>
+                
+            </figure>
+            
+        
+        
+        <div class="site-meta">
+            <h1 class="site-name"><a href="/">My New Hugo Site</a></h1>
+            <h2 class="site-description"></h2>
+        </div>
+    </header><ol class="menu" id="main-menu">
+        
+        
+        
+        <li >
+            <a href='/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-home" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="5 12 3 12 12 3 21 12 19 12" />
+  <path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-7" />
+  <path d="M9 21v-6a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v6" />
+</svg>
+
+
+
+                
+                <span>Home</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/page/about/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-user" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="7" r="4" />
+  <path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2" />
+</svg>
+
+
+
+                
+                <span>About</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/page/archives/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-archive" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <rect x="3" y="4" width="18" height="4" rx="2" />
+  <path d="M5 8v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-10" />
+  <line x1="10" y1="12" x2="14" y2="12" />
+</svg>
+
+
+
+                
+                <span>Archives</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/page/search/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="10" cy="10" r="7" />
+  <line x1="21" y1="21" x2="15" y2="15" />
+</svg>
+
+
+
+                
+                <span>Search</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/page/links/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-link" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M10 14a3.5 3.5 0 0 0 5 0l4 -4a3.5 3.5 0 0 0 -5 -5l-.5 .5" />
+  <path d="M14 10a3.5 3.5 0 0 0 -5 0l-4 4a3.5 3.5 0 0 0 5 5l.5 -.5" />
+</svg>
+
+
+
+                
+                <span>Links</span>
+            </a>
+        </li>
+        
+
+        <div class="menu-bottom-section">
+            
+            
+                <li id="dark-mode-toggle">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="8" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="16" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                    <span>Dark Mode</span>
+                </li>
+            
+        </div>
+    </ol>
+</aside>
+
+    
+
+            <main class="main full-width">
+    <article class="has-image main-article">
+    <header class="article-header">
+        <div class="article-image">
+            <a href="/post/ubuntu-letsencrypt-cloudflare-wildcard/">
+                
+                    <img src="https://h.cowbay.org/images/post-default-4.jpg" loading="lazy" alt="Featured image of post [筆記] 在 ubuntu 20.04 底下，用certbot 透過Cloudflare 申請全域的 Letsencrypt 憑證" />
+                
+            </a>
+        </div>
+    
+
+    <div class="article-details">
+    
+    <header class="article-category">
+        
+            <a href="/categories/%E7%AD%86%E8%A8%98/" >
+                筆記
+            </a>
+        
+    </header>
+    
+
+    <div class="article-title-wrapper">
+        <h2 class="article-title">
+            <a href="/post/ubuntu-letsencrypt-cloudflare-wildcard/">[筆記] 在 ubuntu 20.04 底下，用certbot 透過Cloudflare 申請全域的 Letsencrypt 憑證</a>
+        </h2>
+    
+        
+    </div>
+
+    
+    
+    
+    
+    <footer class="article-time">
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M11.795 21h-6.795a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
+  <circle cx="18" cy="18" r="4" />
+  <path d="M15 3v4" />
+  <path d="M7 3v4" />
+  <path d="M3 11h16" />
+  <path d="M18 16.496v1.504l1 1" />
+</svg>
+                <time class="article-time--published">Sep 02, 2020</time>
+            </div>
+        
+
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+                <time class="article-time--reading">
+                    3 minute read
+                </time>
+            </div>
+        
+    </footer>
+    
+
+    
+</div>
+
+</header>
+
+    <section class="article-content">
+    
+    
+    <p>之前用caddy 作為反向代理，其中一個優勢就是caddy 會自動處理Letsencrypt 憑證的問題</p>
+<p>也不用煩惱怎麼去更新一堆有的沒的</p>
+<p>不過，實際應用上，還是偶爾會拿這些憑證檔案來用的狀況</p>
+<p>雖然可以從caddy 上面取得這些檔案</p>
+<p>但是基本上這些檔案都是綁定一個特定的hostname</p>
+<p>可是我想要有一個憑證，可以給同網域底下的機器用 ( Wildcard certificates )</p>
+<p>要申請Wildcard certificates ，必須要採用 DNS 驗證的方式</p>
+<p>一般手動操作的步驟，會先產生一組亂數字串，然後更新 DNS 上面去</p>
+<p>如果要改成自動化，要多一些步驟</p>
+<h3 id="安裝-certbot-及-cloudflare-外掛">安裝 certbot 及 Cloudflare 外掛</h3>
+<p>首先，先來安裝會用到的套件</p>
+<pre tabindex="0"><code>sudo apt install certbot letsencrypt python3-certbot-dns-cloudflare
+</code></pre><h3 id="設定-cloudflare-api">設定 cloudflare API</h3>
+<p>這個步驟我測了好久，網路上的說明似乎都過期了，造成cloudflare API 那邊會發生錯誤</p>
+<p>先登入 cloudflare 管理界面的API token 設定</p>
+<p><a class="link" href="https://dash.cloudflare.com/profile/api-tokens"  target="_blank" rel="noopener"
+    >https://dash.cloudflare.com/profile/api-tokens</a></p>
+<p>建立一組token</p>
+<p>內容如下</p>
+<p><img src="/%27https:/i.imgur.com/3dZN6qC.png%27"
+	
+	
+	
+	loading="lazy"
+	
+		alt="&lsquo;cloudflare API&rsquo;"
+	
+	
+></p>
+<p>在權限設定的地方，選擇三個項目</p>
+<p>zone-zone settings-edit
+zone-zone-edit
+zone-DNS-edit</p>
+<p>在下一個 zone resources 選擇 include-All zones</p>
+<p>存檔後會產生一組 API token ，接著就是用這組 token 來做DNS更新</p>
+<h3 id="編輯-cloudflare-設定檔">編輯 cloudflare 設定檔</h3>
+<p>在 /etc底下新增一個 cloudflare.ini</p>
+<p>內容如下</p>
+<pre tabindex="0"><code>sudo vim /etc/cloudflare.ini
+
+dns_cloudflare_email =  #email@address.here
+dns_cloudflare_api_key = #API token here
+</code></pre><p>存檔後離開，然後改一下權限，不然等一下certbot 會跳警告</p>
+<pre tabindex="0"><code>sudo chmod 0600 /etc/cloudflare.ini
+</code></pre><h3 id="執行certbot-取得憑證">執行certbot 取得憑證</h3>
+<p>執行以下的指令</p>
+<pre tabindex="0"><code>sudo certbot certonly  --dns-cloudflare --dns-cloudflare-credentials /etc/cloudflare.ini --preferred-challenges=dns --email admin@abc.com --server https://acme-v02.api.letsencrypt.org/directory --agree-tos -d abc.com -d *.abc.com
+</code></pre><p>正常的話，會是這樣的結果</p>
+<pre tabindex="0"><code>sudo certbot certonly  --dns-cloudflare --dns-cloudflare-credentials /etc/cloudflare.ini --preferred-challenges=dns --email admin@abc.com --server https://acme-v02.api.letsencrypt.org/directory --agree-tos -d abc.com -d *.abc.com
+
+Saving debug log to /var/log/letsencrypt/letsencrypt.log
+Plugins selected: Authenticator dns-cloudflare, Installer None
+Obtaining a new certificate
+Performing the following challenges:
+dns-01 challenge for abc.com
+dns-01 challenge for abc.com
+Waiting 10 seconds for DNS changes to propagate
+Waiting for verification...
+Cleaning up challenges
+
+IMPORTANT NOTES:
+ - Congratulations! Your certificate and chain have been saved at:
+   /etc/letsencrypt/live/abc.com/fullchain.pem
+   Your key file has been saved at:
+   /etc/letsencrypt/live/abc.com/privkey.pem
+   Your cert will expire on 2020-12-01. To obtain a new or tweaked
+   version of this certificate in the future, simply run certbot
+   again. To non-interactively renew *all* of your certificates, run
+   &#34;certbot renew&#34;
+ - If you like Certbot, please consider supporting our work by:
+
+   Donating to ISRG / Let&#39;s Encrypt:   https://letsencrypt.org/donate
+   Donating to EFF:                    https://eff.org/donate-le
+</code></pre><p>這樣子就取得了全域通用的SSL 憑證檔案</p>
+<p>如果看到底下這種錯誤</p>
+<pre tabindex="0"><code>administrator@ubuntu:~$ sudo certbot certonly  --dns-cloudflare --dns-cloudflare-credentials /etc/cloudflare.ini --preferred-challenges=dns --email admin@abc.com --server https://acme-v02.api.letsencrypt.org/directory --agree-tos -d abc.com -d *.abc.com
+Saving debug log to /var/log/letsencrypt/letsencrypt.log
+Plugins selected: Authenticator dns-cloudflare, Installer None
+Obtaining a new certificate
+Performing the following challenges:
+dns-01 challenge for abc.com
+dns-01 challenge for abc.com
+Cleaning up challenges
+Error determining zone_id: 6003 Invalid request headers. Please confirm that you have supplied valid Cloudflare API credentials. (Did you copy your entire API key?)
+</code></pre><p>那就是cloudflare API 那邊的權限設定錯了，我就是在這邊卡很久&hellip;</p>
+<p>請參照上面的步驟和圖片正確的設定</p>
+<p>可以用 certbot certificates 來驗證看看</p>
+<pre tabindex="0"><code>administrator@ubuntu:~$ sudo certbot certificates
+Saving debug log to /var/log/letsencrypt/letsencrypt.log
+
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Found the following certs:
+  Certificate Name: abc.com
+    Domains: abc.com *.abc.com
+    Expiry Date: 2020-12-01 05:31:31+00:00 (VALID: 89 days)
+    Certificate Path: /etc/letsencrypt/live/abc.com/fullchain.pem
+    Private Key Path: /etc/letsencrypt/live/abc.com/privkey.pem
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+</code></pre><p>之後就可以用</p>
+<pre tabindex="0"><code>sudo certbot renew
+</code></pre><p>來更新憑證</p>
+<p>寫到/etc/crontab 去排程每個月的1號自動更新</p>
+<pre tabindex="0"><code>administrator@ubuntu:~$ echo &#34;* * 1 * * root /usr/bin/certbot renew&#34; |sudo tee -a /etc/crontab
+* * 1 * * root /usr/bin/certbot renew
+administrator@ubuntu:~$ 
+</code></pre><p>接下來就等三個月之後，檢查看看憑證是否有自動更新了！</p>
+</section>
+
+
+    <footer class="article-footer">
+    
+    <section class="article-tags">
+        
+            <a href="/tags/certbot/">certbot</a>
+        
+            <a href="/tags/cloudflare/">Cloudflare</a>
+        
+            <a href="/tags/letsencrypt/">Letsencrypt</a>
+        
+    </section>
+
+
+    </footer>
+
+
+    
+</article>
+
+    
+
+    
+
+     
+    
+        
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+        2023 My New Hugo Site
+    </section>
+    
+    <section class="powerby">
+        Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
+        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.16.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+    </section>
+</footer>
+
+
+    
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.min.css"crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css"crossorigin="anonymous"
+            >
+
+            </main>
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.6/dist/vibrant.min.js"integrity="sha256-awcR2jno4kI5X0zL8ex0vi2z&#43;KMkF24hUW8WePSA9HM="crossorigin="anonymous"
+                
+                >
+            </script><script type="text/javascript" src="/ts/main.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>

@@ -1,0 +1,1426 @@
+<!DOCTYPE html>
+<html lang="en-us" dir="ltr">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='前幾天在淘寶上買了個 SSK 的USB 3.1 Gen2 (type-c) NVME SSD 外接盒 手邊也剛好有一條多的intel 600p nvme ssd 就順手來做個比較 目標是看看有沒有可能直接用外接的SSD來跑postgresql
+'>
+<meta name="keywords" content="USB 3.1 Gen2 NVME SSD, NVME SSD, benchmark"><title>[筆記] 測試 USB 3.1 Gen2 NVME SSD 外接盒 &amp; 內建pci-e ssd &amp; 外接SATA SSD / Bencmark With External Internal Nvme Ssd and External Sata Ssd</title>
+
+<link rel='canonical' href='https://h.cowbay.org/p/%E7%AD%86%E8%A8%98-%E6%B8%AC%E8%A9%A6-usb-3.1-gen2-nvme-ssd-%E5%A4%96%E6%8E%A5%E7%9B%92-%E5%85%A7%E5%BB%BApci-e-ssd-%E5%A4%96%E6%8E%A5sata-ssd-/-bencmark-with-external-internal-nvme-ssd-and-external-sata-ssd/'>
+
+<link rel="stylesheet" href="/scss/style.min.8191399262444ab68b72a18c97392f5349be20a1615d77445be51e974c144cff.css"><meta property='og:title' content='[筆記] 測試 USB 3.1 Gen2 NVME SSD 外接盒 &amp; 內建pci-e ssd &amp; 外接SATA SSD / Bencmark With External Internal Nvme Ssd and External Sata Ssd'>
+<meta property='og:description' content='前幾天在淘寶上買了個 SSK 的USB 3.1 Gen2 (type-c) NVME SSD 外接盒 手邊也剛好有一條多的intel 600p nvme ssd 就順手來做個比較 目標是看看有沒有可能直接用外接的SSD來跑postgresql
+'>
+<meta property='og:url' content='https://h.cowbay.org/p/%E7%AD%86%E8%A8%98-%E6%B8%AC%E8%A9%A6-usb-3.1-gen2-nvme-ssd-%E5%A4%96%E6%8E%A5%E7%9B%92-%E5%85%A7%E5%BB%BApci-e-ssd-%E5%A4%96%E6%8E%A5sata-ssd-/-bencmark-with-external-internal-nvme-ssd-and-external-sata-ssd/'>
+<meta property='og:site_name' content='MCの部落'>
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='postgresql' /><meta property='article:tag' content='benchmark' /><meta property='article:tag' content='nvme' /><meta property='article:published_time' content='2019-09-10T14:37:09&#43;08:00'/><meta property='article:modified_time' content='2019-09-10T14:37:09&#43;08:00'/>
+<meta name="twitter:title" content="[筆記] 測試 USB 3.1 Gen2 NVME SSD 外接盒 &amp; 內建pci-e ssd &amp; 外接SATA SSD / Bencmark With External Internal Nvme Ssd and External Sata Ssd">
+<meta name="twitter:description" content="前幾天在淘寶上買了個 SSK 的USB 3.1 Gen2 (type-c) NVME SSD 外接盒 手邊也剛好有一條多的intel 600p nvme ssd 就順手來做個比較 目標是看看有沒有可能直接用外接的SSD來跑postgresql
+">
+<script type="application/javascript">
+var doNotTrack = false;
+if (!doNotTrack) {
+	(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+	(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+	m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+	})(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+	ga('create', 'UA-128770427-1', 'auto');
+	
+	ga('send', 'pageview');
+}
+</script>
+    </head>
+    <body class="
+    article-page
+    ">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "auto");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.documentElement.dataset.scheme = 'dark';
+        } else {
+            document.documentElement.dataset.scheme = 'light';
+        }
+    })();
+</script>
+<div class="container main-container flex on-phone--column extended"><aside class="sidebar left-sidebar sticky ">
+    <button class="hamburger hamburger--spin" type="button" id="toggle-menu" aria-label="切換選單">
+        <span class="hamburger-box">
+            <span class="hamburger-inner"></span>
+        </span>
+    </button>
+
+    <header>
+        
+            
+            <figure class="site-avatar">
+                <a href="/">
+                
+                    
+                    
+                    
+                        
+                        <img src="/img/avatar_hu85bfcf0e08404ecf606702eb99c7ed68_43560_300x0_resize_box_3.png" width="300"
+                            height="300" class="site-logo" loading="lazy" alt="Avatar">
+                    
+                
+                </a>
+                
+                    <span class="emoji">🍥</span>
+                
+            </figure>
+            
+        
+        
+        <div class="site-meta">
+            <h1 class="site-name"><a href="/">MCの部落</a></h1>
+            <h2 class="site-description">讀過兩年書，塵世中一個迷途小書僮</h2>
+        </div>
+    </header><ol class="social-menu">
+            
+                <li>
+                    <a 
+                        href='https://www.facebook.com'
+                        target="_blank"
+                        title="facebook"
+                        rel="me"
+                    >
+                        
+                        
+                            <?xml version="1.0" encoding="iso-8859-1"?>
+<!-- Uploaded to: SVG Repo, www.svgrepo.com, Generator: SVG Repo Mixer Tools -->
+<svg height="800px" width="800px" version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" 
+	 viewBox="0 0 512 512" xml:space="preserve">
+<path style="fill:#385C8E;" d="M134.941,272.691h56.123v231.051c0,4.562,3.696,8.258,8.258,8.258h95.159
+	c4.562,0,8.258-3.696,8.258-8.258V273.78h64.519c4.195,0,7.725-3.148,8.204-7.315l9.799-85.061c0.269-2.34-0.472-4.684-2.038-6.44
+	c-1.567-1.757-3.81-2.763-6.164-2.763h-74.316V118.88c0-16.073,8.654-24.224,25.726-24.224c2.433,0,48.59,0,48.59,0
+	c4.562,0,8.258-3.698,8.258-8.258V8.319c0-4.562-3.696-8.258-8.258-8.258h-66.965C309.622,0.038,308.573,0,307.027,0
+	c-11.619,0-52.006,2.281-83.909,31.63c-35.348,32.524-30.434,71.465-29.26,78.217v62.352h-58.918c-4.562,0-8.258,3.696-8.258,8.258
+	v83.975C126.683,268.993,130.379,272.691,134.941,272.691z"/>
+</svg>
+                        
+                    </a>
+                </li>
+            
+                <li>
+                    <a 
+                        href='https://github.com/CaiJimmy/hugo-theme-stack'
+                        target="_blank"
+                        title="GitHub"
+                        rel="me"
+                    >
+                        
+                        
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-github" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M9 19c-4.3 1.4 -4.3 -2.5 -6 -3m12 5v-3.5c0 -1 .1 -1.4 -.5 -2c2.8 -.3 5.5 -1.4 5.5 -6a4.6 4.6 0 0 0 -1.3 -3.2a4.2 4.2 0 0 0 -.1 -3.2s-1.1 -.3 -3.5 1.3a12.3 12.3 0 0 0 -6.2 0c-2.4 -1.6 -3.5 -1.3 -3.5 -1.3a4.2 4.2 0 0 0 -.1 3.2a4.6 4.6 0 0 0 -1.3 3.2c0 4.6 2.7 5.7 5.5 6c-.6 .6 -.6 1.2 -.5 2v3.5" />
+</svg>
+
+
+
+                        
+                    </a>
+                </li>
+            
+                <li>
+                    <a 
+                        href='https://twitter.com'
+                        target="_blank"
+                        title="Twitter"
+                        rel="me"
+                    >
+                        
+                        
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-twitter" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M22 4.01c-1 .49 -1.98 .689 -3 .99c-1.121 -1.265 -2.783 -1.335 -4.38 -.737s-2.643 2.06 -2.62 3.737v1c-3.245 .083 -6.135 -1.395 -8 -4c0 0 -4.182 7.433 4 11c-1.872 1.247 -3.739 2.088 -6 2c3.308 1.803 6.913 2.423 10.034 1.517c3.58 -1.04 6.522 -3.723 7.651 -7.742a13.84 13.84 0 0 0 .497 -3.753c-.002 -.249 1.51 -2.772 1.818 -4.013z" />
+</svg>
+
+
+
+                        
+                    </a>
+                </li>
+            
+        </ol><ol class="menu" id="main-menu">
+        
+        
+        
+        <li >
+            <a href='/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-home" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="5 12 3 12 12 3 21 12 19 12" />
+  <path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-7" />
+  <path d="M9 21v-6a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v6" />
+</svg>
+
+
+
+                
+                <span>Home</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/about/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-user" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="7" r="4" />
+  <path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2" />
+</svg>
+
+
+
+                
+                <span>About</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/archives/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-archive" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <rect x="3" y="4" width="18" height="4" rx="2" />
+  <path d="M5 8v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-10" />
+  <line x1="10" y1="12" x2="14" y2="12" />
+</svg>
+
+
+
+                
+                <span>Archives</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/search/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="10" cy="10" r="7" />
+  <line x1="21" y1="21" x2="15" y2="15" />
+</svg>
+
+
+
+                
+                <span>Search</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/links/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-link" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M10 14a3.5 3.5 0 0 0 5 0l4 -4a3.5 3.5 0 0 0 -5 -5l-.5 .5" />
+  <path d="M14 10a3.5 3.5 0 0 0 -5 0l-4 4a3.5 3.5 0 0 0 5 5l.5 -.5" />
+</svg>
+
+
+
+                
+                <span>Links</span>
+            </a>
+        </li>
+        
+
+        <div class="menu-bottom-section">
+                <li id="i18n-switch">  
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-language" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M4 5h7" />
+  <path d="M9 3v2c0 4.418 -2.239 8 -5 8" />
+  <path d="M5 9c-.003 2.144 2.952 3.908 6.7 4" />
+  <path d="M12 20l4 -9l4 9" />
+  <path d="M19.1 18h-6.2" />
+</svg>
+
+
+
+                    <select name="language" onchange="window.location.href = this.selectedOptions[0].value">
+                        
+                            <option value="https://h.cowbay.org/" selected>中文</option>
+                        
+                            <option value="https://h.cowbay.org/en/" >English</option>
+                        
+                    </select>
+                </li>
+            
+            
+            
+                <li id="dark-mode-toggle">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="8" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="16" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                    <span>夜晚模式</span>
+                </li>
+            
+        </div>
+    </ol>
+</aside>
+
+    <aside class="sidebar right-sidebar sticky">
+        
+            
+                
+    <section class="widget archives">
+        <div class="widget-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <line x1="5" y1="9" x2="19" y2="9" />
+  <line x1="5" y1="15" x2="19" y2="15" />
+  <line x1="11" y1="4" x2="7" y2="20" />
+  <line x1="17" y1="4" x2="13" y2="20" />
+</svg>
+
+
+
+        </div>
+        <h2 class="widget-title section-title">目錄</h2>
+        
+        <div class="widget--toc">
+            <nav id="TableOfContents">
+  <ol>
+    <li>
+      <ol>
+        <li>
+          <ol>
+            <li><a href="#fdisk">fdisk</a></li>
+            <li><a href="#inxi">inxi</a></li>
+            <li><a href="#dmesg">dmesg</a></li>
+            <li><a href="#直接測試吧">直接測試吧</a></li>
+            <li><a href="#用iobench-測試看看">用iobench 測試看看</a></li>
+            <li><a href="#跑看看pgbench-">跑看看pgbench ??</a></li>
+            <li><a href="#data_directory-in-internal-pcie-ssd">data_directory in internal pcie-ssd</a></li>
+            <li><a href="#data_directory-in-external-nvme-ssd">data_directory in external NVME SSD</a></li>
+            <li><a href="#restore-5g-database-with-internal-pci-e-nvme-ssd">restore 5G database with internal pci-e nvme ssd</a></li>
+          </ol>
+        </li>
+      </ol>
+    </li>
+  </ol>
+</nav>
+        </div>
+    </section>
+
+            
+        
+    </aside>
+
+
+            <main class="main full-width">
+    <article class="main-article">
+    <header class="article-header">
+
+    <div class="article-details">
+    
+    <header class="article-category">
+        
+            <a href="/categories/%E7%AD%86%E8%A8%98/" >
+                筆記
+            </a>
+        
+    </header>
+    
+
+    <div class="article-title-wrapper">
+        <h2 class="article-title">
+            <a href="/p/%E7%AD%86%E8%A8%98-%E6%B8%AC%E8%A9%A6-usb-3.1-gen2-nvme-ssd-%E5%A4%96%E6%8E%A5%E7%9B%92-%E5%85%A7%E5%BB%BApci-e-ssd-%E5%A4%96%E6%8E%A5sata-ssd-/-bencmark-with-external-internal-nvme-ssd-and-external-sata-ssd/">[筆記] 測試 USB 3.1 Gen2 NVME SSD 外接盒 &amp; 內建pci-e ssd &amp; 外接SATA SSD / Bencmark With External Internal Nvme Ssd and External Sata Ssd</a>
+        </h2>
+    
+        
+    </div>
+
+    
+    
+    
+    
+    <footer class="article-time">
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M11.795 21h-6.795a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
+  <circle cx="18" cy="18" r="4" />
+  <path d="M15 3v4" />
+  <path d="M7 3v4" />
+  <path d="M3 11h16" />
+  <path d="M18 16.496v1.504l1 1" />
+</svg>
+                <time class="article-time--published">2019-09-09</time>
+            </div>
+        
+
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+                <time class="article-time--reading">
+                    閱讀時間: 6 分鐘
+                </time>
+            </div>
+        
+    </footer>
+    
+
+    
+</div>
+
+</header>
+
+    <section class="article-content">
+    
+    
+    <p>前幾天在淘寶上買了個 SSK 的USB 3.1 Gen2 (type-c) NVME SSD 外接盒
+手邊也剛好有一條多的intel 600p nvme ssd 就順手來做個比較
+目標是看看有沒有可能直接用外接的SSD來跑postgresql</p>
+<p>把600p 裝進去外接盒之後，就先來看一些簡單的資訊
+不過沒想到用了幾個指令，都沒辦法辨別出正確的型號</p>
+<h4 id="fdisk">fdisk</h4>
+<p>沒有看到廠牌、型號</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">2019-09-10 13:20:55 [minion@hqdc075 ~]$ sudo fdisk /dev/sdb
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">Welcome to fdisk (util-linux 2.31.1).
+</span></span><span class="line"><span class="cl">Changes will remain in memory only, until you decide to write them.
+</span></span><span class="line"><span class="cl">Be careful before using the write command.
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">Command (m for help): p
+</span></span><span class="line"><span class="cl">Disk /dev/sdb: 238.5 GiB, 256060514304 bytes, 500118192 sectors
+</span></span><span class="line"><span class="cl">Units: sectors of 1 * 512 = 512 bytes
+</span></span><span class="line"><span class="cl">Sector size (logical/physical): 512 bytes / 4096 bytes
+</span></span><span class="line"><span class="cl">I/O size (minimum/optimal): 4096 bytes / 4096 bytes
+</span></span><span class="line"><span class="cl">Disklabel type: dos
+</span></span><span class="line"><span class="cl">Disk identifier: 0x59511d8e
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">Device     Boot Start       End   Sectors   Size Id Type
+</span></span><span class="line"><span class="cl">/dev/sdb1        2048 500118191 500116144 238.5G 83 Linux
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">Command (m for help): q
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h4 id="inxi">inxi</h4>
+<p>內接的intel ssd 有看到，不過外接的這顆SSD沒有model 可是可以看到序號
+我在想這個序號應該是外接盒的序號，而不是SSD的？</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">2019-09-10 13:21:51 [minion@hqdc075 ~]$ sudo inxi -Dxx
+</span></span><span class="line"><span class="cl">Drives:    HDD Total Size: 640.2GB (11.3% used)
+</span></span><span class="line"><span class="cl">           ID-1: /dev/nvme0n1 model: INTEL_SSDPEKKF256G7L size: 256.1GB serial: BTPYXXXXX firmware: 123P
+</span></span><span class="line"><span class="cl">           ID-2: USB /dev/sda model: SD/MMC size: 128.1GB serial: 201205XXXXXX-0:0 temp: 0C
+</span></span><span class="line"><span class="cl">           ID-3: USB /dev/sdb model: N/A size: 256.1GB serial: DF564XXXXXX:0 temp: 0C
+</span></span><span class="line"><span class="cl">2019-09-10 13:21:55 [minion@hqdc075 ~]$
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h4 id="dmesg">dmesg</h4>
+<p>一樣，也是認不出 SSD ，但是有抓到外接盒</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">[16622.930915] hub 4-0:1.0: USB hub found
+</span></span><span class="line"><span class="cl">[16622.930926] hub 4-0:1.0: 2 ports detected
+</span></span><span class="line"><span class="cl">[16623.372533] usb 4-1: new SuperSpeedPlus Gen 2 USB device number 2 using xhci_hcd
+</span></span><span class="line"><span class="cl">[16623.393844] usb 4-1: New USB device found, idVendor=152d, idProduct=0562, bcdDevice= 2.04
+</span></span><span class="line"><span class="cl">[16623.393849] usb 4-1: New USB device strings: Mfr=1, Product=2, SerialNumber=3
+</span></span><span class="line"><span class="cl">[16623.393853] usb 4-1: Product: SSK Storage
+</span></span><span class="line"><span class="cl">[16623.393856] usb 4-1: Manufacturer: SSK
+</span></span><span class="line"><span class="cl">[16623.393858] usb 4-1: SerialNumber: DF56419883B20
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h4 id="直接測試吧">直接測試吧</h4>
+<p>不看型號了，直接測試吧！先切好分割、格式化，然後掛載到 /mnt，再用 dd 測試寫入
+結果如下</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span><span class="lnt">37
+</span><span class="lnt">38
+</span><span class="lnt">39
+</span><span class="lnt">40
+</span><span class="lnt">41
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">2019-09-10 13:24:03 [minion@hqdc075 ~]$ for i in {4,8,16,32,64,128,256,512,1024,2048,4096,8192,16384};do sudo dd if=/dev/zero of=/mnt/&#34;$i&#34;k bs=&#34;$i&#34;k count=1k;done
+</span></span><span class="line"><span class="cl">1024+0 records in
+</span></span><span class="line"><span class="cl">1024+0 records out
+</span></span><span class="line"><span class="cl">4194304 bytes (4.2 MB, 4.0 MiB) copied, 0.013719 s, 306 MB/s
+</span></span><span class="line"><span class="cl">1024+0 records in
+</span></span><span class="line"><span class="cl">1024+0 records out
+</span></span><span class="line"><span class="cl">8388608 bytes (8.4 MB, 8.0 MiB) copied, 0.0123268 s, 681 MB/s
+</span></span><span class="line"><span class="cl">1024+0 records in
+</span></span><span class="line"><span class="cl">1024+0 records out
+</span></span><span class="line"><span class="cl">16777216 bytes (17 MB, 16 MiB) copied, 0.0196891 s, 852 MB/s
+</span></span><span class="line"><span class="cl">1024+0 records in
+</span></span><span class="line"><span class="cl">1024+0 records out
+</span></span><span class="line"><span class="cl">33554432 bytes (34 MB, 32 MiB) copied, 0.0195221 s, 1.7 GB/s
+</span></span><span class="line"><span class="cl">1024+0 records in
+</span></span><span class="line"><span class="cl">1024+0 records out
+</span></span><span class="line"><span class="cl">67108864 bytes (67 MB, 64 MiB) copied, 0.0337692 s, 2.0 GB/s
+</span></span><span class="line"><span class="cl">1024+0 records in
+</span></span><span class="line"><span class="cl">1024+0 records out
+</span></span><span class="line"><span class="cl">134217728 bytes (134 MB, 128 MiB) copied, 0.0644939 s, 2.1 GB/s
+</span></span><span class="line"><span class="cl">1024+0 records in
+</span></span><span class="line"><span class="cl">1024+0 records out
+</span></span><span class="line"><span class="cl">268435456 bytes (268 MB, 256 MiB) copied, 0.131989 s, 2.0 GB/s
+</span></span><span class="line"><span class="cl">1024+0 records in
+</span></span><span class="line"><span class="cl">1024+0 records out
+</span></span><span class="line"><span class="cl">536870912 bytes (537 MB, 512 MiB) copied, 0.257682 s, 2.1 GB/s
+</span></span><span class="line"><span class="cl">1024+0 records in
+</span></span><span class="line"><span class="cl">1024+0 records out
+</span></span><span class="line"><span class="cl">1073741824 bytes (1.1 GB, 1.0 GiB) copied, 0.529154 s, 2.0 GB/s
+</span></span><span class="line"><span class="cl">1024+0 records in
+</span></span><span class="line"><span class="cl">1024+0 records out
+</span></span><span class="line"><span class="cl">2147483648 bytes (2.1 GB, 2.0 GiB) copied, 3.48498 s, 616 MB/s
+</span></span><span class="line"><span class="cl">1024+0 records in
+</span></span><span class="line"><span class="cl">1024+0 records out
+</span></span><span class="line"><span class="cl">4294967296 bytes (4.3 GB, 4.0 GiB) copied, 7.36899 s, 583 MB/s
+</span></span><span class="line"><span class="cl">1024+0 records in
+</span></span><span class="line"><span class="cl">1024+0 records out
+</span></span><span class="line"><span class="cl">8589934592 bytes (8.6 GB, 8.0 GiB) copied, 73.1975 s, 117 MB/s
+</span></span><span class="line"><span class="cl">1024+0 records in
+</span></span><span class="line"><span class="cl">1024+0 records out
+</span></span><span class="line"><span class="cl">17179869184 bytes (17 GB, 16 GiB) copied, 153.142 s, 112 MB/s
+</span></span><span class="line"><span class="cl">2019-09-10 13:28:58 [minion@hqdc075 ~]$
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>可以發現，<strong>當寫入8G檔案的時候，速度開始急遽下降</strong>
+翻了一下google 看到這張表格</p>
+<p><a class="link" href="https://www.anandtech.com/show/10850/the-intel-ssd-600p-512gb-review"  target="_blank" rel="noopener"
+    >https://www.anandtech.com/show/10850/the-intel-ssd-600p-512gb-review</a></p>
+<p>intel 600p 256G 的SLC Cache 只有8.5GB
+合理解釋了為什麼當寫入8G的檔案時，速度會掉那麼慘，跟SATA硬碟差不多了</p>
+<h4 id="用iobench-測試看看">用iobench 測試看看</h4>
+<p>得到一樣的結論，8G左右，就會把cache塞暴，然後掉速</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">2019-09-10 13:44:59 [changch@hqdc075 iobench]$ sudo ./iobench.sh --sync --dir /mnt --megabytes 8192
+</span></span><span class="line"><span class="cl">Target directory: /mnt
+</span></span><span class="line"><span class="cl">Testfile size: 8192 x 1 Megabyte
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">1. Write benchmark without cache
+</span></span><span class="line"><span class="cl">8589934592 bytes (8.6 GB, 8.0 GiB) copied, 36.8695 s, 233 MB/s
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">2. Write benchmark with cache
+</span></span><span class="line"><span class="cl">8589934592 bytes (8.6 GB, 8.0 GiB) copied, 64.1573 s, 134 MB/s
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">3. Read benchmark with dropped cache
+</span></span><span class="line"><span class="cl">8589934592 bytes (8.6 GB, 8.0 GiB) copied, 9.21821 s, 932 MB/s
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">4. Read benchmark without cache drop
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">Start 1 of 5...
+</span></span><span class="line"><span class="cl">8589934592 bytes (8.6 GB, 8.0 GiB) copied, 1.02253 s, 8.4 GB/s
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">Start 2 of 5...
+</span></span><span class="line"><span class="cl">8589934592 bytes (8.6 GB, 8.0 GiB) copied, 0.832002 s, 10.3 GB/s
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">Start 3 of 5...
+</span></span><span class="line"><span class="cl">8589934592 bytes (8.6 GB, 8.0 GiB) copied, 0.81194 s, 10.6 GB/s
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">Start 4 of 5...
+</span></span><span class="line"><span class="cl">8589934592 bytes (8.6 GB, 8.0 GiB) copied, 0.821035 s, 10.5 GB/s
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">Start 5 of 5...
+</span></span><span class="line"><span class="cl">8589934592 bytes (8.6 GB, 8.0 GiB) copied, 0.808803 s, 10.6 GB/s
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">Done.
+</span></span><span class="line"><span class="cl">2019-09-10 13:47:40 [changch@hqdc075 iobench]$
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>那如果不用8G的檔案大小來測試呢？看起來是比較正常一點</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">2019-09-10 13:47:40 [changch@hqdc075 iobench]$ sudo ./iobench.sh --sync --dir /mnt --megabytes 4096
+</span></span><span class="line"><span class="cl">Target directory: /mnt
+</span></span><span class="line"><span class="cl">Testfile size: 4096 x 1 Megabyte
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">1. Write benchmark without cache
+</span></span><span class="line"><span class="cl">4294967296 bytes (4.3 GB, 4.0 GiB) copied, 7.55296 s, 569 MB/s
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">2. Write benchmark with cache
+</span></span><span class="line"><span class="cl">4294967296 bytes (4.3 GB, 4.0 GiB) copied, 20.6237 s, 208 MB/s
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">3. Read benchmark with dropped cache
+</span></span><span class="line"><span class="cl">4294967296 bytes (4.3 GB, 4.0 GiB) copied, 4.63622 s, 926 MB/s
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">4. Read benchmark without cache drop
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">Start 1 of 5...
+</span></span><span class="line"><span class="cl">4294967296 bytes (4.3 GB, 4.0 GiB) copied, 0.518597 s, 8.3 GB/s
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">Start 2 of 5...
+</span></span><span class="line"><span class="cl">4294967296 bytes (4.3 GB, 4.0 GiB) copied, 0.436877 s, 9.8 GB/s
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">Start 3 of 5...
+</span></span><span class="line"><span class="cl">4294967296 bytes (4.3 GB, 4.0 GiB) copied, 0.437854 s, 9.8 GB/s
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">Start 4 of 5...
+</span></span><span class="line"><span class="cl">4294967296 bytes (4.3 GB, 4.0 GiB) copied, 0.420224 s, 10.2 GB/s
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">Start 5 of 5...
+</span></span><span class="line"><span class="cl">4294967296 bytes (4.3 GB, 4.0 GiB) copied, 0.431023 s, 10.0 GB/s
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">Done.
+</span></span><span class="line"><span class="cl">2019-09-10 13:50:09 [changch@hqdc075 iobench]$
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h4 id="跑看看pgbench-">跑看看pgbench ??</h4>
+<p>試試看這次的目標，用 external nvme ssd 跑資料庫，會不會跟放在本機的PCI-E SSD 有所差距？</p>
+<h4 id="data_directory-in-internal-pcie-ssd">data_directory in internal pcie-ssd</h4>
+<p><strong>initialize pgbench database</strong></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">2019-09-10 13:52:35 [minion@hqdc075 ~]$ sudo su - postgres
+</span></span><span class="line"><span class="cl">postgres@hqdc075:~$ createdb pgbench
+</span></span><span class="line"><span class="cl">postgres@hqdc075:~$ pgbench -i -U postgres -s 10 pgbench
+</span></span><span class="line"><span class="cl">NOTICE:  table &#34;pgbench_history&#34; does not exist, skipping
+</span></span><span class="line"><span class="cl">NOTICE:  table &#34;pgbench_tellers&#34; does not exist, skipping
+</span></span><span class="line"><span class="cl">NOTICE:  table &#34;pgbench_accounts&#34; does not exist, skipping
+</span></span><span class="line"><span class="cl">NOTICE:  table &#34;pgbench_branches&#34; does not exist, skipping
+</span></span><span class="line"><span class="cl">creating tables...
+</span></span><span class="line"><span class="cl">100000 of 1000000 tuples (10%) done (elapsed 0.08 s, remaining 0.70 s)
+</span></span><span class="line"><span class="cl">200000 of 1000000 tuples (20%) done (elapsed 0.19 s, remaining 0.75 s)
+</span></span><span class="line"><span class="cl">300000 of 1000000 tuples (30%) done (elapsed 0.36 s, remaining 0.83 s)
+</span></span><span class="line"><span class="cl">400000 of 1000000 tuples (40%) done (elapsed 0.49 s, remaining 0.73 s)
+</span></span><span class="line"><span class="cl">500000 of 1000000 tuples (50%) done (elapsed 0.58 s, remaining 0.58 s)
+</span></span><span class="line"><span class="cl">600000 of 1000000 tuples (60%) done (elapsed 0.75 s, remaining 0.50 s)
+</span></span><span class="line"><span class="cl">700000 of 1000000 tuples (70%) done (elapsed 0.89 s, remaining 0.38 s)
+</span></span><span class="line"><span class="cl">800000 of 1000000 tuples (80%) done (elapsed 0.99 s, remaining 0.25 s)
+</span></span><span class="line"><span class="cl">900000 of 1000000 tuples (90%) done (elapsed 1.11 s, remaining 0.12 s)
+</span></span><span class="line"><span class="cl">1000000 of 1000000 tuples (100%) done (elapsed 1.27 s, remaining 0.00 s)
+</span></span><span class="line"><span class="cl">vacuum...
+</span></span><span class="line"><span class="cl">set primary keys...
+</span></span><span class="line"><span class="cl">done.
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p><strong>run pgbench</strong></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">postgres@hqdc075:~$ pgbench -t 10 -c 100 -S -U postgres pgbench
+</span></span><span class="line"><span class="cl">starting vacuum...end.
+</span></span><span class="line"><span class="cl">transaction type: &lt;builtin: select only&gt;
+</span></span><span class="line"><span class="cl">scaling factor: 10
+</span></span><span class="line"><span class="cl">query mode: simple
+</span></span><span class="line"><span class="cl">number of clients: 100
+</span></span><span class="line"><span class="cl">number of threads: 1
+</span></span><span class="line"><span class="cl">number of transactions per client: 10
+</span></span><span class="line"><span class="cl">number of transactions actually processed: 1000/1000
+</span></span><span class="line"><span class="cl">latency average = 32.118 ms
+</span></span><span class="line"><span class="cl">tps = 3113.559459 (including connections establishing)
+</span></span><span class="line"><span class="cl">tps = 3135.056341 (excluding connections establishing)
+</span></span><span class="line"><span class="cl">postgres@hqdc075:~$ pgbench -t 1000 -c 100 -S -U postgres pgbench
+</span></span><span class="line"><span class="cl">starting vacuum...end.
+</span></span><span class="line"><span class="cl">transaction type: &lt;builtin: select only&gt;
+</span></span><span class="line"><span class="cl">scaling factor: 10
+</span></span><span class="line"><span class="cl">query mode: simple
+</span></span><span class="line"><span class="cl">number of clients: 100
+</span></span><span class="line"><span class="cl">number of threads: 1
+</span></span><span class="line"><span class="cl">number of transactions per client: 1000
+</span></span><span class="line"><span class="cl">number of transactions actually processed: 100000/100000
+</span></span><span class="line"><span class="cl">latency average = 3.753 ms
+</span></span><span class="line"><span class="cl">tps = 26643.223990 (including connections establishing)
+</span></span><span class="line"><span class="cl">tps = 26659.061459 (excluding connections establishing)
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h4 id="data_directory-in-external-nvme-ssd">data_directory in external NVME SSD</h4>
+<p><strong>initialize pgbench database</strong></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">postgres@hqdc075:~$ pgbench -i -U postgres -s 10 pgbench
+</span></span><span class="line"><span class="cl">creating tables...
+</span></span><span class="line"><span class="cl">100000 of 1000000 tuples (10%) done (elapsed 0.08 s, remaining 0.70 s)
+</span></span><span class="line"><span class="cl">200000 of 1000000 tuples (20%) done (elapsed 0.19 s, remaining 0.76 s)
+</span></span><span class="line"><span class="cl">300000 of 1000000 tuples (30%) done (elapsed 0.35 s, remaining 0.81 s)
+</span></span><span class="line"><span class="cl">400000 of 1000000 tuples (40%) done (elapsed 0.49 s, remaining 0.74 s)
+</span></span><span class="line"><span class="cl">500000 of 1000000 tuples (50%) done (elapsed 0.60 s, remaining 0.60 s)
+</span></span><span class="line"><span class="cl">600000 of 1000000 tuples (60%) done (elapsed 0.76 s, remaining 0.51 s)
+</span></span><span class="line"><span class="cl">700000 of 1000000 tuples (70%) done (elapsed 0.89 s, remaining 0.38 s)
+</span></span><span class="line"><span class="cl">800000 of 1000000 tuples (80%) done (elapsed 1.01 s, remaining 0.25 s)
+</span></span><span class="line"><span class="cl">900000 of 1000000 tuples (90%) done (elapsed 1.15 s, remaining 0.13 s)
+</span></span><span class="line"><span class="cl">1000000 of 1000000 tuples (100%) done (elapsed 1.32 s, remaining 0.00 s)
+</span></span><span class="line"><span class="cl">vacuum...
+</span></span><span class="line"><span class="cl">set primary keys...
+</span></span><span class="line"><span class="cl">done.
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p><strong>run pgbench</strong>
+可以看到兩邊的結果其實是差不多的，作為資料庫備份是一定沒有問題
+至於能不能直接作為資料庫空間使用？我想也許可以嘗試看看..</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">postgres@hqdc075:~$ pgbench -t 10 -c 100 -S -U postgres pgbench
+</span></span><span class="line"><span class="cl">starting vacuum...end.
+</span></span><span class="line"><span class="cl">transaction type: &lt;builtin: select only&gt;
+</span></span><span class="line"><span class="cl">scaling factor: 10
+</span></span><span class="line"><span class="cl">query mode: simple
+</span></span><span class="line"><span class="cl">number of clients: 100
+</span></span><span class="line"><span class="cl">number of threads: 1
+</span></span><span class="line"><span class="cl">number of transactions per client: 10
+</span></span><span class="line"><span class="cl">number of transactions actually processed: 1000/1000
+</span></span><span class="line"><span class="cl">latency average = 32.998 ms
+</span></span><span class="line"><span class="cl">tps = 3030.531670 (including connections establishing)
+</span></span><span class="line"><span class="cl">tps = 3051.744292 (excluding connections establishing)
+</span></span><span class="line"><span class="cl">postgres@hqdc075:~$ pgbench -t 1000 -c 100 -S -U postgres pgbench
+</span></span><span class="line"><span class="cl">starting vacuum...end.
+</span></span><span class="line"><span class="cl">transaction type: &lt;builtin: select only&gt;
+</span></span><span class="line"><span class="cl">scaling factor: 10
+</span></span><span class="line"><span class="cl">query mode: simple
+</span></span><span class="line"><span class="cl">number of clients: 100
+</span></span><span class="line"><span class="cl">number of threads: 1
+</span></span><span class="line"><span class="cl">number of transactions per client: 1000
+</span></span><span class="line"><span class="cl">number of transactions actually processed: 100000/100000
+</span></span><span class="line"><span class="cl">latency average = 3.758 ms
+</span></span><span class="line"><span class="cl">tps = 26610.771423 (including connections establishing)
+</span></span><span class="line"><span class="cl">tps = 26626.871871 (excluding connections establishing)
+</span></span><span class="line"><span class="cl">postgres@hqdc075:~$
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>update:</p>
+<p>剛剛看了一下，發現這樣只有測試到 read (select only)
+或許要找找看其他的測試方法</p>
+<hr>
+<p>接下來直接用 restore 測試</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">#### restore 5G database with external nvme ssd
+</span></span><span class="line"><span class="cl">postgres@hqdc075:~$ createdb demo
+</span></span><span class="line"><span class="cl">postgres@hqdc075:~$ time psql demo &lt; /tmp/demo.sql
+</span></span><span class="line"><span class="cl">SET
+</span></span><span class="line"><span class="cl">...
+</span></span><span class="line"><span class="cl">ALTER TABLE
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">real	4m1.184s
+</span></span><span class="line"><span class="cl">user	0m2.894s
+</span></span><span class="line"><span class="cl">sys	0m0.504s
+</span></span><span class="line"><span class="cl">postgres@hqdc075:~$ 
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h4 id="restore-5g-database-with-internal-pci-e-nvme-ssd">restore 5G database with internal pci-e nvme ssd</h4>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">postgres@hqdc075:~$ dropdb demo
+</span></span><span class="line"><span class="cl">postgres@hqdc075:~$ createdb demo
+</span></span><span class="line"><span class="cl">postgres@hqdc075:~$ time psql demo &lt; /tmp/demo.sql
+</span></span><span class="line"><span class="cl">SET
+</span></span><span class="line"><span class="cl">...
+</span></span><span class="line"><span class="cl">ALTER TABLE
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">real	4m1.636s
+</span></span><span class="line"><span class="cl">user	0m2.909s
+</span></span><span class="line"><span class="cl">sys	0m0.612s
+</span></span><span class="line"><span class="cl">postgres@hqdc075:~$ 
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>看起來是沒有什麼區別，那如果是外接的 SATA SSD呢？</p>
+<hr>
+<p>dmesg 看得到型號耶..</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">[23995.478928] usb 2-4: new SuperSpeed Gen 1 USB device number 3 using xhci_hcd
+</span></span><span class="line"><span class="cl">[23995.506134] usb 2-4: New USB device found, idVendor=2109, idProduct=0715, bcdDevice= 3.36
+</span></span><span class="line"><span class="cl">[23995.506141] usb 2-4: New USB device strings: Mfr=1, Product=2, SerialNumber=3
+</span></span><span class="line"><span class="cl">[23995.506145] usb 2-4: Product: 30848
+</span></span><span class="line"><span class="cl">[23995.506149] usb 2-4: Manufacturer: Ugreen
+</span></span><span class="line"><span class="cl">[23995.506153] usb 2-4: SerialNumber: 00000012526D
+</span></span><span class="line"><span class="cl">[23995.512813] scsi host2: uas
+</span></span><span class="line"><span class="cl">[23995.530161] scsi 2:0:0:0: Direct-Access     SanDisk  SDSSDXP240G      R131 PQ: 0 ANSI: 6
+</span></span><span class="line"><span class="cl">[23995.531948] sd 2:0:0:0: Attached scsi generic sg2 type 0
+</span></span><span class="line"><span class="cl">[23995.533820] sd 2:0:0:0: [sdc] 468862128 512-byte logical blocks: (240 GB/224 GiB)
+</span></span><span class="line"><span class="cl">[23995.533986] sd 2:0:0:0: [sdc] Write Protect is off
+</span></span><span class="line"><span class="cl">[23995.533992] sd 2:0:0:0: [sdc] Mode Sense: 2f 00 00 00
+</span></span><span class="line"><span class="cl">[23995.534402] sd 2:0:0:0: [sdc] Write cache: enabled, read cache: enabled, doesn&#39;t support DPO or FUA
+</span></span><span class="line"><span class="cl">[23995.534844] sd 2:0:0:0: [sdc] Optimal transfer size 33553920 bytes
+</span></span><span class="line"><span class="cl">[23995.540806]  sdc:
+</span></span><span class="line"><span class="cl">[23995.544089] sd 2:0:0:0: [sdc] Attached SCSI disk
+</span></span><span class="line"><span class="cl">2019-09-10 14:24:54 [minion@hqdc075 ~]$ 
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p><strong>restore 5G database with external sata SSD</strong></p>
+<p>很意外的，速度居然還是差不多？？</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">postgres@hqdc075:~$ createdb demo
+</span></span><span class="line"><span class="cl">postgres@hqdc075:~$ time psql demo &lt; /tmp/demo.sql
+</span></span><span class="line"><span class="cl">SET
+</span></span><span class="line"><span class="cl">...
+</span></span><span class="line"><span class="cl">ALTER TABLE
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">real	4m9.950s
+</span></span><span class="line"><span class="cl">user	0m2.752s
+</span></span><span class="line"><span class="cl">sys	0m0.640s
+</span></span><span class="line"><span class="cl">postgres@hqdc075:~$
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p><strong>run pgebnech</strong></p>
+<p>這個差很多了，tps 從前面的 26000 掉到剩下 2800 ，差十倍左右！</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">postgres@hqdc075:~$ pgbench -t 10 -c 100 -S -U postgres pgbench
+</span></span><span class="line"><span class="cl">starting vacuum...end.
+</span></span><span class="line"><span class="cl">transaction type: &lt;builtin: select only&gt;
+</span></span><span class="line"><span class="cl">scaling factor: 10
+</span></span><span class="line"><span class="cl">query mode: simple
+</span></span><span class="line"><span class="cl">number of clients: 100
+</span></span><span class="line"><span class="cl">number of threads: 1
+</span></span><span class="line"><span class="cl">number of transactions per client: 10
+</span></span><span class="line"><span class="cl">number of transactions actually processed: 1000/1000
+</span></span><span class="line"><span class="cl">latency average = 35.267 ms
+</span></span><span class="line"><span class="cl">tps = 2835.526770 (including connections establishing)
+</span></span><span class="line"><span class="cl">tps = 2855.642604 (excluding connections establishing)
+</span></span><span class="line"><span class="cl">postgres@hqdc075:~$
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>疑問：</p>
+<ol>
+<li>什麼原因會讓外接/內建 nvme ssd 和外接SATA SSD 在 restore db時，花了差不多時間，但是 tps 差異那麼大呢？</li>
+<li>這樣測試，似乎沒有真正測出外接nvme ssd 跑資料庫時候的效能？</li>
+</ol>
+</section>
+
+
+    <footer class="article-footer">
+    
+    <section class="article-tags">
+        
+            <a href="/tags/postgresql/">postgresql</a>
+        
+            <a href="/tags/benchmark/">benchmark</a>
+        
+            <a href="/tags/nvme/">nvme</a>
+        
+    </section>
+
+
+    
+    <section class="article-copyright">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <path d="M14.5 9a3.5 4 0 1 0 0 6" />
+</svg>
+
+
+
+        <span>Licensed under CC BY-NC-SA 4.0</span>
+    </section>
+    </footer>
+
+
+    
+</article>
+
+    
+
+    
+
+<aside class="related-content--wrapper">
+    <h2 class="section-title">相關文章</h2>
+    <div class="related-content">
+        <div class="flex article-list--tile">
+            
+                
+<article class="has-image">
+    <a href="/p/ubuntu-20.04-install-nvidia-driver-/-cuda-/-postgresql-/-pg_strom/">
+        
+        
+            <div class="article-image">
+                
+                    <img src="https://h.cowbay.org/images/post-default-3.jpg" loading="lazy" data-key="" data-hash="https://h.cowbay.org/images/post-default-3.jpg"/>
+                
+            </div>
+        
+
+        <div class="article-details">
+            <h2 class="article-title">ubuntu 20.04 install nvidia driver / CUDA / postgresql / pg_strom</h2>
+        </div>
+    </a>
+</article>
+
+            
+                
+<article class="has-image">
+    <a href="/p/%E7%AD%86%E8%A8%98-postgresql-%E6%95%88%E8%83%BD%E6%B8%AC%E8%A9%A6-/-postgresql-benchmakr-using-pgbench/">
+        
+        
+            <div class="article-image">
+                
+                    <img src="https://h.cowbay.org/images/post-default-17.jpg" loading="lazy" data-key="" data-hash="https://h.cowbay.org/images/post-default-17.jpg"/>
+                
+            </div>
+        
+
+        <div class="article-details">
+            <h2 class="article-title">[筆記] postgresql 效能測試 / postgresql benchmakr using pgbench</h2>
+        </div>
+    </a>
+</article>
+
+            
+                
+<article class="has-image">
+    <a href="/p/%E7%AD%86%E8%A8%98-%E6%B8%AC%E8%A9%A6-postgresql-%E7%9A%84pg_prewarm-%E5%B0%8D%E6%95%88%E8%83%BD%E7%9A%84%E5%BD%B1%E9%9F%BF-/-test-pg_prewarm-in-postgresql-11/">
+        
+        
+            <div class="article-image">
+                
+                    <img src="https://h.cowbay.org/images/post-default-9.jpg" loading="lazy" data-key="" data-hash="https://h.cowbay.org/images/post-default-9.jpg"/>
+                
+            </div>
+        
+
+        <div class="article-details">
+            <h2 class="article-title">[筆記] 測試 postgresql 的pg_prewarm 對效能的影響 / test pg_prewarm in postgresql 11</h2>
+        </div>
+    </a>
+</article>
+
+            
+                
+<article class="">
+    <a href="/p/%E7%AD%86%E8%A8%98-%E5%9C%A8ubuntu-18.04%E5%AE%89%E8%A3%9Dpsql-11-%E4%BB%A5%E5%8F%8A-pg_auto_failover-/-install-psql-11-and-pg_auto_failover-in-ubuntu-18.04/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">[筆記] 在ubuntu 18.04安裝psql 11 以及 pg_auto_failover / install psql 11 and pg_auto_failover in ubuntu 18.04</h2>
+        </div>
+    </a>
+</article>
+
+            
+                
+<article class="">
+    <a href="/p/%E7%AD%86%E8%A8%98-%E7%94%A8zfs%E7%9A%84snapshot-%E5%BF%AB%E7%85%A7%E5%8A%9F%E8%83%BD%E4%BE%86%E5%81%9A-postgresql-%E7%9A%84%E5%82%99%E4%BB%BD%E9%82%84%E5%8E%9F-/-postgresql-backup-restore-using-zfs-snapshot/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">[筆記] 用zfs的snapshot 快照功能來做 postgresql 的備份還原 / Postgresql Backup Restore Using Zfs Snapshot</h2>
+        </div>
+    </a>
+</article>
+
+            
+        </div>
+    </div>
+</aside>
+
+     
+    
+        
+    <div class="disqus-container">
+    <div id="disqus_thread"></div>
+<script type="application/javascript">
+    window.disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "h-cowbay-org" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+</div>
+
+<style>
+    .disqus-container {
+        background-color: var(--card-background);
+        border-radius: var(--card-border-radius);
+        box-shadow: var(--shadow-l1);
+        padding: var(--card-padding);
+    }
+</style>
+
+<script>
+    window.addEventListener('onColorSchemeChange', (e) => {
+        if (typeof DISQUS == 'object') {
+            DISQUS.reset({
+                reload: true
+            });
+        }
+    })
+</script>
+
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+            2020 - 
+        
+        2023 MCの部落
+    </section>
+    
+    <section class="powerby">
+        
+            鮮衣怒馬少年時 不負韶華行且知 <br/>
+        使用 <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> 建立 <br />
+        主題 <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.16.0">Stack</a></b> 由 <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a> 設計
+    </section>
+</footer>
+
+
+    
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.min.css"crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css"crossorigin="anonymous"
+            >
+
+            </main>
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.6/dist/vibrant.min.js"integrity="sha256-awcR2jno4kI5X0zL8ex0vi2z&#43;KMkF24hUW8WePSA9HM="crossorigin="anonymous"
+                
+                >
+            </script><script type="text/javascript" src="/ts/main.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>

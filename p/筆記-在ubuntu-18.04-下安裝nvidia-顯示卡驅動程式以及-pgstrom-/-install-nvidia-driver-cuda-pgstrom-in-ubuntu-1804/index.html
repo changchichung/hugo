@@ -1,0 +1,1111 @@
+<!DOCTYPE html>
+<html lang="en-us" dir="ltr">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='因為老闆說要試試看用GPU 來跑postgresql 威力
+手邊剛好有一張 geforce gt 720
+一開始沒想太多，看到有這張卡的驅動程式，然後CUDA也有支援
+就直接從桌機拔下來，接去LAB Server ，然後就開始一連串的難關了&amp;hellip;
+'>
+<meta name="keywords" content="nvidia, cuda, pgstrom"><title>[筆記] 在ubuntu 18.04 下安裝nvidia 顯示卡驅動程式以及 pgstrom / Install Nvidia Driver Cuda Pgstrom in Ubuntu 1804</title>
+
+<link rel='canonical' href='https://h.cowbay.org/p/%E7%AD%86%E8%A8%98-%E5%9C%A8ubuntu-18.04-%E4%B8%8B%E5%AE%89%E8%A3%9Dnvidia-%E9%A1%AF%E7%A4%BA%E5%8D%A1%E9%A9%85%E5%8B%95%E7%A8%8B%E5%BC%8F%E4%BB%A5%E5%8F%8A-pgstrom-/-install-nvidia-driver-cuda-pgstrom-in-ubuntu-1804/'>
+
+<link rel="stylesheet" href="/scss/style.min.8191399262444ab68b72a18c97392f5349be20a1615d77445be51e974c144cff.css"><meta property='og:title' content='[筆記] 在ubuntu 18.04 下安裝nvidia 顯示卡驅動程式以及 pgstrom / Install Nvidia Driver Cuda Pgstrom in Ubuntu 1804'>
+<meta property='og:description' content='因為老闆說要試試看用GPU 來跑postgresql 威力
+手邊剛好有一張 geforce gt 720
+一開始沒想太多，看到有這張卡的驅動程式，然後CUDA也有支援
+就直接從桌機拔下來，接去LAB Server ，然後就開始一連串的難關了&amp;hellip;
+'>
+<meta property='og:url' content='https://h.cowbay.org/p/%E7%AD%86%E8%A8%98-%E5%9C%A8ubuntu-18.04-%E4%B8%8B%E5%AE%89%E8%A3%9Dnvidia-%E9%A1%AF%E7%A4%BA%E5%8D%A1%E9%A9%85%E5%8B%95%E7%A8%8B%E5%BC%8F%E4%BB%A5%E5%8F%8A-pgstrom-/-install-nvidia-driver-cuda-pgstrom-in-ubuntu-1804/'>
+<meta property='og:site_name' content='MCの部落'>
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='nvidia' /><meta property='article:published_time' content='2019-08-20T14:51:54&#43;08:00'/><meta property='article:modified_time' content='2019-08-20T14:51:54&#43;08:00'/>
+<meta name="twitter:title" content="[筆記] 在ubuntu 18.04 下安裝nvidia 顯示卡驅動程式以及 pgstrom / Install Nvidia Driver Cuda Pgstrom in Ubuntu 1804">
+<meta name="twitter:description" content="因為老闆說要試試看用GPU 來跑postgresql 威力
+手邊剛好有一張 geforce gt 720
+一開始沒想太多，看到有這張卡的驅動程式，然後CUDA也有支援
+就直接從桌機拔下來，接去LAB Server ，然後就開始一連串的難關了&amp;hellip;
+">
+<script type="application/javascript">
+var doNotTrack = false;
+if (!doNotTrack) {
+	(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+	(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+	m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+	})(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+	ga('create', 'UA-128770427-1', 'auto');
+	
+	ga('send', 'pageview');
+}
+</script>
+    </head>
+    <body class="
+    article-page
+    ">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "auto");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.documentElement.dataset.scheme = 'dark';
+        } else {
+            document.documentElement.dataset.scheme = 'light';
+        }
+    })();
+</script>
+<div class="container main-container flex on-phone--column extended"><aside class="sidebar left-sidebar sticky ">
+    <button class="hamburger hamburger--spin" type="button" id="toggle-menu" aria-label="切換選單">
+        <span class="hamburger-box">
+            <span class="hamburger-inner"></span>
+        </span>
+    </button>
+
+    <header>
+        
+            
+            <figure class="site-avatar">
+                <a href="/">
+                
+                    
+                    
+                    
+                        
+                        <img src="/img/avatar_hu85bfcf0e08404ecf606702eb99c7ed68_43560_300x0_resize_box_3.png" width="300"
+                            height="300" class="site-logo" loading="lazy" alt="Avatar">
+                    
+                
+                </a>
+                
+                    <span class="emoji">🍥</span>
+                
+            </figure>
+            
+        
+        
+        <div class="site-meta">
+            <h1 class="site-name"><a href="/">MCの部落</a></h1>
+            <h2 class="site-description">讀過兩年書，塵世中一個迷途小書僮</h2>
+        </div>
+    </header><ol class="social-menu">
+            
+                <li>
+                    <a 
+                        href='https://www.facebook.com'
+                        target="_blank"
+                        title="facebook"
+                        rel="me"
+                    >
+                        
+                        
+                            <?xml version="1.0" encoding="iso-8859-1"?>
+<!-- Uploaded to: SVG Repo, www.svgrepo.com, Generator: SVG Repo Mixer Tools -->
+<svg height="800px" width="800px" version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" 
+	 viewBox="0 0 512 512" xml:space="preserve">
+<path style="fill:#385C8E;" d="M134.941,272.691h56.123v231.051c0,4.562,3.696,8.258,8.258,8.258h95.159
+	c4.562,0,8.258-3.696,8.258-8.258V273.78h64.519c4.195,0,7.725-3.148,8.204-7.315l9.799-85.061c0.269-2.34-0.472-4.684-2.038-6.44
+	c-1.567-1.757-3.81-2.763-6.164-2.763h-74.316V118.88c0-16.073,8.654-24.224,25.726-24.224c2.433,0,48.59,0,48.59,0
+	c4.562,0,8.258-3.698,8.258-8.258V8.319c0-4.562-3.696-8.258-8.258-8.258h-66.965C309.622,0.038,308.573,0,307.027,0
+	c-11.619,0-52.006,2.281-83.909,31.63c-35.348,32.524-30.434,71.465-29.26,78.217v62.352h-58.918c-4.562,0-8.258,3.696-8.258,8.258
+	v83.975C126.683,268.993,130.379,272.691,134.941,272.691z"/>
+</svg>
+                        
+                    </a>
+                </li>
+            
+                <li>
+                    <a 
+                        href='https://github.com/CaiJimmy/hugo-theme-stack'
+                        target="_blank"
+                        title="GitHub"
+                        rel="me"
+                    >
+                        
+                        
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-github" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M9 19c-4.3 1.4 -4.3 -2.5 -6 -3m12 5v-3.5c0 -1 .1 -1.4 -.5 -2c2.8 -.3 5.5 -1.4 5.5 -6a4.6 4.6 0 0 0 -1.3 -3.2a4.2 4.2 0 0 0 -.1 -3.2s-1.1 -.3 -3.5 1.3a12.3 12.3 0 0 0 -6.2 0c-2.4 -1.6 -3.5 -1.3 -3.5 -1.3a4.2 4.2 0 0 0 -.1 3.2a4.6 4.6 0 0 0 -1.3 3.2c0 4.6 2.7 5.7 5.5 6c-.6 .6 -.6 1.2 -.5 2v3.5" />
+</svg>
+
+
+
+                        
+                    </a>
+                </li>
+            
+                <li>
+                    <a 
+                        href='https://twitter.com'
+                        target="_blank"
+                        title="Twitter"
+                        rel="me"
+                    >
+                        
+                        
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-twitter" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M22 4.01c-1 .49 -1.98 .689 -3 .99c-1.121 -1.265 -2.783 -1.335 -4.38 -.737s-2.643 2.06 -2.62 3.737v1c-3.245 .083 -6.135 -1.395 -8 -4c0 0 -4.182 7.433 4 11c-1.872 1.247 -3.739 2.088 -6 2c3.308 1.803 6.913 2.423 10.034 1.517c3.58 -1.04 6.522 -3.723 7.651 -7.742a13.84 13.84 0 0 0 .497 -3.753c-.002 -.249 1.51 -2.772 1.818 -4.013z" />
+</svg>
+
+
+
+                        
+                    </a>
+                </li>
+            
+        </ol><ol class="menu" id="main-menu">
+        
+        
+        
+        <li >
+            <a href='/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-home" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="5 12 3 12 12 3 21 12 19 12" />
+  <path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-7" />
+  <path d="M9 21v-6a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v6" />
+</svg>
+
+
+
+                
+                <span>Home</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/about/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-user" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="7" r="4" />
+  <path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2" />
+</svg>
+
+
+
+                
+                <span>About</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/archives/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-archive" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <rect x="3" y="4" width="18" height="4" rx="2" />
+  <path d="M5 8v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-10" />
+  <line x1="10" y1="12" x2="14" y2="12" />
+</svg>
+
+
+
+                
+                <span>Archives</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/search/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="10" cy="10" r="7" />
+  <line x1="21" y1="21" x2="15" y2="15" />
+</svg>
+
+
+
+                
+                <span>Search</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/links/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-link" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M10 14a3.5 3.5 0 0 0 5 0l4 -4a3.5 3.5 0 0 0 -5 -5l-.5 .5" />
+  <path d="M14 10a3.5 3.5 0 0 0 -5 0l-4 4a3.5 3.5 0 0 0 5 5l.5 -.5" />
+</svg>
+
+
+
+                
+                <span>Links</span>
+            </a>
+        </li>
+        
+
+        <div class="menu-bottom-section">
+                <li id="i18n-switch">  
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-language" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M4 5h7" />
+  <path d="M9 3v2c0 4.418 -2.239 8 -5 8" />
+  <path d="M5 9c-.003 2.144 2.952 3.908 6.7 4" />
+  <path d="M12 20l4 -9l4 9" />
+  <path d="M19.1 18h-6.2" />
+</svg>
+
+
+
+                    <select name="language" onchange="window.location.href = this.selectedOptions[0].value">
+                        
+                            <option value="https://h.cowbay.org/" selected>中文</option>
+                        
+                            <option value="https://h.cowbay.org/en/" >English</option>
+                        
+                    </select>
+                </li>
+            
+            
+            
+                <li id="dark-mode-toggle">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="8" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="16" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                    <span>夜晚模式</span>
+                </li>
+            
+        </div>
+    </ol>
+</aside>
+
+    <aside class="sidebar right-sidebar sticky">
+        
+            
+                
+    <section class="widget archives">
+        <div class="widget-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <line x1="5" y1="9" x2="19" y2="9" />
+  <line x1="5" y1="15" x2="19" y2="15" />
+  <line x1="11" y1="4" x2="7" y2="20" />
+  <line x1="17" y1="4" x2="13" y2="20" />
+</svg>
+
+
+
+        </div>
+        <h2 class="widget-title section-title">目錄</h2>
+        
+        <div class="widget--toc">
+            <nav id="TableOfContents">
+  <ol>
+    <li>
+      <ol>
+        <li><a href="#安裝-nvidia-driver">安裝 nvidia driver</a></li>
+        <li><a href="#安裝-cuda">安裝 CUDA</a></li>
+        <li><a href="#安裝-postgresql">安裝 postgresql</a></li>
+        <li><a href="#安裝-pgstrom">安裝 pgstrom</a>
+          <ol>
+            <li><a href="#安裝-nvidia-driver-1">安裝 nvidia driver</a></li>
+            <li><a href="#安裝-cuda-1">安裝 CUDA</a></li>
+            <li><a href="#安裝-postgresql-11">安裝 postgresql 11</a></li>
+            <li><a href="#pgstorm">pgstorm</a></li>
+          </ol>
+        </li>
+      </ol>
+    </li>
+    <li><a href="#update">UPDATE</a>
+      <ol>
+        <li>
+          <ol>
+            <li><a href="#postgresql-相關設定">postgresql 相關設定</a></li>
+          </ol>
+        </li>
+      </ol>
+    </li>
+  </ol>
+</nav>
+        </div>
+    </section>
+
+            
+        
+    </aside>
+
+
+            <main class="main full-width">
+    <article class="main-article">
+    <header class="article-header">
+
+    <div class="article-details">
+    
+    <header class="article-category">
+        
+            <a href="/categories/%E7%AD%86%E8%A8%98/" >
+                筆記
+            </a>
+        
+    </header>
+    
+
+    <div class="article-title-wrapper">
+        <h2 class="article-title">
+            <a href="/p/%E7%AD%86%E8%A8%98-%E5%9C%A8ubuntu-18.04-%E4%B8%8B%E5%AE%89%E8%A3%9Dnvidia-%E9%A1%AF%E7%A4%BA%E5%8D%A1%E9%A9%85%E5%8B%95%E7%A8%8B%E5%BC%8F%E4%BB%A5%E5%8F%8A-pgstrom-/-install-nvidia-driver-cuda-pgstrom-in-ubuntu-1804/">[筆記] 在ubuntu 18.04 下安裝nvidia 顯示卡驅動程式以及 pgstrom / Install Nvidia Driver Cuda Pgstrom in Ubuntu 1804</a>
+        </h2>
+    
+        
+    </div>
+
+    
+    
+    
+    
+    <footer class="article-time">
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M11.795 21h-6.795a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
+  <circle cx="18" cy="18" r="4" />
+  <path d="M15 3v4" />
+  <path d="M7 3v4" />
+  <path d="M3 11h16" />
+  <path d="M18 16.496v1.504l1 1" />
+</svg>
+                <time class="article-time--published">2019-08-08</time>
+            </div>
+        
+
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+                <time class="article-time--reading">
+                    閱讀時間: 4 分鐘
+                </time>
+            </div>
+        
+    </footer>
+    
+
+    
+</div>
+
+</header>
+
+    <section class="article-content">
+    
+    
+    <p>因為老闆說要試試看用GPU 來跑postgresql 威力</p>
+<p>手邊剛好有一張 geforce gt 720</p>
+<p>一開始沒想太多，看到有這張卡的驅動程式，然後CUDA也有支援</p>
+<p>就直接從桌機拔下來，接去LAB Server ，然後就開始一連串的難關了&hellip;</p>
+<p>整個過程大致上分為四個步驟</p>
+<h3 id="安裝-nvidia-driver">安裝 nvidia driver</h3>
+<h3 id="安裝-cuda">安裝 CUDA</h3>
+<h3 id="安裝-postgresql">安裝 postgresql</h3>
+<h3 id="安裝-pgstrom">安裝 pgstrom</h3>
+<hr>
+<h4 id="安裝-nvidia-driver-1">安裝 nvidia driver</h4>
+<p>試過幾種方法，最後還是覺得用apt來安裝比較妥當
+先新增repository、update、裝driver</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">sudo add-apt-repository ppa:graphics-drivers/ppa
+</span></span><span class="line"><span class="cl">sudo apt update
+</span></span><span class="line"><span class="cl">sudo apt install ubuntu-drivers-common
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>然後用這個指令</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">ubuntu-drivers devices
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>看一下現在的驅動程式狀態</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">administrator@hqdc032:~/pg-strom$ ubuntu-drivers devices
+</span></span><span class="line"><span class="cl">== /sys/devices/pci0000:00/0000:00:01.0/0000:01:00.0 ==
+</span></span><span class="line"><span class="cl">modalias : pci:v000010DEd00001288sv0000174Bsd0000326Bbc03sc00i00
+</span></span><span class="line"><span class="cl">vendor   : NVIDIA Corporation
+</span></span><span class="line"><span class="cl">model    : GK208B [GeForce GT 720]
+</span></span><span class="line"><span class="cl">driver   : nvidia-driver-410 - third-party free
+</span></span><span class="line"><span class="cl">driver   : nvidia-driver-418 - third-party free
+</span></span><span class="line"><span class="cl">driver   : nvidia-340 - distro non-free
+</span></span><span class="line"><span class="cl">driver   : nvidia-driver-430 - third-party free recommended
+</span></span><span class="line"><span class="cl">driver   : nvidia-driver-390 - third-party free
+</span></span><span class="line"><span class="cl">driver   : nvidia-driver-415 - third-party free
+</span></span><span class="line"><span class="cl">driver   : xserver-xorg-video-nouveau - distro free builtin
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>我這張卡，可以裝到 430 的版本，
+接下來就繼續安裝驅動程式、裝完之後重開機</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">sudo apt install nvidia-driver-430 
+</span></span><span class="line"><span class="cl">sudo reboot 
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>這時候，應該可以看到一些基本資訊</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">lsmod|grep nvidia 
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>大概長這樣</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">nvidia_uvm            798720  0
+</span></span><span class="line"><span class="cl">nvidia_drm             45056  3
+</span></span><span class="line"><span class="cl">nvidia_modeset       1093632  7 nvidia_drm
+</span></span><span class="line"><span class="cl">nvidia              18194432  258 nvidia_uvm,nvidia_modeset
+</span></span><span class="line"><span class="cl">drm_kms_helper        172032  1 nvidia_drm
+</span></span><span class="line"><span class="cl">drm                   401408  6 drm_kms_helper,nvidia_drm
+</span></span><span class="line"><span class="cl">ipmi_msghandler        53248  2 ipmi_devintf,nvidia
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>到這邊 nvidia 驅動程式安裝完成，接下來安裝 cuda</p>
+<h4 id="安裝-cuda-1">安裝 CUDA</h4>
+<p>同樣採用官網下載deb 回來安裝的方法</p>
+<p>到這邊 <a class="link" href="https://developer.nvidia.com/cuda-downloads"  target="_blank" rel="noopener"
+    >https://developer.nvidia.com/cuda-downloads</a></p>
+<p>依照自己的系統選擇</p>
+<p>我選擇 Linux &ndash; x86_64 &ndash; Ubuntu &ndash; 18.04 &ndash; deb(local)</p>
+<p>畫面上就會有安裝步驟，照著做就沒問題了</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">wget https://developer.download.nvidia.com/compute/cuda/repos/ubuntu1804/x86_64/cuda-ubuntu1804.pin
+</span></span><span class="line"><span class="cl">sudo mv cuda-ubuntu1804.pin /etc/apt/preferences.d/cuda-repository-pin-600
+</span></span><span class="line"><span class="cl">wget http://developer.download.nvidia.com/compute/cuda/10.1/Prod/local_installers/cuda-repo-ubuntu1804-10-1-local-10.1.243-418.87.00_1.0-1_amd64.deb
+</span></span><span class="line"><span class="cl">sudo dpkg -i cuda-repo-ubuntu1804-10-1-local-10.1.243-418.87.00_1.0-1_amd64.deb
+</span></span><span class="line"><span class="cl">sudo apt-key add /var/cuda-repo-10-1-local-10.1.243-418.87.00/7fa2af80.pub
+</span></span><span class="line"><span class="cl">sudo apt-get update
+</span></span><span class="line"><span class="cl">sudo apt-get -y install cuda
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>一樣，安裝完成後重新開機，然後來編譯一個 deviceQuery 的小程式來看看資訊</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">cd /usr/local/cuda-10.1/samples/1_Utilities/deviceQuery
+</span></span><span class="line"><span class="cl">sudo make
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>會產生一個叫 deviceQuery 的執行檔，執行後，會有相關資訊</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span><span class="lnt">37
+</span><span class="lnt">38
+</span><span class="lnt">39
+</span><span class="lnt">40
+</span><span class="lnt">41
+</span><span class="lnt">42
+</span><span class="lnt">43
+</span><span class="lnt">44
+</span><span class="lnt">45
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">administrator@hqdc032:/usr/local/cuda-10.1/samples/1_Utilities/deviceQuery$ ./deviceQuery 
+</span></span><span class="line"><span class="cl">./deviceQuery Starting...
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"> CUDA Device Query (Runtime API) version (CUDART static linking)
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">Detected 1 CUDA Capable device(s)
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">Device 0: &#34;GeForce GT 720&#34;
+</span></span><span class="line"><span class="cl">  CUDA Driver Version / Runtime Version          10.1 / 10.1
+</span></span><span class="line"><span class="cl">  CUDA Capability Major/Minor version number:    3.5
+</span></span><span class="line"><span class="cl">  Total amount of global memory:                 1996 MBytes (2093416448 bytes)
+</span></span><span class="line"><span class="cl">  ( 1) Multiprocessors, (192) CUDA Cores/MP:     192 CUDA Cores
+</span></span><span class="line"><span class="cl">  GPU Max Clock rate:                            797 MHz (0.80 GHz)
+</span></span><span class="line"><span class="cl">  Memory Clock rate:                             900 Mhz
+</span></span><span class="line"><span class="cl">  Memory Bus Width:                              64-bit
+</span></span><span class="line"><span class="cl">  L2 Cache Size:                                 524288 bytes
+</span></span><span class="line"><span class="cl">  Maximum Texture Dimension Size (x,y,z)         1D=(65536), 2D=(65536, 65536), 3D=(4096, 4096, 4096)
+</span></span><span class="line"><span class="cl">  Maximum Layered 1D Texture Size, (num) layers  1D=(16384), 2048 layers
+</span></span><span class="line"><span class="cl">  Maximum Layered 2D Texture Size, (num) layers  2D=(16384, 16384), 2048 layers
+</span></span><span class="line"><span class="cl">  Total amount of constant memory:               65536 bytes
+</span></span><span class="line"><span class="cl">  Total amount of shared memory per block:       49152 bytes
+</span></span><span class="line"><span class="cl">  Total number of registers available per block: 65536
+</span></span><span class="line"><span class="cl">  Warp size:                                     32
+</span></span><span class="line"><span class="cl">  Maximum number of threads per multiprocessor:  2048
+</span></span><span class="line"><span class="cl">  Maximum number of threads per block:           1024
+</span></span><span class="line"><span class="cl">  Max dimension size of a thread block (x,y,z): (1024, 1024, 64)
+</span></span><span class="line"><span class="cl">  Max dimension size of a grid size    (x,y,z): (2147483647, 65535, 65535)
+</span></span><span class="line"><span class="cl">  Maximum memory pitch:                          2147483647 bytes
+</span></span><span class="line"><span class="cl">  Texture alignment:                             512 bytes
+</span></span><span class="line"><span class="cl">  Concurrent copy and kernel execution:          Yes with 1 copy engine(s)
+</span></span><span class="line"><span class="cl">  Run time limit on kernels:                     Yes
+</span></span><span class="line"><span class="cl">  Integrated GPU sharing Host Memory:            No
+</span></span><span class="line"><span class="cl">  Support host page-locked memory mapping:       Yes
+</span></span><span class="line"><span class="cl">  Alignment requirement for Surfaces:            Yes
+</span></span><span class="line"><span class="cl">  Device has ECC support:                        Disabled
+</span></span><span class="line"><span class="cl">  Device supports Unified Addressing (UVA):      Yes
+</span></span><span class="line"><span class="cl">  Device supports Compute Preemption:            No
+</span></span><span class="line"><span class="cl">  Supports Cooperative Kernel Launch:            No
+</span></span><span class="line"><span class="cl">  Supports MultiDevice Co-op Kernel Launch:      No
+</span></span><span class="line"><span class="cl">  Device PCI Domain ID / Bus ID / location ID:   0 / 1 / 0
+</span></span><span class="line"><span class="cl">  Compute Mode:
+</span></span><span class="line"><span class="cl">     &lt; Default (multiple host threads can use ::cudaSetDevice() with device simultaneously) &gt;
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">deviceQuery, CUDA Driver = CUDART, CUDA Driver Version = 10.1, CUDA Runtime Version = 10.1, NumDevs = 1
+</span></span><span class="line"><span class="cl">Result = PASS
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>到這邊， CUDA 也安裝完成，再來是簡單的 postgresql 11</p>
+<h4 id="安裝-postgresql-11">安裝 postgresql 11</h4>
+<p>步驟差不多，就是新增repository，然後選擇要安裝的套件，不過套件的選擇和平常安裝postgresql 不太一樣</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">sudo apt install wget ca-certificates
+</span></span><span class="line"><span class="cl">wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | sudo apt-key add -
+</span></span><span class="line"><span class="cl">sudo sh -c &#39;echo &#34;deb http://apt.postgresql.org/pub/repos/apt/ `lsb_release -cs`-pgdg main&#34; &gt;&gt; /etc/apt/sources.list.d/pgdg.list&#39;
+</span></span><span class="line"><span class="cl">sudo apt update
+</span></span><span class="line"><span class="cl">sudo apt install postgresql-client-11 postgresql-11 postgresql-server-dev-11 postgresql-common libicu-dev
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>跑完之後，就直接啟動 postgresql service 就可以了</p>
+<p>再來是最麻煩的 pgstorm</p>
+<h4 id="pgstorm">pgstorm</h4>
+<p>話說，這軟體到底叫啥名字？ pgstrom , pg-strom ? 看起來就像是拼錯字啊！ =.=</p>
+<p><a class="link" href="https://github.com/heterodb/pg-strom"  target="_blank" rel="noopener"
+    >https://github.com/heterodb/pg-strom</a></p>
+<p>先 git clone 回來，然後make、make install</p>
+<p>講是很簡單，但是一開始碰到很多問題，有去github 跟開發團隊回報，幸好有回覆我..</p>
+<p>總之，目前在ubuntu 18.04 + postgresql-11 的環境下編譯是沒有問題了</p>
+<h2 id="update">UPDATE</h2>
+<p>今天拿到一張 GTX 1050 ti ，想說終於可以來測試看看 pg_strom 了</p>
+<p>不過發現在ubuntu 底下，照著這篇操作還是會有問題</p>
+<p>在做完git clone 要 make 之前，要先執行底下兩行指令</p>
+<p>其中的 11 是 postgresql 版本，要依照自己安裝的版本做調整</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">sudo ln -snf /usr/lib/postgresql/11/lib/libpgcommon.a /usr/lib/x86_64-linux-gnu/libpgcommon.a
+</span></span><span class="line"><span class="cl">sudo ln -snf /usr/lib/postgresql/11/lib/libpgport.a /usr/lib/x86_64-linux-gnu/libpgport.a
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>接著再去 make 就沒問題了</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">git clone https://github.com/heterodb/pg-strom.git
+</span></span><span class="line"><span class="cl">cd pg-strom
+</span></span><span class="line"><span class="cl">make &amp;&amp; sudo make install
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>再來設定一下 postgresql</p>
+<h4 id="postgresql-相關設定">postgresql 相關設定</h4>
+<p>需要修改一下postgresql.conf，來指定載入 pgstrom 的 library</p>
+<p>官方是這麼說的</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-v" data-lang="v"><span class="line"><span class="cl"><span class="nc">PG</span><span class="o">-</span><span class="nc">Strom</span> <span class="kn">module</span> <span class="nv">must</span> <span class="nv">be</span> <span class="nv">loaded</span> <span class="nv">on</span> <span class="nv">startup</span> <span class="nv">of</span> <span class="nv">the</span> <span class="nv">postmaster</span> <span class="nv">process</span> <span class="nv">by</span> <span class="nv">the</span> <span class="nv">shared_preload_libraries</span><span class="p">.</span> <span class="nc">Unable</span> <span class="nv">to</span> <span class="nv">load</span> <span class="vm">it</span> <span class="nv">on</span> <span class="nv">demand</span><span class="p">.</span> <span class="nc">Therefore</span><span class="p">,</span> <span class="nv">you</span> <span class="nv">must</span> <span class="nv">add</span> <span class="nv">the</span> <span class="nv">configuration</span> <span class="nv">below</span><span class="p">.</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>修改 /etc/postgresql/11/main/postgresql.conf
+加入一行</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">shared_preload_libraries = &#39;$libdir/pg_strom&#39;
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>然後還有其他三個要修改，不過這個不改不會影響pgstrom 的啟動</p>
+<p>看狀況要不要修改吧</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">max_worker_processes = 100
+</span></span><span class="line"><span class="cl">shared_buffers = 10GB
+</span></span><span class="line"><span class="cl">work_mem = 1GB
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>修改完後，重新啟動 postgresql service 有沒有很感動！？我終於可以享受用GPU跑SQL Query 的快感啦！！！</p>
+<p>咦？？等等，為什麼postgresql service 沒起來！？</p>
+<p>看一下 /var/log/syslog</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">Aug 20 14:23:43 hqdc032 postgresql@11-main[11801]: Error: /usr/lib/postgresql/11/bin/pg_ctl /usr/lib/postgresql/11/bin/pg_ctl start -D /var/lib/postgresql/11/main -l /var/log/postgresql/postgresql-11-main.log -s -o  -c config_file=&#34;/etc/postgresql/11/main/postgresql.conf&#34;  exited with status 1:
+</span></span><span class="line"><span class="cl">Aug 20 14:23:43 hqdc032 postgresql@11-main[11801]: 2019-08-20 14:23:43.538 CST [11806] LOG:  PG-Strom version 2.2 built for PostgreSQL 11
+</span></span><span class="line"><span class="cl">Aug 20 14:23:43 hqdc032 postgresql@11-main[11801]: 2019-08-20 14:23:43.565 CST [11806] LOG:  PG-Strom: GPU0 GeForce GT 720 - CC 3.5 is not supported
+</span></span><span class="line"><span class="cl">Aug 20 14:23:43 hqdc032 postgresql@11-main[11801]: 2019-08-20 14:23:43.565 CST [11806] FATAL:  PG-Strom: no supported GPU devices found
+</span></span><span class="line"><span class="cl">Aug 20 14:23:43 hqdc032 postgresql@11-main[11801]: 2019-08-20 14:23:43.565 CST [11806] LOG:  database system is shut down
+</span></span><span class="line"><span class="cl">Aug 20 14:23:43 hqdc032 postgresql@11-main[11801]: pg_ctl: could not start server
+</span></span><span class="line"><span class="cl">Aug 20 14:23:43 hqdc032 postgresql@11-main[11801]: Examine the log output.
+</span></span><span class="line"><span class="cl">Aug 20 14:23:43 hqdc032 systemd[1]: postgresql@11-main.service: Can&#39;t open PID file /run/postgresql/11-main.pid (yet?) after start: No such file or directory
+</span></span><span class="line"><span class="cl">Aug 20 14:23:43 hqdc032 systemd[1]: postgresql@11-main.service: Failed with result &#39;protocol&#39;.
+</span></span><span class="line"><span class="cl">Aug 20 14:23:43 hqdc032 systemd[1]: Failed to start PostgreSQL Cluster 11-main.
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>啊幹！pg-strom 不支援這張GT 720啦！</p>
+<p><a class="link" href="https://github.com/heterodb/pg-strom/wiki/001:-GPU-Availability-Matrix"  target="_blank" rel="noopener"
+    >https://github.com/heterodb/pg-strom/wiki/001:-GPU-Availability-Matrix</a></p>
+<p>簡單說，就是至少從 GTX 1080 起跳，其他都不用想了</p>
+<p>幹，花了兩天的時間在弄這東西，結果明明一開始就應該要先檢查的相容列表卻沒有檢查&hellip;</p>
+<p>好了，現在就看准不准我買一張 GTX 1080 來測試了&hellip;.</p>
+<p>只是這價格嘛&hellip;嗯咳，不是我該煩惱的問題了..</p>
+</section>
+
+
+    <footer class="article-footer">
+    
+    <section class="article-tags">
+        
+            <a href="/tags/nvidia/">nvidia</a>
+        
+    </section>
+
+
+    
+    <section class="article-copyright">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <path d="M14.5 9a3.5 4 0 1 0 0 6" />
+</svg>
+
+
+
+        <span>Licensed under CC BY-NC-SA 4.0</span>
+    </section>
+    </footer>
+
+
+    
+</article>
+
+    
+
+    
+
+<aside class="related-content--wrapper">
+    <h2 class="section-title">相關文章</h2>
+    <div class="related-content">
+        <div class="flex article-list--tile">
+            
+                
+<article class="has-image">
+    <a href="/p/ubuntu-20.04-install-nvidia-driver-/-cuda-/-postgresql-/-pg_strom/">
+        
+        
+            <div class="article-image">
+                
+                    <img src="https://h.cowbay.org/images/post-default-3.jpg" loading="lazy" data-key="" data-hash="https://h.cowbay.org/images/post-default-3.jpg"/>
+                
+            </div>
+        
+
+        <div class="article-details">
+            <h2 class="article-title">ubuntu 20.04 install nvidia driver / CUDA / postgresql / pg_strom</h2>
+        </div>
+    </a>
+</article>
+
+            
+                
+<article class="has-image">
+    <a href="/p/%E5%8F%88%E5%8F%88%E5%8F%88%E5%8F%88%E9%87%8D%E5%BC%84%E4%BA%86%E4%B8%80%E6%AC%A1%E9%83%A8%E8%90%BD%E6%A0%BC-/-restore-blog-again/">
+        
+        
+            <div class="article-image">
+                
+                    <img src="https://h.cowbay.org/images/post-default-2.jpg" loading="lazy" data-key="" data-hash="https://h.cowbay.org/images/post-default-2.jpg"/>
+                
+            </div>
+        
+
+        <div class="article-details">
+            <h2 class="article-title">又又又又重弄了一次部落格 / Restore Blog Again</h2>
+        </div>
+    </a>
+</article>
+
+            
+                
+<article class="has-image">
+    <a href="/p/%E7%AD%86%E8%A8%98-phicomm-%E6%96%90%E8%A8%8A-n1-%E6%95%91%E7%A3%9A%E7%9A%84%E6%96%B9%E6%B3%95/-how-to-save-bricked-n1-router/">
+        
+        
+            <div class="article-image">
+                
+                    <img src="https://h.cowbay.org/images/post-default-14.jpg" loading="lazy" data-key="" data-hash="https://h.cowbay.org/images/post-default-14.jpg"/>
+                
+            </div>
+        
+
+        <div class="article-details">
+            <h2 class="article-title">[筆記] Phicomm 斐訊 N1 救磚的方法/ How to Save Bricked N1 Router</h2>
+        </div>
+    </a>
+</article>
+
+            
+                
+<article class="has-image">
+    <a href="/p/init-script-in-openwrt-to-start-leproxy/%E5%9C%A8openwrt-%E6%96%B0%E5%A2%9E%E8%87%AA%E5%8B%95%E5%95%9F%E5%8B%95leproxy%E7%9A%84script/">
+        
+        
+            <div class="article-image">
+                
+                    <img src="https://h.cowbay.org/images/post-default-17.jpg" loading="lazy" data-key="" data-hash="https://h.cowbay.org/images/post-default-17.jpg"/>
+                
+            </div>
+        
+
+        <div class="article-details">
+            <h2 class="article-title">Init Script in Openwrt to Start Leproxy/在openwrt 新增自動啟動leproxy的script</h2>
+        </div>
+    </a>
+</article>
+
+            
+                
+<article class="has-image">
+    <a href="/p/auto-fetch-wildcard-ssl-certs-with-lego--acme-dns-domain-register-namecheap/">
+        
+        
+            <div class="article-image">
+                
+                    <img src="https://h.cowbay.org/images/post-default-8.jpg" loading="lazy" data-key="" data-hash="https://h.cowbay.org/images/post-default-8.jpg"/>
+                
+            </div>
+        
+
+        <div class="article-details">
+            <h2 class="article-title">auto fetch  Wildcard ssl certs with lego &#43; acme-dns ( Domain Register : Namecheap)</h2>
+        </div>
+    </a>
+</article>
+
+            
+        </div>
+    </div>
+</aside>
+
+     
+    
+        
+    <div class="disqus-container">
+    <div id="disqus_thread"></div>
+<script type="application/javascript">
+    window.disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "h-cowbay-org" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+</div>
+
+<style>
+    .disqus-container {
+        background-color: var(--card-background);
+        border-radius: var(--card-border-radius);
+        box-shadow: var(--shadow-l1);
+        padding: var(--card-padding);
+    }
+</style>
+
+<script>
+    window.addEventListener('onColorSchemeChange', (e) => {
+        if (typeof DISQUS == 'object') {
+            DISQUS.reset({
+                reload: true
+            });
+        }
+    })
+</script>
+
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+            2020 - 
+        
+        2023 MCの部落
+    </section>
+    
+    <section class="powerby">
+        
+            鮮衣怒馬少年時 不負韶華行且知 <br/>
+        使用 <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> 建立 <br />
+        主題 <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.16.0">Stack</a></b> 由 <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a> 設計
+    </section>
+</footer>
+
+
+    
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.min.css"crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css"crossorigin="anonymous"
+            >
+
+            </main>
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.6/dist/vibrant.min.js"integrity="sha256-awcR2jno4kI5X0zL8ex0vi2z&#43;KMkF24hUW8WePSA9HM="crossorigin="anonymous"
+                
+                >
+            </script><script type="text/javascript" src="/ts/main.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>

@@ -1,0 +1,1210 @@
+<!DOCTYPE html>
+<html lang="en-us" dir="ltr">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='很久以前就有看到這個用來備份postgresql 的 pgbarman
+https://www.pgbarman.org/
+前幾天老闆在slack 上面又提到，所以這次就花了點時間來玩玩看
+不過呢，雖然有弄起來，但是還真不知道有些問題是怎麼解決的&amp;hellip;
+'>
+<meta name="keywords" content="pgbarman, postgresql"><title>[筆記] 在Ubuntu 18.04 下 透過 pgbarman streaming backup 備份 postgresql 10/ backup postgresql 10 with pgbarman straming backup in ubuntu 18.04</title>
+
+<link rel='canonical' href='https://h.cowbay.org/p/%E7%AD%86%E8%A8%98-%E5%9C%A8ubuntu-18.04-%E4%B8%8B-%E9%80%8F%E9%81%8E-pgbarman-streaming-backup-%E5%82%99%E4%BB%BD-postgresql-10/-backup-postgresql-10-with-pgbarman-straming-backup-in-ubuntu-18.04/'>
+
+<link rel="stylesheet" href="/scss/style.min.8191399262444ab68b72a18c97392f5349be20a1615d77445be51e974c144cff.css"><meta property='og:title' content='[筆記] 在Ubuntu 18.04 下 透過 pgbarman streaming backup 備份 postgresql 10/ backup postgresql 10 with pgbarman straming backup in ubuntu 18.04'>
+<meta property='og:description' content='很久以前就有看到這個用來備份postgresql 的 pgbarman
+https://www.pgbarman.org/
+前幾天老闆在slack 上面又提到，所以這次就花了點時間來玩玩看
+不過呢，雖然有弄起來，但是還真不知道有些問題是怎麼解決的&amp;hellip;
+'>
+<meta property='og:url' content='https://h.cowbay.org/p/%E7%AD%86%E8%A8%98-%E5%9C%A8ubuntu-18.04-%E4%B8%8B-%E9%80%8F%E9%81%8E-pgbarman-streaming-backup-%E5%82%99%E4%BB%BD-postgresql-10/-backup-postgresql-10-with-pgbarman-straming-backup-in-ubuntu-18.04/'>
+<meta property='og:site_name' content='MCの部落'>
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='postgresql' /><meta property='article:tag' content='pgbarman' /><meta property='article:published_time' content='2019-08-23T13:53:40&#43;08:00'/><meta property='article:modified_time' content='2019-08-23T13:53:40&#43;08:00'/>
+<meta name="twitter:title" content="[筆記] 在Ubuntu 18.04 下 透過 pgbarman streaming backup 備份 postgresql 10/ backup postgresql 10 with pgbarman straming backup in ubuntu 18.04">
+<meta name="twitter:description" content="很久以前就有看到這個用來備份postgresql 的 pgbarman
+https://www.pgbarman.org/
+前幾天老闆在slack 上面又提到，所以這次就花了點時間來玩玩看
+不過呢，雖然有弄起來，但是還真不知道有些問題是怎麼解決的&amp;hellip;
+">
+<script type="application/javascript">
+var doNotTrack = false;
+if (!doNotTrack) {
+	(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+	(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+	m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+	})(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+	ga('create', 'UA-128770427-1', 'auto');
+	
+	ga('send', 'pageview');
+}
+</script>
+    </head>
+    <body class="
+    article-page
+    ">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "auto");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.documentElement.dataset.scheme = 'dark';
+        } else {
+            document.documentElement.dataset.scheme = 'light';
+        }
+    })();
+</script>
+<div class="container main-container flex on-phone--column extended"><aside class="sidebar left-sidebar sticky ">
+    <button class="hamburger hamburger--spin" type="button" id="toggle-menu" aria-label="切換選單">
+        <span class="hamburger-box">
+            <span class="hamburger-inner"></span>
+        </span>
+    </button>
+
+    <header>
+        
+            
+            <figure class="site-avatar">
+                <a href="/">
+                
+                    
+                    
+                    
+                        
+                        <img src="/img/avatar_hu85bfcf0e08404ecf606702eb99c7ed68_43560_300x0_resize_box_3.png" width="300"
+                            height="300" class="site-logo" loading="lazy" alt="Avatar">
+                    
+                
+                </a>
+                
+                    <span class="emoji">🍥</span>
+                
+            </figure>
+            
+        
+        
+        <div class="site-meta">
+            <h1 class="site-name"><a href="/">MCの部落</a></h1>
+            <h2 class="site-description">讀過兩年書，塵世中一個迷途小書僮</h2>
+        </div>
+    </header><ol class="social-menu">
+            
+                <li>
+                    <a 
+                        href='https://www.facebook.com'
+                        target="_blank"
+                        title="facebook"
+                        rel="me"
+                    >
+                        
+                        
+                            <?xml version="1.0" encoding="iso-8859-1"?>
+<!-- Uploaded to: SVG Repo, www.svgrepo.com, Generator: SVG Repo Mixer Tools -->
+<svg height="800px" width="800px" version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" 
+	 viewBox="0 0 512 512" xml:space="preserve">
+<path style="fill:#385C8E;" d="M134.941,272.691h56.123v231.051c0,4.562,3.696,8.258,8.258,8.258h95.159
+	c4.562,0,8.258-3.696,8.258-8.258V273.78h64.519c4.195,0,7.725-3.148,8.204-7.315l9.799-85.061c0.269-2.34-0.472-4.684-2.038-6.44
+	c-1.567-1.757-3.81-2.763-6.164-2.763h-74.316V118.88c0-16.073,8.654-24.224,25.726-24.224c2.433,0,48.59,0,48.59,0
+	c4.562,0,8.258-3.698,8.258-8.258V8.319c0-4.562-3.696-8.258-8.258-8.258h-66.965C309.622,0.038,308.573,0,307.027,0
+	c-11.619,0-52.006,2.281-83.909,31.63c-35.348,32.524-30.434,71.465-29.26,78.217v62.352h-58.918c-4.562,0-8.258,3.696-8.258,8.258
+	v83.975C126.683,268.993,130.379,272.691,134.941,272.691z"/>
+</svg>
+                        
+                    </a>
+                </li>
+            
+                <li>
+                    <a 
+                        href='https://github.com/CaiJimmy/hugo-theme-stack'
+                        target="_blank"
+                        title="GitHub"
+                        rel="me"
+                    >
+                        
+                        
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-github" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M9 19c-4.3 1.4 -4.3 -2.5 -6 -3m12 5v-3.5c0 -1 .1 -1.4 -.5 -2c2.8 -.3 5.5 -1.4 5.5 -6a4.6 4.6 0 0 0 -1.3 -3.2a4.2 4.2 0 0 0 -.1 -3.2s-1.1 -.3 -3.5 1.3a12.3 12.3 0 0 0 -6.2 0c-2.4 -1.6 -3.5 -1.3 -3.5 -1.3a4.2 4.2 0 0 0 -.1 3.2a4.6 4.6 0 0 0 -1.3 3.2c0 4.6 2.7 5.7 5.5 6c-.6 .6 -.6 1.2 -.5 2v3.5" />
+</svg>
+
+
+
+                        
+                    </a>
+                </li>
+            
+                <li>
+                    <a 
+                        href='https://twitter.com'
+                        target="_blank"
+                        title="Twitter"
+                        rel="me"
+                    >
+                        
+                        
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-twitter" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M22 4.01c-1 .49 -1.98 .689 -3 .99c-1.121 -1.265 -2.783 -1.335 -4.38 -.737s-2.643 2.06 -2.62 3.737v1c-3.245 .083 -6.135 -1.395 -8 -4c0 0 -4.182 7.433 4 11c-1.872 1.247 -3.739 2.088 -6 2c3.308 1.803 6.913 2.423 10.034 1.517c3.58 -1.04 6.522 -3.723 7.651 -7.742a13.84 13.84 0 0 0 .497 -3.753c-.002 -.249 1.51 -2.772 1.818 -4.013z" />
+</svg>
+
+
+
+                        
+                    </a>
+                </li>
+            
+        </ol><ol class="menu" id="main-menu">
+        
+        
+        
+        <li >
+            <a href='/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-home" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="5 12 3 12 12 3 21 12 19 12" />
+  <path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-7" />
+  <path d="M9 21v-6a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v6" />
+</svg>
+
+
+
+                
+                <span>Home</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/about/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-user" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="7" r="4" />
+  <path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2" />
+</svg>
+
+
+
+                
+                <span>About</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/archives/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-archive" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <rect x="3" y="4" width="18" height="4" rx="2" />
+  <path d="M5 8v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-10" />
+  <line x1="10" y1="12" x2="14" y2="12" />
+</svg>
+
+
+
+                
+                <span>Archives</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/search/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="10" cy="10" r="7" />
+  <line x1="21" y1="21" x2="15" y2="15" />
+</svg>
+
+
+
+                
+                <span>Search</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/links/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-link" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M10 14a3.5 3.5 0 0 0 5 0l4 -4a3.5 3.5 0 0 0 -5 -5l-.5 .5" />
+  <path d="M14 10a3.5 3.5 0 0 0 -5 0l-4 4a3.5 3.5 0 0 0 5 5l.5 -.5" />
+</svg>
+
+
+
+                
+                <span>Links</span>
+            </a>
+        </li>
+        
+
+        <div class="menu-bottom-section">
+                <li id="i18n-switch">  
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-language" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M4 5h7" />
+  <path d="M9 3v2c0 4.418 -2.239 8 -5 8" />
+  <path d="M5 9c-.003 2.144 2.952 3.908 6.7 4" />
+  <path d="M12 20l4 -9l4 9" />
+  <path d="M19.1 18h-6.2" />
+</svg>
+
+
+
+                    <select name="language" onchange="window.location.href = this.selectedOptions[0].value">
+                        
+                            <option value="https://h.cowbay.org/" selected>中文</option>
+                        
+                            <option value="https://h.cowbay.org/en/" >English</option>
+                        
+                    </select>
+                </li>
+            
+            
+            
+                <li id="dark-mode-toggle">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="8" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="16" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                    <span>夜晚模式</span>
+                </li>
+            
+        </div>
+    </ol>
+</aside>
+
+    <aside class="sidebar right-sidebar sticky">
+        
+            
+                
+    <section class="widget archives">
+        <div class="widget-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <line x1="5" y1="9" x2="19" y2="9" />
+  <line x1="5" y1="15" x2="19" y2="15" />
+  <line x1="11" y1="4" x2="7" y2="20" />
+  <line x1="17" y1="4" x2="13" y2="20" />
+</svg>
+
+
+
+        </div>
+        <h2 class="widget-title section-title">目錄</h2>
+        
+        <div class="widget--toc">
+            <nav id="TableOfContents">
+  <ol>
+    <li>
+      <ol>
+        <li>
+          <ol>
+            <li><a href="#設定-postgresql-server">設定 postgresql server</a></li>
+            <li><a href="#設定barman-server">設定barman server</a></li>
+          </ol>
+        </li>
+      </ol>
+    </li>
+  </ol>
+</nav>
+        </div>
+    </section>
+
+            
+        
+    </aside>
+
+
+            <main class="main full-width">
+    <article class="main-article">
+    <header class="article-header">
+
+    <div class="article-details">
+    
+    <header class="article-category">
+        
+            <a href="/categories/%E7%AD%86%E8%A8%98/" >
+                筆記
+            </a>
+        
+    </header>
+    
+
+    <div class="article-title-wrapper">
+        <h2 class="article-title">
+            <a href="/p/%E7%AD%86%E8%A8%98-%E5%9C%A8ubuntu-18.04-%E4%B8%8B-%E9%80%8F%E9%81%8E-pgbarman-streaming-backup-%E5%82%99%E4%BB%BD-postgresql-10/-backup-postgresql-10-with-pgbarman-straming-backup-in-ubuntu-18.04/">[筆記] 在Ubuntu 18.04 下 透過 pgbarman streaming backup 備份 postgresql 10/ backup postgresql 10 with pgbarman straming backup in ubuntu 18.04</a>
+        </h2>
+    
+        
+    </div>
+
+    
+    
+    
+    
+    <footer class="article-time">
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M11.795 21h-6.795a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
+  <circle cx="18" cy="18" r="4" />
+  <path d="M15 3v4" />
+  <path d="M7 3v4" />
+  <path d="M3 11h16" />
+  <path d="M18 16.496v1.504l1 1" />
+</svg>
+                <time class="article-time--published">2019-08-08</time>
+            </div>
+        
+
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+                <time class="article-time--reading">
+                    閱讀時間: 4 分鐘
+                </time>
+            </div>
+        
+    </footer>
+    
+
+    
+</div>
+
+</header>
+
+    <section class="article-content">
+    
+    
+    <p>很久以前就有看到這個用來備份postgresql 的 pgbarman</p>
+<p><a class="link" href="https://www.pgbarman.org/"  target="_blank" rel="noopener"
+    >https://www.pgbarman.org/</a></p>
+<p>前幾天老闆在slack 上面又提到，所以這次就花了點時間來玩玩看</p>
+<p>不過呢，雖然有弄起來，但是還真不知道有些問題是怎麼解決的&hellip;</p>
+<p>pgbarman 的備份有分兩種</p>
+<p>streaming &amp;&amp; rsync/SSH</p>
+<p>原理就不說了，我一直沒搞懂 postgresql 的 streaming ..</p>
+<p>依照官方網站上的說法，比較推薦 streaming 備份的方式</p>
+<p>原因是，設定相對簡單，WTF !</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">On a general basis, starting from Barman 2.0, backup over streaming replication is the recommended setup for PostgreSQL 9.4 or higher
+</span></span><span class="line"><span class="cl">The reason why we recommend streaming backup is that, based on our experience, it is easier to setup than the traditional one
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>事實上呢，設定的確是很簡單，可是有個致命的缺點</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">Because Barman transparently makes use of pg_basebackup, features such as incremental backup, parallel backup, deduplication, and network compression are currently not available. In this case, bandwidth limitation has some restrictions - compared to the traditional method via rsync.
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>如果要做差異/增量備份， streaming backup 不能做</p>
+<p>所以每次備份都是完整備份，也因此，barman server 需要準備很大的硬碟空間</p>
+<p>以我測試的資料庫來說，一次備份，目前是133G ，如果一天四次，保留七天</p>
+<p>就需要 133 x 4 x 7 = 3724G</p>
+<p>咦，這樣看起來，其實也還好啦 XDD</p>
+<hr>
+<p>現在開始設定的部份</p>
+<h4 id="設定-postgresql-server">設定 postgresql server</h4>
+<p>IP: 192.168.11.19
+hostname: hqs019</p>
+<h5 id="在postgresql-建立相關帳號">在postgresql 建立相關帳號</h5>
+<p>streaming backup 需要先在postgresql Server 上建立一個具有 superuser 權限的帳號</p>
+<p>以及一個用來做replication 的資料庫帳號</p>
+<p>這裡就簡單帶過</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">sudo su - postgres
+</span></span><span class="line"><span class="cl">psql
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">create user barman with login superuser login password &#39;barmanpassword&#39;;
+</span></span><span class="line"><span class="cl">CREATE ROLE stream_barman WITH REPLICATION PASSWORD &#39;password&#39; LOGIN;
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h5 id="鄉改-pg_hbaconf">鄉改 pg_hba.conf</h5>
+<p>然後修改 pg_hba.conf，加入底下兩行</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl"># for barman test
+</span></span><span class="line"><span class="cl">host database_name barman 192.168.11.192/32 md5
+</span></span><span class="line"><span class="cl">host replication stream_barman 192.168.11.192/32 md5
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>當然，如果不考慮安全性問題， md5 直接改成用 trust ，可以省去一些麻煩。</p>
+<h5 id="修改-postgresqlconf">修改 postgresql.conf</h5>
+<p>接著修改postgresql.conf</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">### for barman test 
+</span></span><span class="line"><span class="cl">max_wal_senders = 5
+</span></span><span class="line"><span class="cl">max_replication_slots = 3
+</span></span><span class="line"><span class="cl">wal_level = &#39;archive&#39;
+</span></span><span class="line"><span class="cl">archive_mode = on
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>重起 postgresql service</p>
+<h4 id="設定barman-server">設定barman server</h4>
+<p>IP: 192.168.11.192
+hostname: barman</p>
+<h5 id="安裝-barman">安裝 barman</h5>
+<p>barman 在18.04 中，已經被放到標準repository 中</p>
+<p>所以只要直接</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">sudo apt install barman
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>就可以了</p>
+<h5 id="設定-barmanconf">設定 barman.conf</h5>
+<p>安裝完成後，在/etc/barman.d/ 底下會有兩個範例檔案</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">streaming-server.conf-template
+</span></span><span class="line"><span class="cl">ssh-server.conf-template
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>複製 streaming-server 檔案</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">sudo cp /etc/barman.d/streaming-server.conf-template /etc/barman.d/hqs019.conf
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>內容如下</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">[hqs019]
+</span></span><span class="line"><span class="cl">description = &#34;hqs019 &#34;
+</span></span><span class="line"><span class="cl">conninfo = host=192.168.11.19 user=barman dbname=database_name password=barmanpassword
+</span></span><span class="line"><span class="cl">streaming_conninfo = host=192.168.11.19 user=stream_barman dbname=database_name password=password
+</span></span><span class="line"><span class="cl">backup_method = postgres
+</span></span><span class="line"><span class="cl">retention_policy_mode = auto
+</span></span><span class="line"><span class="cl">streaming_archiver = on
+</span></span><span class="line"><span class="cl">slot_name = barman
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>接著修改 /etc/barman.conf</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">[barman]
+</span></span><span class="line"><span class="cl">barman_user = barman
+</span></span><span class="line"><span class="cl">configuration_files_directory = /etc/barman.d
+</span></span><span class="line"><span class="cl">barman_home = /var/lib/barman
+</span></span><span class="line"><span class="cl">log_file = /var/log/barman/barman.log
+</span></span><span class="line"><span class="cl">log_level = DEBUG
+</span></span><span class="line"><span class="cl">compression = gzip
+</span></span><span class="line"><span class="cl">immediate_checkpoint = true
+</span></span><span class="line"><span class="cl">basebackup_retry_times = 3
+</span></span><span class="line"><span class="cl">basebackup_retry_sleep = 30
+</span></span><span class="line"><span class="cl">last_backup_maximum_age = 1 DAYS
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>基本上這樣就設定完成了</p>
+<h5 id="檢查設定">檢查設定</h5>
+<p>barman 有一些指令可以用來檢查目前的設定</p>
+<p>barman show-server hqs019 可以看到所有的設定，這裡的 hqs019 跟 barman.d/hqs019.conf 裡面用&quot;[  ]&quot; 包起來的名稱要一致</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span><span class="lnt">37
+</span><span class="lnt">38
+</span><span class="lnt">39
+</span><span class="lnt">40
+</span><span class="lnt">41
+</span><span class="lnt">42
+</span><span class="lnt">43
+</span><span class="lnt">44
+</span><span class="lnt">45
+</span><span class="lnt">46
+</span><span class="lnt">47
+</span><span class="lnt">48
+</span><span class="lnt">49
+</span><span class="lnt">50
+</span><span class="lnt">51
+</span><span class="lnt">52
+</span><span class="lnt">53
+</span><span class="lnt">54
+</span><span class="lnt">55
+</span><span class="lnt">56
+</span><span class="lnt">57
+</span><span class="lnt">58
+</span><span class="lnt">59
+</span><span class="lnt">60
+</span><span class="lnt">61
+</span><span class="lnt">62
+</span><span class="lnt">63
+</span><span class="lnt">64
+</span><span class="lnt">65
+</span><span class="lnt">66
+</span><span class="lnt">67
+</span><span class="lnt">68
+</span><span class="lnt">69
+</span><span class="lnt">70
+</span><span class="lnt">71
+</span><span class="lnt">72
+</span><span class="lnt">73
+</span><span class="lnt">74
+</span><span class="lnt">75
+</span><span class="lnt">76
+</span><span class="lnt">77
+</span><span class="lnt">78
+</span><span class="lnt">79
+</span><span class="lnt">80
+</span><span class="lnt">81
+</span><span class="lnt">82
+</span><span class="lnt">83
+</span><span class="lnt">84
+</span><span class="lnt">85
+</span><span class="lnt">86
+</span><span class="lnt">87
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">barman@barman:~$ barman show-server hqs019
+</span></span><span class="line"><span class="cl">Server hqs019:
+</span></span><span class="line"><span class="cl">	active: True
+</span></span><span class="line"><span class="cl">	archiver: False
+</span></span><span class="line"><span class="cl">	archiver_batch_size: 0
+</span></span><span class="line"><span class="cl">	backup_directory: /var/lib/barman/hqs019
+</span></span><span class="line"><span class="cl">	backup_method: postgres
+</span></span><span class="line"><span class="cl">	backup_options: BackupOptions([&#39;concurrent_backup&#39;])
+</span></span><span class="line"><span class="cl">	bandwidth_limit: None
+</span></span><span class="line"><span class="cl">	barman_home: /var/lib/barman
+</span></span><span class="line"><span class="cl">	barman_lock_directory: /var/lib/barman
+</span></span><span class="line"><span class="cl">	basebackup_retry_sleep: 30
+</span></span><span class="line"><span class="cl">	basebackup_retry_times: 3
+</span></span><span class="line"><span class="cl">	basebackups_directory: /var/lib/barman/hqs019/base
+</span></span><span class="line"><span class="cl">	check_timeout: 30
+</span></span><span class="line"><span class="cl">	compression: gzip
+</span></span><span class="line"><span class="cl">	config_file: /etc/postgresql/10/main/postgresql.conf
+</span></span><span class="line"><span class="cl">	connection_error: None
+</span></span><span class="line"><span class="cl">	conninfo: host=192.168.11.19 user=barman dbname=database_name password=barmanpassword
+</span></span><span class="line"><span class="cl">	current_size: 142740768562
+</span></span><span class="line"><span class="cl">	current_xlog: 0000000100000264000000BA
+</span></span><span class="line"><span class="cl">	custom_compression_filter: None
+</span></span><span class="line"><span class="cl">	custom_decompression_filter: None
+</span></span><span class="line"><span class="cl">	data_directory: /database
+</span></span><span class="line"><span class="cl">	description: hqs019
+</span></span><span class="line"><span class="cl">	disabled: False
+</span></span><span class="line"><span class="cl">	errors_directory: /var/lib/barman/hqs019/errors
+</span></span><span class="line"><span class="cl">	hba_file: /etc/postgresql/10/main/pg_hba.conf
+</span></span><span class="line"><span class="cl">	ident_file: /etc/postgresql/10/main/pg_ident.conf
+</span></span><span class="line"><span class="cl">	immediate_checkpoint: True
+</span></span><span class="line"><span class="cl">	incoming_wals_directory: /var/lib/barman/hqs019/incoming
+</span></span><span class="line"><span class="cl">	is_in_recovery: False
+</span></span><span class="line"><span class="cl">	is_superuser: True
+</span></span><span class="line"><span class="cl">	last_backup_maximum_age: 1 day (WARNING! latest backup is No available backups old)
+</span></span><span class="line"><span class="cl">	max_incoming_wals_queue: None
+</span></span><span class="line"><span class="cl">	minimum_redundancy: 0
+</span></span><span class="line"><span class="cl">	msg_list: []
+</span></span><span class="line"><span class="cl">	name: hqs019
+</span></span><span class="line"><span class="cl">	network_compression: False
+</span></span><span class="line"><span class="cl">	parallel_jobs: 1
+</span></span><span class="line"><span class="cl">	path_prefix: None
+</span></span><span class="line"><span class="cl">	pg_basebackup_bwlimit: True
+</span></span><span class="line"><span class="cl">	pg_basebackup_compatible: True
+</span></span><span class="line"><span class="cl">	pg_basebackup_installed: True
+</span></span><span class="line"><span class="cl">	pg_basebackup_path: /usr/bin/pg_basebackup
+</span></span><span class="line"><span class="cl">	pg_basebackup_tbls_mapping: True
+</span></span><span class="line"><span class="cl">	pg_basebackup_version: 10.10-0ubuntu0.18.04.1)
+</span></span><span class="line"><span class="cl">	pg_receivexlog_compatible: True
+</span></span><span class="line"><span class="cl">	pg_receivexlog_installed: True
+</span></span><span class="line"><span class="cl">	pg_receivexlog_path: /usr/bin/pg_receivewal
+</span></span><span class="line"><span class="cl">	pg_receivexlog_supports_slots: True
+</span></span><span class="line"><span class="cl">	pg_receivexlog_synchronous: False
+</span></span><span class="line"><span class="cl">	pg_receivexlog_version: 10.10-0ubuntu0.18.04.1)
+</span></span><span class="line"><span class="cl">	pgespresso_installed: False
+</span></span><span class="line"><span class="cl">	post_archive_retry_script: None
+</span></span><span class="line"><span class="cl">	post_archive_script: None
+</span></span><span class="line"><span class="cl">	post_backup_retry_script: None
+</span></span><span class="line"><span class="cl">	post_backup_script: None
+</span></span><span class="line"><span class="cl">	pre_archive_retry_script: None
+</span></span><span class="line"><span class="cl">	pre_archive_script: None
+</span></span><span class="line"><span class="cl">	pre_backup_retry_script: None
+</span></span><span class="line"><span class="cl">	pre_backup_script: None
+</span></span><span class="line"><span class="cl">	recovery_options: RecoveryOptions([])
+</span></span><span class="line"><span class="cl">	replication_slot: Record(slot_name=&#39;barman&#39;, active=True, restart_lsn=&#39;264/BA000000&#39;)
+</span></span><span class="line"><span class="cl">	replication_slot_support: True
+</span></span><span class="line"><span class="cl">	retention_policy: None
+</span></span><span class="line"><span class="cl">	retention_policy_mode: auto
+</span></span><span class="line"><span class="cl">	reuse_backup: None
+</span></span><span class="line"><span class="cl">	server_txt_version: 10.10
+</span></span><span class="line"><span class="cl">	slot_name: barman
+</span></span><span class="line"><span class="cl">	ssh_command: None
+</span></span><span class="line"><span class="cl">	streaming: True
+</span></span><span class="line"><span class="cl">	streaming_archiver: True
+</span></span><span class="line"><span class="cl">	streaming_archiver_batch_size: 0
+</span></span><span class="line"><span class="cl">	streaming_archiver_name: barman_receive_wal
+</span></span><span class="line"><span class="cl">	streaming_backup_name: barman_streaming_backup
+</span></span><span class="line"><span class="cl">	streaming_conninfo: host=192.168.11.19 user=stream_barman dbname=database_name password=password
+</span></span><span class="line"><span class="cl">	streaming_supported: True
+</span></span><span class="line"><span class="cl">	streaming_wals_directory: /var/lib/barman/hqs019/streaming
+</span></span><span class="line"><span class="cl">	synchronous_standby_names: [&#39;&#39;]
+</span></span><span class="line"><span class="cl">	systemid: 6688476041000599317
+</span></span><span class="line"><span class="cl">	tablespace_bandwidth_limit: None
+</span></span><span class="line"><span class="cl">	timeline: 1
+</span></span><span class="line"><span class="cl">	wal_level: replica
+</span></span><span class="line"><span class="cl">	wal_retention_policy: main
+</span></span><span class="line"><span class="cl">	wals_directory: /var/lib/barman/hqs019/wals
+</span></span><span class="line"><span class="cl">	xlogpos: 264/BA000F08
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>然後用 barman check hqs019 來檢查config 有沒有問題</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">barman@barman:~$ barman check hqs019
+</span></span><span class="line"><span class="cl">Server hqs019:
+</span></span><span class="line"><span class="cl">	PostgreSQL: OK
+</span></span><span class="line"><span class="cl">	is_superuser: OK
+</span></span><span class="line"><span class="cl">	PostgreSQL streaming: OK
+</span></span><span class="line"><span class="cl">	wal_level: OK
+</span></span><span class="line"><span class="cl">	replication slot: OK
+</span></span><span class="line"><span class="cl">	directories: OK
+</span></span><span class="line"><span class="cl">	retention policy settings: OK
+</span></span><span class="line"><span class="cl">	backup maximum age: FAILED (interval provided: 1 day, latest backup age: No available backups)
+</span></span><span class="line"><span class="cl">	compression settings: OK
+</span></span><span class="line"><span class="cl">	failed backups: OK (there are 0 failed backups)
+</span></span><span class="line"><span class="cl">	minimum redundancy requirements: OK (have 0 backups, expected at least 0)
+</span></span><span class="line"><span class="cl">	pg_basebackup: OK
+</span></span><span class="line"><span class="cl">	pg_basebackup compatible: OK
+</span></span><span class="line"><span class="cl">	pg_basebackup supports tablespaces mapping: OK
+</span></span><span class="line"><span class="cl">	pg_receivexlog: OK
+</span></span><span class="line"><span class="cl">	pg_receivexlog compatible: OK
+</span></span><span class="line"><span class="cl">	receive-wal running: OK
+</span></span><span class="line"><span class="cl">	archiver errors: OK
+</span></span><span class="line"><span class="cl">barman@barman:~$
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>那個backup maximum age FAILED 不用管他，因為都還沒跑過備份，這邊錯誤是正常的</p>
+<p>其他都OK 的話，就可以開始備份了</p>
+<p>barman backup hqs019</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">barman@ubuntu:~$ barman backup hqs019
+</span></span><span class="line"><span class="cl">Starting backup using postgres method for server hqs019 in /var/lib/barman/hqs019/base/20190823T082258
+</span></span><span class="line"><span class="cl">Backup start at LSN: 264/A10001A8 (0000000100000264000000A1, 000001A8)
+</span></span><span class="line"><span class="cl">Starting backup copy via pg_basebackup for 20190823T082258
+</span></span><span class="line"><span class="cl">WARNING: pg_basebackup does not copy the PostgreSQL configuration files that reside outside PGDATA. Please manually backup the following files:
+</span></span><span class="line"><span class="cl">	/etc/postgresql/10/main/postgresql.conf
+</span></span><span class="line"><span class="cl">	/etc/postgresql/10/main/pg_hba.conf
+</span></span><span class="line"><span class="cl">	/etc/postgresql/10/main/pg_ident.conf
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">Copy done (time: 1 hour, 6 minutes, 28 seconds)
+</span></span><span class="line"><span class="cl">Finalising the backup.
+</span></span><span class="line"><span class="cl">Backup size: 133.0 GiB
+</span></span><span class="line"><span class="cl">Backup end at LSN: 264/A3000060 (0000000100000264000000A3, 00000060)
+</span></span><span class="line"><span class="cl">Backup completed (start time: 2019-08-23 08:22:58.116372, elapsed time: 1 hour, 6 minutes, 28 seconds)
+</span></span><span class="line"><span class="cl">Processing xlog segments from streaming for hqs019
+</span></span><span class="line"><span class="cl">	0000000100000264000000A2
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">barman@ubuntu:~$ 
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>跑完可以用 barman list-backup hqs019 檢查</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">barman@ubuntu:~$ barman list-backup hqs019
+</span></span><span class="line"><span class="cl">hqs019 20190823T082258 - Thu Aug 22 17:29:26 2019 - Size: 133.0 GiB - WAL Size: 0 B (tablespaces: tablespace_a:/var/lib/postgresql/10/main/tablespace_A, tablespace_b:/var/lib/postgresql/10/main/tablespace_B)
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>要刪除的話，要加入 backupID</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">barman@ubuntu:~$ barman delete hqs019 20190822T171355
+</span></span><span class="line"><span class="cl">Deleting backup 20190822T171355 for server hqs019
+</span></span><span class="line"><span class="cl">Delete associated WAL segments:
+</span></span><span class="line"><span class="cl">	00000001000002640000009F
+</span></span><span class="line"><span class="cl">	0000000100000264000000A0
+</span></span><span class="line"><span class="cl">	0000000100000264000000A1
+</span></span><span class="line"><span class="cl">Deleted backup 20190822T171355 (start time: Fri Aug 23 09:36:43 2019, elapsed time: 3 seconds)
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>restore 的部份，暫時沒有測試，我想應該是要找時間測試看看怎麼還原才對</p>
+<p>不過呢，前面有提到，用streaming backup ，每一次備份都是完整備份，非常的佔用空間、時間、頻寬</p>
+<p>所以還是要來試試看用rsync/SSH 備份的機制</p>
+</section>
+
+
+    <footer class="article-footer">
+    
+    <section class="article-tags">
+        
+            <a href="/tags/postgresql/">postgresql</a>
+        
+            <a href="/tags/pgbarman/">pgbarman</a>
+        
+    </section>
+
+
+    
+    <section class="article-copyright">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <path d="M14.5 9a3.5 4 0 1 0 0 6" />
+</svg>
+
+
+
+        <span>Licensed under CC BY-NC-SA 4.0</span>
+    </section>
+    </footer>
+
+
+    
+</article>
+
+    
+
+    
+
+<aside class="related-content--wrapper">
+    <h2 class="section-title">相關文章</h2>
+    <div class="related-content">
+        <div class="flex article-list--tile">
+            
+                
+<article class="">
+    <a href="/p/%E7%AD%86%E8%A8%98-%E5%9C%A8ubuntu-18.04-%E4%B8%8B-%E9%80%8F%E9%81%8E-pgbarman-rsync/ssh-backup-%E5%82%99%E4%BB%BD-postgresql-10-/-backup-postgresql-10-with-pgbarman-via-ssh/rsync-in-ubuntu-18.04/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">[筆記] 在Ubuntu 18.04 下 透過 pgbarman rsync/ssh backup 備份 postgresql 10 / backup postgresql 10 with pgbarman via ssh/rsync in ubuntu 18.04</h2>
+        </div>
+    </a>
+</article>
+
+            
+                
+<article class="has-image">
+    <a href="/p/ubuntu-20.04-install-nvidia-driver-/-cuda-/-postgresql-/-pg_strom/">
+        
+        
+            <div class="article-image">
+                
+                    <img src="https://h.cowbay.org/images/post-default-3.jpg" loading="lazy" data-key="" data-hash="https://h.cowbay.org/images/post-default-3.jpg"/>
+                
+            </div>
+        
+
+        <div class="article-details">
+            <h2 class="article-title">ubuntu 20.04 install nvidia driver / CUDA / postgresql / pg_strom</h2>
+        </div>
+    </a>
+</article>
+
+            
+                
+<article class="has-image">
+    <a href="/p/%E7%AD%86%E8%A8%98-postgresql-%E6%95%88%E8%83%BD%E6%B8%AC%E8%A9%A6-/-postgresql-benchmakr-using-pgbench/">
+        
+        
+            <div class="article-image">
+                
+                    <img src="https://h.cowbay.org/images/post-default-17.jpg" loading="lazy" data-key="" data-hash="https://h.cowbay.org/images/post-default-17.jpg"/>
+                
+            </div>
+        
+
+        <div class="article-details">
+            <h2 class="article-title">[筆記] postgresql 效能測試 / postgresql benchmakr using pgbench</h2>
+        </div>
+    </a>
+</article>
+
+            
+                
+<article class="has-image">
+    <a href="/p/%E7%AD%86%E8%A8%98-%E6%B8%AC%E8%A9%A6-postgresql-%E7%9A%84pg_prewarm-%E5%B0%8D%E6%95%88%E8%83%BD%E7%9A%84%E5%BD%B1%E9%9F%BF-/-test-pg_prewarm-in-postgresql-11/">
+        
+        
+            <div class="article-image">
+                
+                    <img src="https://h.cowbay.org/images/post-default-9.jpg" loading="lazy" data-key="" data-hash="https://h.cowbay.org/images/post-default-9.jpg"/>
+                
+            </div>
+        
+
+        <div class="article-details">
+            <h2 class="article-title">[筆記] 測試 postgresql 的pg_prewarm 對效能的影響 / test pg_prewarm in postgresql 11</h2>
+        </div>
+    </a>
+</article>
+
+            
+                
+<article class="">
+    <a href="/p/%E7%AD%86%E8%A8%98-%E5%9C%A8ubuntu-18.04%E5%AE%89%E8%A3%9Dpsql-11-%E4%BB%A5%E5%8F%8A-pg_auto_failover-/-install-psql-11-and-pg_auto_failover-in-ubuntu-18.04/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">[筆記] 在ubuntu 18.04安裝psql 11 以及 pg_auto_failover / install psql 11 and pg_auto_failover in ubuntu 18.04</h2>
+        </div>
+    </a>
+</article>
+
+            
+        </div>
+    </div>
+</aside>
+
+     
+    
+        
+    <div class="disqus-container">
+    <div id="disqus_thread"></div>
+<script type="application/javascript">
+    window.disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "h-cowbay-org" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+</div>
+
+<style>
+    .disqus-container {
+        background-color: var(--card-background);
+        border-radius: var(--card-border-radius);
+        box-shadow: var(--shadow-l1);
+        padding: var(--card-padding);
+    }
+</style>
+
+<script>
+    window.addEventListener('onColorSchemeChange', (e) => {
+        if (typeof DISQUS == 'object') {
+            DISQUS.reset({
+                reload: true
+            });
+        }
+    })
+</script>
+
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+            2020 - 
+        
+        2023 MCの部落
+    </section>
+    
+    <section class="powerby">
+        
+            鮮衣怒馬少年時 不負韶華行且知 <br/>
+        使用 <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> 建立 <br />
+        主題 <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.16.0">Stack</a></b> 由 <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a> 設計
+    </section>
+</footer>
+
+
+    
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.min.css"crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css"crossorigin="anonymous"
+            >
+
+            </main>
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.6/dist/vibrant.min.js"integrity="sha256-awcR2jno4kI5X0zL8ex0vi2z&#43;KMkF24hUW8WePSA9HM="crossorigin="anonymous"
+                
+                >
+            </script><script type="text/javascript" src="/ts/main.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>

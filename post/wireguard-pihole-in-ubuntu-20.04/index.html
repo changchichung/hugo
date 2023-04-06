@@ -1,0 +1,726 @@
+<!DOCTYPE html>
+<html lang="en-us" dir="ltr">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='手機上的廣告越來越討厭了
+但是用手機看頁面、影片的機會越來越高
+所以一直想看看有沒有什麼方式可以解決這個問題
+不只可以用在safari 上，連APP 裡面的廣告最好都能夠擋掉
+在github上面看到有個專案是 wireguard &#43; pihole
+滿有趣的，就來研究一下
+'>
+<meta name="keywords" content="wireguard, Pihole"><title>[筆記] 在 ubuntu 20.04 上安裝 wireguard &#43; pihole 作 AD Blocking/install wireguard and pihole to do ad block in ubuntu 20.04 </title>
+
+<link rel='canonical' href='https://h.cowbay.org/post/wireguard-pihole-in-ubuntu-20.04/'>
+
+<link rel="stylesheet" href="/scss/style.min.8191399262444ab68b72a18c97392f5349be20a1615d77445be51e974c144cff.css"><meta property='og:title' content='[筆記] 在 ubuntu 20.04 上安裝 wireguard &#43; pihole 作 AD Blocking/install wireguard and pihole to do ad block in ubuntu 20.04 '>
+<meta property='og:description' content='手機上的廣告越來越討厭了
+但是用手機看頁面、影片的機會越來越高
+所以一直想看看有沒有什麼方式可以解決這個問題
+不只可以用在safari 上，連APP 裡面的廣告最好都能夠擋掉
+在github上面看到有個專案是 wireguard &#43; pihole
+滿有趣的，就來研究一下
+'>
+<meta property='og:url' content='https://h.cowbay.org/post/wireguard-pihole-in-ubuntu-20.04/'>
+<meta property='og:site_name' content='My New Hugo Site'>
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='wireguard' /><meta property='article:tag' content='pihole' /><meta property='article:tag' content='ubuntu' /><meta property='article:published_time' content='2020-08-13T14:22:05&#43;08:00'/><meta property='article:modified_time' content='2020-08-13T14:22:05&#43;08:00'/><meta property='og:image' content='https://h.cowbay.org/images/post-default-16.jpg' />
+<meta name="twitter:title" content="[筆記] 在 ubuntu 20.04 上安裝 wireguard &#43; pihole 作 AD Blocking/install wireguard and pihole to do ad block in ubuntu 20.04 ">
+<meta name="twitter:description" content="手機上的廣告越來越討厭了
+但是用手機看頁面、影片的機會越來越高
+所以一直想看看有沒有什麼方式可以解決這個問題
+不只可以用在safari 上，連APP 裡面的廣告最好都能夠擋掉
+在github上面看到有個專案是 wireguard &#43; pihole
+滿有趣的，就來研究一下
+"><meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:image" content='https://h.cowbay.org/images/post-default-16.jpg' />
+    </head>
+    <body class="
+    article-page
+    ">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "auto");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.documentElement.dataset.scheme = 'dark';
+        } else {
+            document.documentElement.dataset.scheme = 'light';
+        }
+    })();
+</script>
+<div class="container main-container flex on-phone--column compact"><aside class="sidebar left-sidebar sticky ">
+    <button class="hamburger hamburger--spin" type="button" id="toggle-menu" aria-label="Toggle Menu">
+        <span class="hamburger-box">
+            <span class="hamburger-inner"></span>
+        </span>
+    </button>
+
+    <header>
+        
+            
+            <figure class="site-avatar">
+                <a href="/">
+                
+                    
+                    
+                    
+                        
+                        <img src="/img/avatar.png" width="300"
+                            height="300" class="site-logo" loading="lazy" alt="Avatar">
+                    
+                
+                </a>
+                
+            </figure>
+            
+        
+        
+        <div class="site-meta">
+            <h1 class="site-name"><a href="/">My New Hugo Site</a></h1>
+            <h2 class="site-description"></h2>
+        </div>
+    </header><ol class="menu" id="main-menu">
+        
+        
+        
+        <li >
+            <a href='/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-home" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="5 12 3 12 12 3 21 12 19 12" />
+  <path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-7" />
+  <path d="M9 21v-6a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v6" />
+</svg>
+
+
+
+                
+                <span>Home</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/page/about/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-user" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="7" r="4" />
+  <path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2" />
+</svg>
+
+
+
+                
+                <span>About</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/page/archives/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-archive" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <rect x="3" y="4" width="18" height="4" rx="2" />
+  <path d="M5 8v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-10" />
+  <line x1="10" y1="12" x2="14" y2="12" />
+</svg>
+
+
+
+                
+                <span>Archives</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/page/search/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="10" cy="10" r="7" />
+  <line x1="21" y1="21" x2="15" y2="15" />
+</svg>
+
+
+
+                
+                <span>Search</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/page/links/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-link" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M10 14a3.5 3.5 0 0 0 5 0l4 -4a3.5 3.5 0 0 0 -5 -5l-.5 .5" />
+  <path d="M14 10a3.5 3.5 0 0 0 -5 0l-4 4a3.5 3.5 0 0 0 5 5l.5 -.5" />
+</svg>
+
+
+
+                
+                <span>Links</span>
+            </a>
+        </li>
+        
+
+        <div class="menu-bottom-section">
+            
+            
+                <li id="dark-mode-toggle">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="8" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="16" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                    <span>Dark Mode</span>
+                </li>
+            
+        </div>
+    </ol>
+</aside>
+
+    
+
+            <main class="main full-width">
+    <article class="has-image main-article">
+    <header class="article-header">
+        <div class="article-image">
+            <a href="/post/wireguard-pihole-in-ubuntu-20.04/">
+                
+                    <img src="https://h.cowbay.org/images/post-default-16.jpg" loading="lazy" alt="Featured image of post [筆記] 在 ubuntu 20.04 上安裝 wireguard &#43; pihole 作 AD Blocking/install wireguard and pihole to do ad block in ubuntu 20.04 " />
+                
+            </a>
+        </div>
+    
+
+    <div class="article-details">
+    
+    <header class="article-category">
+        
+            <a href="/categories/%E7%AD%86%E8%A8%98/" >
+                筆記
+            </a>
+        
+    </header>
+    
+
+    <div class="article-title-wrapper">
+        <h2 class="article-title">
+            <a href="/post/wireguard-pihole-in-ubuntu-20.04/">[筆記] 在 ubuntu 20.04 上安裝 wireguard &#43; pihole 作 AD Blocking/install wireguard and pihole to do ad block in ubuntu 20.04 </a>
+        </h2>
+    
+        
+    </div>
+
+    
+    
+    
+    
+    <footer class="article-time">
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M11.795 21h-6.795a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
+  <circle cx="18" cy="18" r="4" />
+  <path d="M15 3v4" />
+  <path d="M7 3v4" />
+  <path d="M3 11h16" />
+  <path d="M18 16.496v1.504l1 1" />
+</svg>
+                <time class="article-time--published">Aug 13, 2020</time>
+            </div>
+        
+
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+                <time class="article-time--reading">
+                    4 minute read
+                </time>
+            </div>
+        
+    </footer>
+    
+
+    
+</div>
+
+</header>
+
+    <section class="article-content">
+    
+    
+    <p>手機上的廣告越來越討厭了</p>
+<p>但是用手機看頁面、影片的機會越來越高</p>
+<p>所以一直想看看有沒有什麼方式可以解決這個問題</p>
+<p>不只可以用在safari 上，連APP 裡面的廣告最好都能夠擋掉</p>
+<p>在github上面看到有個專案是 wireguard + pihole</p>
+<p>滿有趣的，就來研究一下</p>
+<p>我在google cloud console 申請了一台free tier 的 google compute engine (真難念，就叫VPS吧)</p>
+<p>免費的Google VPS 只能選擇美洲地區的機房，有點可惜，多少還是會有點影響</p>
+<p>作業系統選 ubuntu 20.04 minimal</p>
+<p>然後因為我習慣wireguard 的port 都設定在 12000</p>
+<p>所以要記得去開啟firewall 的 UDP 12000，然後套用在這台VPS上</p>
+<p>還有要設定 ssh 金鑰 這些都算是google compute engine 的基本設定，就不多說了</p>
+<p>系統的基本安裝完成後，接下來要用人家寫好的 script 來安裝 wireguard + pihole</p>
+<hr>
+<h4 id="安裝基本套件">安裝基本套件</h4>
+<p>因為是選擇 ubuntu 20.04 minimal 所以有很多套件都沒有，要先安裝這些基本套件</p>
+<pre tabindex="0"><code>sudo apt update &amp;&amp; sudo apt install -y vim git net-tools software-properties-common iptables python3-pip qrencode
+</code></pre><h4 id="取得安裝script">取得安裝script</h4>
+<pre tabindex="0"><code>mkdir git &amp;&amp; cd git
+git clone https://github.com/racbart/wireguard-pihole
+</code></pre><h4 id="修改-installsh">修改 install.sh</h4>
+<p>因為我的目的是只想要把DNS 查詢透過wireguard 丟去 pihole</p>
+<p>而不是把所有流量都轉給wireguard</p>
+<p>所以要修改一下剛剛clone 下來的 script</p>
+<pre tabindex="0"><code>cd wireguard-pihole
+vim install.sh
+</code></pre><p>有點忘了改了哪些東西，就大概說一下吧</p>
+<h5 id="ipv4_address">IPV4_ADDRESS</h5>
+<p>原本的判斷VPS WAN IP 的指令在GCE上會抓到private ip</p>
+<p>所以要改一下，在 install.sh 中找到底下這行註解掉，並修改成其他指令</p>
+<pre tabindex="0"><code>#IPV4_ADDRESS=$(ip addr list &#34;$INTERFACE&#34; | grep &#34;inet &#34; | xargs | cut -d &#34; &#34; -f 2)
+IPV4_ADDRESS=$(dig +short myip.opendns.com @resolver1.opendns.com)
+</code></pre><h5 id="install-wireguard-in-ubuntu-2004">install wireguard in ubuntu 20.04</h5>
+<p>ubuntu 20.04 安裝wireguard 的方式和 18.04 有點差別，需要多裝一個 wireguard-dkms</p>
+<p>找到底下這行，註解掉，改成我們要的指令，python-pip 我們用 python3-pip 取代</p>
+<p>在一開始就已經先裝了，所以這邊不需要再裝一次</p>
+<pre tabindex="0"><code>#apt install -y wireguard python-pip
+apt install -y wireguard wireguard-dkms
+</code></pre><h5 id="啟用query-logging">啟用query logging</h5>
+<p>找到底下這行，註解掉，改成啟用 query logging</p>
+<pre tabindex="0"><code>#QUERY_LOGGING=false
+QUERY_LOGGING=true
+</code></pre><p>存檔後離開</p>
+<p>然後執行</p>
+<pre tabindex="0"><code>sudo ./install.sh
+</code></pre><p>開始進行安裝，基本上是全自動的，應該沒有錯誤，可以順利跑完 (應該啦&hellip;)</p>
+<hr>
+<p>接著來依照我自己的需求來修改一下 add-client.sh</p>
+<h5 id="修改-ipv4_address">修改 IPV4_ADDRESS</h5>
+<p>找到底下這行註解掉，並修改成其他指令</p>
+<pre tabindex="0"><code>#IPV4_ADDRESS=$(ip addr list &#34;$INTERFACE&#34; | grep &#34;inet &#34; | xargs | cut -d &#34; &#34; -f 2)
+IPV4_ADDRESS=$(dig +short myip.opendns.com @resolver1.opendns.com)
+</code></pre><h5 id="改一下-port">改一下 port</h5>
+<pre tabindex="0"><code>#SERVER_PORT=$(cat /etc/wireguard/wg0.conf | grep ListenPort | rev | cut -d &#34; &#34; -f 1 | rev)
+SERVER_PORT=12000
+</code></pre><h5 id="display-client-and-save-conf">display client and save conf</h5>
+<p>找到底下這一段</p>
+<pre tabindex="0"><code>echo &#34;
+[Interface]
+PrivateKey = ${CLIENT_PRIVKEY}
+Address = ${NEXT_IP}/32
+DNS = 10.10.0.1
+[Peer]
+PublicKey = ${SERVER_PUBKEY}
+AllowedIPs = 0.0.0.0/0, ::/0
+Endpoint = ${SERVER_ADDRESS}:${SERVER_PORT}
+&#34;
+</code></pre><p>改成</p>
+<pre tabindex="0"><code># Display client config
+
+echo &#34;
+[Interface]
+PrivateKey = ${CLIENT_PRIVKEY}
+Address = ${NEXT_IP}/32
+DNS = 10.10.0.1
+
+[Peer]
+PublicKey = ${SERVER_PUBKEY}
+#forware dns queries only,if want to forward all traffic , replace 10.10.0.1/32 to 0.0.0.0/0
+AllowedIPs = 10.10.0.1/32 
+Endpoint = ${SERVER_ADDRESS}:${SERVER_PORT}&#34;|tee ${CLIENT_NAME}.conf &amp;&amp; qrencode -t ansiutf8 -l L &lt; ${CLIENT_NAME}.conf
+</code></pre><p>之後要新增 client</p>
+<p>就只要輸入</p>
+<pre tabindex="0"><code>sudo bash add-client.sh &#34;CLIENT_NAME&#34;
+</code></pre><p>就會在當前目錄底下產生 ${CLIENT_NAME}.conf 的設定檔，並顯示 qrcode</p>
+<p>而且也不用去管 client ip 發到哪了，script 會自己去計算</p>
+<p>再次強調，這只會把手機上的 dns 查詢透過wireguard指向到 pihole</p>
+<p>並不會把整個流量都改從wireguard 出去</p>
+<p>如果要改成都走wireguard 出去，那就把最後一段的 Endpoint 後面改成 0.0.0.0/0</p>
+<p>PC的話，wireguard 連上之後，要去手動修改DNS</p>
+<p>成功的話，在PC上可以看到這樣的查詢結果</p>
+<pre tabindex="0"><code>peer: mVRp+fjHKW1/n/j5Cwn9zOlLsgtHsvoiNHPSn4bHLHg=
+  endpoint: 23.34.45.67:12000
+  allowed ips: 10.10.0.1/32
+  latest handshake: 1 hour, 48 minutes, 39 seconds ago
+  transfer: 1.46 KiB received, 1.30 KiB sent
+
+2020-08-13 15:42:11 [root@hqdc039 wireguard]$ dig @10.10.0.1 www.google.com.tw
+
+; &lt;&lt;&gt;&gt; DiG 9.16.1-Ubuntu &lt;&lt;&gt;&gt; @10.10.0.1 www.google.com.tw
+; (1 server found)
+;; global options: +cmd
+;; Got answer:
+;; -&gt;&gt;HEADER&lt;&lt;- opcode: QUERY, status: NOERROR, id: 25532
+;; flags: qr rd ra; QUERY: 1, ANSWER: 1, AUTHORITY: 0, ADDITIONAL: 1
+
+;; OPT PSEUDOSECTION:
+; EDNS: version: 0, flags:; udp: 1232
+;; QUESTION SECTION:
+;www.google.com.tw.		IN	A
+
+;; ANSWER SECTION:
+www.google.com.tw.	297	IN	A	64.233.177.94
+
+;; Query time: 399 msec
+;; SERVER: 10.10.0.1#53(10.10.0.1)
+;; WHEN: Thu Aug 13 15:42:24 CST 2020
+;; MSG SIZE  rcvd: 79
+
+2020-08-13 15:42:24 [root@hqdc039 wireguard]$ 
+</code></pre><h3 id="update">UPDATE</h3>
+<p>更新一下開啟 pihole DOT (DNS Over TLS) 的方式</p>
+<h5 id="安裝並建立相關目錄">安裝並建立相關目錄</h5>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>sudo apt update
+</span></span><span style="display:flex;"><span>sudo apt install stubby
+</span></span><span style="display:flex;"><span>sudo mkdir /var/cache/stubby
+</span></span></code></pre></div><h5 id="修改-etcstubbystubbyyml">修改 /etc/stubby/stubby.yml</h5>
+<p>編輯 /etc/stubby/stubby.yml 改成以下內容</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span><span style="color:#f92672">resolution_type</span>: <span style="color:#ae81ff">GETDNS_RESOLUTION_STUB</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">dns_transport_list</span>:
+</span></span><span style="display:flex;"><span>  - <span style="color:#ae81ff">GETDNS_TRANSPORT_TLS</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">tls_authentication</span>: <span style="color:#ae81ff">GETDNS_AUTHENTICATION_REQUIRED</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">tls_query_padding_blocksize</span>: <span style="color:#ae81ff">128</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">edns_client_subnet_private </span>: <span style="color:#ae81ff">1</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">round_robin_upstreams</span>: <span style="color:#ae81ff">1</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">idle_timeout</span>: <span style="color:#ae81ff">10000</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">tls_connection_retries</span>: <span style="color:#ae81ff">5</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">xtls_ca_path</span>: <span style="color:#e6db74">&#34;/etc/ssl/certs/&#34;</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">################################ LISTEN ADDRESS ################################</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># Set the listen addresses for the stubby DAEMON. This specifies localhost IPv4</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># and IPv6. It will listen on port 53 by default. Use &lt;IP_address&gt;@&lt;port&gt; to</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># specify a different port</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">listen_addresses</span>:
+</span></span><span style="display:flex;"><span>  - <span style="color:#ae81ff">127.0.0.1</span>@<span style="color:#ae81ff">5453</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">appdata_dir</span>: <span style="color:#e6db74">&#34;/var/cache/stubby&#34;</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">upstream_recursive_servers</span>:
+</span></span><span style="display:flex;"><span>   - <span style="color:#f92672">address_data</span>: <span style="color:#ae81ff">145.100.185.15</span>
+</span></span><span style="display:flex;"><span>     <span style="color:#f92672">tls_auth_name</span>: <span style="color:#e6db74">&#34;dnsovertls.sinodun.com&#34;</span>
+</span></span><span style="display:flex;"><span>   - <span style="color:#f92672">address_data</span>: <span style="color:#ae81ff">1.1.1.1</span>
+</span></span><span style="display:flex;"><span>     <span style="color:#f92672">tls_auth_name</span>: <span style="color:#e6db74">&#34;cloudflare-dns.com&#34;</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">## Quad 9 &#39;secure&#39; service - Filters, does DNSSEC, doesn&#39;t send ECS</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">#  - address_data: 9.9.9.9</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">#    tls_auth_name: &#34;dns.quad9.net&#34;</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">## Quad 9 &#39;insecure&#39; service - No filtering, does DNSSEC, may send ECS (it is</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">## unclear if it honours the edns_client_subnet_private request from stubby)</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">#  - address_data: 9.9.9.10</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">#    tls_auth_name: &#34;dns.quad9.net&#34;</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">## Cloudflare 1.1.1.1 and 1.0.0.1</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">#  - address_data: 1.1.1.1</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">#    tls_auth_name: &#34;cloudflare-dns.com&#34;</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">#  - address_data: 1.0.0.1</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">#    tls_auth_name: &#34;cloudflare-dns.com&#34;</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">## The Uncensored DNS servers</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">#  - address_data: 89.233.43.71</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">#    tls_auth_name: &#34;unicast.censurfridns.dk&#34;</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">#    tls_pubkey_pinset:</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">#      - digest: &#34;sha256&#34;</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">#        value: wikE3jYAA6jQmXYTr/rbHeEPmC78dQwZbQp6WdrseEs=</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">## Fondation RESTENA (NREN for Luxembourg)</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">#  - address_data: 158.64.1.29</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">#    tls_auth_name: &#34;kaitain.restena.lu&#34;</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">#    tls_pubkey_pinset:</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">#      - digest: &#34;sha256&#34;</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">#        value: 7ftvIkA+UeN/ktVkovd/7rPZ6mbkhVI7/8HnFJIiLa4=</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">## Google</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">#  - address_data: 8.8.8.8</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">#    tls_auth_name: &#34;dns.google&#34;</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">#  - address_data: 8.8.4.4</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">#    tls_auth_name: &#34;dns.google&#34;</span>
+</span></span></code></pre></div><p>重啟 stubby service</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>sudo service tubby restart
+</span></span></code></pre></div><h5 id="修改pihole-相關設定">修改pihole 相關設定</h5>
+<p>開啟 pihole web 管理界面 settings -&gt; dns -&gt; 左邊預設的DNS 都不要選，在右邊的 custom 1(IPV4) 填入</p>
+<p>存檔後離開</p>
+<pre tabindex="0"><code>127.0.0.1#5453
+</code></pre>
+</section>
+
+
+    <footer class="article-footer">
+    
+    <section class="article-tags">
+        
+            <a href="/tags/wireguard/">wireguard</a>
+        
+            <a href="/tags/pihole/">pihole</a>
+        
+            <a href="/tags/ubuntu/">ubuntu</a>
+        
+    </section>
+
+
+    </footer>
+
+
+    
+</article>
+
+    
+
+    
+
+<aside class="related-content--wrapper">
+    <h2 class="section-title">Related content</h2>
+    <div class="related-content">
+        <div class="flex article-list--tile">
+            
+                
+<article class="">
+    <a href="/post/multiple-site-to-site-vpn-using-wireguard/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">[筆記] 透過 wireguard 建立多點 site to site VPN / Multiple Site to Site VPN Using Wireguard</h2>
+        </div>
+    </a>
+</article>
+
+            
+                
+<article class="has-image">
+    <a href="/post/ubuntu-1404-preseed/">
+        
+        
+            <div class="article-image">
+                
+                    <img src="https://h.cowbay.org/images/post-default-5.jpg" loading="lazy" data-key="" data-hash="https://h.cowbay.org/images/post-default-5.jpg"/>
+                
+            </div>
+        
+
+        <div class="article-details">
+            <h2 class="article-title">[筆記] 在 Ubuntu 1404 Preseed 加入開機後自動發郵件通知安裝完成</h2>
+        </div>
+    </a>
+</article>
+
+            
+                
+<article class="has-image">
+    <a href="/post/add-system-wide-favorite-apps-in-dconf/">
+        
+        
+            <div class="article-image">
+                
+                    <img src="https://h.cowbay.org/images/post-default-2.jpg" loading="lazy" data-key="" data-hash="https://h.cowbay.org/images/post-default-2.jpg"/>
+                
+            </div>
+        
+
+        <div class="article-details">
+            <h2 class="article-title">在ubuntu 18.04中，透過 dconf 設定系統層級的「我的最愛」/ Add System Wide Favorite Apps in dock with Dconf in ubuntu 18.04</h2>
+        </div>
+    </a>
+</article>
+
+            
+                
+<article class="">
+    <a href="/post/awesome-all-in-one-vpn-server-streisand/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">[筆記] 超強的ALL-in-One VPN Server streisand / Awesome All in One Vpn Server Streisand</h2>
+        </div>
+    </a>
+</article>
+
+            
+                
+<article class="">
+    <a href="/post/do-no-use-10-0-0-0-private-ipaddr-in-gcp/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">[筆記] 在gcp 中用wireguard建立VPN時，不要用 10.0.0.0/16 網段/Do No Use 10 0 0 0 Private Ipaddr in GCP</h2>
+        </div>
+    </a>
+</article>
+
+            
+        </div>
+    </div>
+</aside>
+
+     
+    
+        
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+        2023 My New Hugo Site
+    </section>
+    
+    <section class="powerby">
+        Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
+        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.16.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+    </section>
+</footer>
+
+
+    
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.min.css"crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css"crossorigin="anonymous"
+            >
+
+            </main>
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.6/dist/vibrant.min.js"integrity="sha256-awcR2jno4kI5X0zL8ex0vi2z&#43;KMkF24hUW8WePSA9HM="crossorigin="anonymous"
+                
+                >
+            </script><script type="text/javascript" src="/ts/main.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>

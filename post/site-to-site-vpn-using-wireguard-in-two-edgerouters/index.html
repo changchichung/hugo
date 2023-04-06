@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html lang="en-us" dir="ltr">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='之前總部和分公司之間 是用buffalo 的小AP 灌 openwrt
+然後用strongswan 來打 IPSEC site to site VPN
+config 看起來不是很難 (只是看起來)
+但是實際上已經找不到當初的文件
+所以要維護很困難(光那些RSA KEY 就不知道為何、如何產生)
+後來採購了兩台edgerouter X 做測試
+也用openvpn 成功的建立了 site to site VPN
+本來想說 openvpn 已經夠簡單了
+今天看到文章說用wireguard 可以更簡單
+於是研究了一下，發現還真的很簡單！
+'>
+<title>[筆記] 在edgerouter上用wireguard 建立site to site VPN / Site to Site Vpn Using Wireguard in Two Edgerouters</title>
+
+<link rel='canonical' href='https://h.cowbay.org/post/site-to-site-vpn-using-wireguard-in-two-edgerouters/'>
+
+<link rel="stylesheet" href="/scss/style.min.8191399262444ab68b72a18c97392f5349be20a1615d77445be51e974c144cff.css"><meta property='og:title' content='[筆記] 在edgerouter上用wireguard 建立site to site VPN / Site to Site Vpn Using Wireguard in Two Edgerouters'>
+<meta property='og:description' content='之前總部和分公司之間 是用buffalo 的小AP 灌 openwrt
+然後用strongswan 來打 IPSEC site to site VPN
+config 看起來不是很難 (只是看起來)
+但是實際上已經找不到當初的文件
+所以要維護很困難(光那些RSA KEY 就不知道為何、如何產生)
+後來採購了兩台edgerouter X 做測試
+也用openvpn 成功的建立了 site to site VPN
+本來想說 openvpn 已經夠簡單了
+今天看到文章說用wireguard 可以更簡單
+於是研究了一下，發現還真的很簡單！
+'>
+<meta property='og:url' content='https://h.cowbay.org/post/site-to-site-vpn-using-wireguard-in-two-edgerouters/'>
+<meta property='og:site_name' content='My New Hugo Site'>
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='vpn' /><meta property='article:tag' content='edgerouter' /><meta property='article:published_time' content='2019-08-06T17:14:17&#43;08:00'/><meta property='article:modified_time' content='2019-08-06T17:14:17&#43;08:00'/>
+<meta name="twitter:title" content="[筆記] 在edgerouter上用wireguard 建立site to site VPN / Site to Site Vpn Using Wireguard in Two Edgerouters">
+<meta name="twitter:description" content="之前總部和分公司之間 是用buffalo 的小AP 灌 openwrt
+然後用strongswan 來打 IPSEC site to site VPN
+config 看起來不是很難 (只是看起來)
+但是實際上已經找不到當初的文件
+所以要維護很困難(光那些RSA KEY 就不知道為何、如何產生)
+後來採購了兩台edgerouter X 做測試
+也用openvpn 成功的建立了 site to site VPN
+本來想說 openvpn 已經夠簡單了
+今天看到文章說用wireguard 可以更簡單
+於是研究了一下，發現還真的很簡單！
+">
+    </head>
+    <body class="
+    article-page
+    ">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "auto");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.documentElement.dataset.scheme = 'dark';
+        } else {
+            document.documentElement.dataset.scheme = 'light';
+        }
+    })();
+</script>
+<div class="container main-container flex on-phone--column compact"><aside class="sidebar left-sidebar sticky ">
+    <button class="hamburger hamburger--spin" type="button" id="toggle-menu" aria-label="Toggle Menu">
+        <span class="hamburger-box">
+            <span class="hamburger-inner"></span>
+        </span>
+    </button>
+
+    <header>
+        
+            
+            <figure class="site-avatar">
+                <a href="/">
+                
+                    
+                    
+                    
+                        
+                        <img src="/img/avatar.png" width="300"
+                            height="300" class="site-logo" loading="lazy" alt="Avatar">
+                    
+                
+                </a>
+                
+            </figure>
+            
+        
+        
+        <div class="site-meta">
+            <h1 class="site-name"><a href="/">My New Hugo Site</a></h1>
+            <h2 class="site-description"></h2>
+        </div>
+    </header><ol class="menu" id="main-menu">
+        
+        
+        
+        <li >
+            <a href='/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-home" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="5 12 3 12 12 3 21 12 19 12" />
+  <path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-7" />
+  <path d="M9 21v-6a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v6" />
+</svg>
+
+
+
+                
+                <span>Home</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/page/about/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-user" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="7" r="4" />
+  <path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2" />
+</svg>
+
+
+
+                
+                <span>About</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/page/archives/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-archive" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <rect x="3" y="4" width="18" height="4" rx="2" />
+  <path d="M5 8v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-10" />
+  <line x1="10" y1="12" x2="14" y2="12" />
+</svg>
+
+
+
+                
+                <span>Archives</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/page/search/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="10" cy="10" r="7" />
+  <line x1="21" y1="21" x2="15" y2="15" />
+</svg>
+
+
+
+                
+                <span>Search</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/page/links/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-link" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M10 14a3.5 3.5 0 0 0 5 0l4 -4a3.5 3.5 0 0 0 -5 -5l-.5 .5" />
+  <path d="M14 10a3.5 3.5 0 0 0 -5 0l-4 4a3.5 3.5 0 0 0 5 5l.5 -.5" />
+</svg>
+
+
+
+                
+                <span>Links</span>
+            </a>
+        </li>
+        
+
+        <div class="menu-bottom-section">
+            
+            
+                <li id="dark-mode-toggle">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="8" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="16" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                    <span>Dark Mode</span>
+                </li>
+            
+        </div>
+    </ol>
+</aside>
+
+    
+
+            <main class="main full-width">
+    <article class="main-article">
+    <header class="article-header">
+
+    <div class="article-details">
+    
+    <header class="article-category">
+        
+            <a href="/categories/%E7%AD%86%E8%A8%98/" >
+                筆記
+            </a>
+        
+    </header>
+    
+
+    <div class="article-title-wrapper">
+        <h2 class="article-title">
+            <a href="/post/site-to-site-vpn-using-wireguard-in-two-edgerouters/">[筆記] 在edgerouter上用wireguard 建立site to site VPN / Site to Site Vpn Using Wireguard in Two Edgerouters</a>
+        </h2>
+    
+        
+    </div>
+
+    
+    
+    
+    
+    <footer class="article-time">
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M11.795 21h-6.795a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
+  <circle cx="18" cy="18" r="4" />
+  <path d="M15 3v4" />
+  <path d="M7 3v4" />
+  <path d="M3 11h16" />
+  <path d="M18 16.496v1.504l1 1" />
+</svg>
+                <time class="article-time--published">Aug 06, 2019</time>
+            </div>
+        
+
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+                <time class="article-time--reading">
+                    4 minute read
+                </time>
+            </div>
+        
+    </footer>
+    
+
+    
+</div>
+
+</header>
+
+    <section class="article-content">
+    
+    
+    <p>之前總部和分公司之間 是用buffalo 的小AP 灌 openwrt</p>
+<p>然後用strongswan 來打 IPSEC site to site VPN</p>
+<p>config 看起來不是很難 (只是看起來)</p>
+<p>但是實際上已經找不到當初的文件</p>
+<p>所以要維護很困難(光那些RSA KEY 就不知道為何、如何產生)</p>
+<p>後來採購了兩台edgerouter X 做測試</p>
+<p>也用openvpn 成功的建立了 site to site VPN</p>
+<p>本來想說 openvpn 已經夠簡單了</p>
+<p>今天看到文章說用wireguard 可以更簡單</p>
+<p>於是研究了一下，發現還真的很簡單！</p>
+<h3 id="download-deb-for-your-edgerouter">download deb for your edgerouter</h3>
+<h4 id="go-check-httpsgithubcomlochnairvyatta-wireguard-first">go check <a class="link" href="https://github.com/Lochnair/vyatta-wireguard"  target="_blank" rel="noopener"
+    >https://github.com/Lochnair/vyatta-wireguard</a> first</h4>
+<pre tabindex="0"><code>curl -L -O https://github.com/Lochnair/vyatta-wireguard/releases/download/0.0.20190702-1/wireguard-v2.0-e50-0.0.20190702-1.deb
+dpkg -i wireguard-v2.0-e50-0.0.20190702-1.deb
+</code></pre><p>process log</p>
+<pre tabindex="0"><code>root@ubnt112:~# dpkg -i wireguard-v2.0-e50-0.0.20190702-1.deb 
+Selecting previously unselected package wireguard.
+(Reading database ... 37024 files and directories currently installed.)
+Preparing to unpack wireguard-v2.0-e50-0.0.20190702-1.deb ...
+Adding &#39;diversion of /opt/vyatta/share/perl5/Vyatta/Interface.pm to /opt/vyatta/share/perl5/Vyatta/Interface.pm.vyatta by wireguard&#39;
+Adding &#39;diversion of /opt/vyatta/share/vyatta-cfg/templates/firewall/options/mss-clamp/interface-type/node.def to /opt/vyatta/share/vyatta-cfg/templates/firewall/options/mss-clamp/interface-type/node.def.vyatta by wireguard&#39;
+Unpacking wireguard (0.0.20190702-1) ...
+Setting up wireguard (0.0.20190702-1) ...
+</code></pre><h4 id="generate-privatepublic-key-in-left-router">generate private/public key in left router</h4>
+<pre tabindex="0"><code>wg genkey | tee /dev/tty | wg pubkey
+</code></pre><p>first one in private key and the next one is public key of this router</p>
+<pre tabindex="0"><code>QGAUHJSDFAdkfjskdjo1DP8H1NuLTrXH6kue6kphaQk/iAkc=
+ta+GJCWNUHJSDFAdkfjskdjnkppY5FpsIs3a8dc4oArtV8FU=
+</code></pre><h4 id="configure-left-site-edgerouter">configure left site edgerouter</h4>
+<pre tabindex="0"><code>configure
+set interfaces wireguard wg0 address 192.168.99.1/24
+set interfaces wireguard wg0 listen-port 51820
+set interfaces wireguard wg0 route-allowed-ips true
+### paster your private key which was just been generate 
+set interfaces wireguard wg0 private-key QGAUHJSDFAdkfjskdjo1DP8H1NuLTrXH6kue6kphaQk/iAkc=
+</code></pre><h4 id="generate-privatepublic-key-in-right-router">generate private/public key in right router</h4>
+<pre tabindex="0"><code>wg genkey | tee /dev/tty | wg pubkey
+</code></pre><p>first one in private key and the next one is public key of this router</p>
+<pre tabindex="0"><code>UBzmPabcdefghijklmnopqrlbi5tnsQqjoJ4+H4=
+tmlrPSabcdefghijklmnopqrIb1Enzf+108yotkhdRmk=
+</code></pre><h4 id="configure-right-site-edgerouter">configure right site edgerouter</h4>
+<pre tabindex="0"><code>configure
+set interfaces wireguard wg0 address 192.168.99.2/24 
+set interfaces wireguard wg0 listen-port 51820 
+set interfaces wireguard wg0 route-allowed-ips true
+### paster your private key which was just been generate
+set interfaces wireguard wg0 private-key UBzmPabcdefghijklmnopqrlbi5tnsQqjoJ4+H4=
+</code></pre><p>now , configure both router to talk to each other</p>
+<h4 id="configure-in-left-router">configure in left router</h4>
+<pre tabindex="0"><code>### use the right router public key here
+set interfaces wireguard wg0 peer tmlrPSabcdefghijklmnopqrIb1Enzf+108yotkhdRmk= allowed-ips 192.168.99.0/16
+set interfaces wireguard wg0 peer tmlrPSabcdefghijklmnopqrIb1Enzf+108yotkhdRmk= endpoint 222.222.222.222:51820
+set interfaces wireguard wg0 peer tmlrPSabcdefghijklmnopqrIb1Enzf+108yotkhdRmk= persistent-keepalive 15
+</code></pre><h4 id="configre-in-right-router">configre in right router</h4>
+<pre tabindex="0"><code>### use the left router public key here
+set interfaces wireguard wg0 peer ta+GJCWNUHJSDFAdkfjskdjnkppY5FpsIs3a8dc4oArtV8FU= allowed-ips 192.168.99.0/16
+set interfaces wireguard wg0 peer ta+GJCWNUHJSDFAdkfjskdjnkppY5FpsIs3a8dc4oArtV8FU= endpoint 111.111.111.111:51280
+set interfaces wireguard wg0 peer ta+GJCWNUHJSDFAdkfjskdjnkppY5FpsIs3a8dc4oArtV8FU= persistent-keepalive 15
+</code></pre><h4 id="configure-firewall-policy-in-left-site-router">configure firewall policy in left site router</h4>
+<pre tabindex="0"><code>### change 40 to your own rule number
+set firewall name WAN_LOCAL rule 40 source port 51820
+set firewall name WAN_LOCAL rule 40 destination port 51820
+</code></pre><h4 id="configure-firewall-policy-in-right-site-router">configure firewall policy in right site router</h4>
+<pre tabindex="0"><code>### change 40 to your own rule number
+set firewall name WAN_LOCAL rule 40 source port 51820
+set firewall name WAN_LOCAL rule 40 destination port 51820
+</code></pre><p>then finally , commit these changes on both side router</p>
+<pre tabindex="0"><code>commit
+### and save if you want
+save
+</code></pre><h4 id="oops--one-more-step--add-static-route">oops , one more step , add static route</h4>
+<h5 id="manually-add-static-route-in-left-router">manually add static route in left router</h5>
+<pre tabindex="0"><code>ip route add 192.168.111.0/24 dev wg0
+</code></pre><h5 id="manually-add-static-route-in-right-router">manually add static route in right router</h5>
+<pre tabindex="0"><code>ip route add 192.168.112.0/24 dev wg0
+</code></pre><h4 id="check-wireguard-status-in-both-router">check wireguard status in both router</h4>
+<h5 id="left">left</h5>
+<pre tabindex="0"><code> root@ubnt112:~# sudo wg
+interface: wg0
+  public key: ta+GJCWNUHJSDFAdkfjskdjnkppY5FpsIs3a8dc4oArtV8FU=
+  private key: (hidden)
+  listening port: 51820
+
+peer: tmlrPSabcdefghijklmnopqrIb1Enzf+108yotkhdRmk=
+  endpoint: 111.111.111.111:51820
+  allowed ips: 192.168.99.0/16
+  latest handshake: 1 minute, 19 seconds ago
+  transfer: 7.49 MiB received, 195.86 MiB sent
+  persistent keepalive: every 15 seconds
+root@ubnt112:~#
+</code></pre><h5 id="right">right</h5>
+<pre tabindex="0"><code>interface: wg0
+  public key: tmlrPSabcdefghijklmnopqrIb1Enzf+108yotkhdRmk=
+  private key: (hidden)
+  listening port: 51820
+
+peer: ta+GJCWNUHJSDFAdkfjskdjnkppY5FpsIs3a8dc4oArtV8FU=
+  endpoint: 222.222.222.222:51820
+  allowed ips: 192.168.99.0/16
+  latest handshake: 1 minute, 48 seconds ago
+  transfer: 195.60 MiB received, 8.07 MiB sent
+  persistent keepalive: every 15 seconds
+root@ubnt111:~#
+</code></pre><h3 id="need-more-edgerouter-and-lease-line-to-try-multiple-site-to-site-vpn-using-wideguard">need more edgerouter and lease line to try multiple site to site VPN using wideguard</h3>
+<h5 id="need-to-study-about-allowed-ips">need to study about allowed-ips</h5>
+<h3 id="sort-out-scripts">sort out scripts</h3>
+<h5 id="left-router">left router</h5>
+<pre tabindex="0"><code>wg genkey | tee /dev/tty | wg pubkey
+QGAUHJSDFAdkfjskdjo1DP8H1NuLTrXH6kue6kphaQk/iAkc=
+ta+GJCWNUHJSDFAdkfjskdjnkppY5FpsIs3a8dc4oArtV8FU=
+configure
+set interfaces wireguard wg0 address 192.168.99.1/24
+set interfaces wireguard wg0 listen-port 51820
+set interfaces wireguard wg0 route-allowed-ips true
+set interfaces wireguard wg0 private-key QGAUHJSDFAdkfjskdjo1DP8H1NuLTrXH6kue6kphaQk/iAkc=
+set interfaces wireguard wg0 peer tmlrPSabcdefghijklmnopqrIb1Enzf+108yotkhdRmk= allowed-ips 192.168.99.0/16
+set interfaces wireguard wg0 peer tmlrPSabcdefghijklmnopqrIb1Enzf+108yotkhdRmk= endpoint 222.222.222.222:51820
+set interfaces wireguard wg0 peer tmlrPSabcdefghijklmnopqrIb1Enzf+108yotkhdRmk= persistent-keepalive 15
+set firewall name WAN_LOCAL rule 40 action accept
+set firewall name WAN_LOCAL rule 40 protocol udp
+set firewall name WAN_LOCAL rule 40 source port 51820
+set firewall name WAN_LOCAL rule 40 destination port 51820
+commit
+save
+ip route add 192.168.111.0/24 dev wg0
+</code></pre><h5 id="right-router">right router</h5>
+<pre tabindex="0"><code>wg genkey | tee /dev/tty | wg pubkey
+UBzmPabcdefghijklmnopqrlbi5tnsQqjoJ4+H4=
+tmlrPSabcdefghijklmnopqrIb1Enzf+108yotkhdRmk=
+configure
+set interfaces wireguard wg0 address 192.168.99.2/24 
+set interfaces wireguard wg0 listen-port 51820 
+set interfaces wireguard wg0 route-allowed-ips true
+set interfaces wireguard wg0 private-key UBzmPabcdefghijklmnopqrlbi5tnsQqjoJ4+H4=
+set interfaces wireguard wg0 peer ta+GJCWNUHJSDFAdkfjskdjnkppY5FpsIs3a8dc4oArtV8FU= allowed-ips 192.168.99.0/16
+set interfaces wireguard wg0 peer ta+GJCWNUHJSDFAdkfjskdjnkppY5FpsIs3a8dc4oArtV8FU= endpoint 111.111.111.111:51280
+set interfaces wireguard wg0 peer ta+GJCWNUHJSDFAdkfjskdjnkppY5FpsIs3a8dc4oArtV8FU= persistent-keepalive 15
+set firewall name WAN_LOCAL rule 40 action accept
+set firewall name WAN_LOCAL rule 40 protocol udp
+set firewall name WAN_LOCAL rule 40 source port 51820
+set firewall name WAN_LOCAL rule 40 destination port 51820
+commit
+save
+ip route add 192.168.112.0/24 dev wg0
+</code></pre>
+</section>
+
+
+    <footer class="article-footer">
+    
+    <section class="article-tags">
+        
+            <a href="/tags/vpn/">vpn</a>
+        
+            <a href="/tags/edgerouter/">edgerouter</a>
+        
+    </section>
+
+
+    </footer>
+
+
+    
+</article>
+
+    
+
+    
+
+     
+    
+        
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+        2023 My New Hugo Site
+    </section>
+    
+    <section class="powerby">
+        Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
+        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.16.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+    </section>
+</footer>
+
+
+    
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.min.css"crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css"crossorigin="anonymous"
+            >
+
+            </main>
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.6/dist/vibrant.min.js"integrity="sha256-awcR2jno4kI5X0zL8ex0vi2z&#43;KMkF24hUW8WePSA9HM="crossorigin="anonymous"
+                
+                >
+            </script><script type="text/javascript" src="/ts/main.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>

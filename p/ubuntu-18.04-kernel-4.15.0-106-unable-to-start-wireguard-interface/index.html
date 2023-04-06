@@ -1,0 +1,990 @@
+<!DOCTYPE html>
+<html lang="en-us" dir="ltr">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='工作用的電腦，昨天終於難得的reboot了(uptime 看了一下，大概是三百多天)
+結果重開機之後，發現原本在打tunnel 連 ptt 的 wireguard VPN 掛掉了
+手動下指令也啟動不了
+查了一下發現是 ubuntu 18.04 kernel 4.15.0-106 的包
+看來就連kernel 最好都不要自動升級&amp;hellip;
+'>
+<meta name="keywords" content="ubuntu, Wireguard"><title>Ubuntu 18.04 Kernel 4.15.0-106 Unable to Start Wireguard Interface</title>
+
+<link rel='canonical' href='https://h.cowbay.org/p/ubuntu-18.04-kernel-4.15.0-106-unable-to-start-wireguard-interface/'>
+
+<link rel="stylesheet" href="/scss/style.min.8191399262444ab68b72a18c97392f5349be20a1615d77445be51e974c144cff.css"><meta property='og:title' content='Ubuntu 18.04 Kernel 4.15.0-106 Unable to Start Wireguard Interface'>
+<meta property='og:description' content='工作用的電腦，昨天終於難得的reboot了(uptime 看了一下，大概是三百多天)
+結果重開機之後，發現原本在打tunnel 連 ptt 的 wireguard VPN 掛掉了
+手動下指令也啟動不了
+查了一下發現是 ubuntu 18.04 kernel 4.15.0-106 的包
+看來就連kernel 最好都不要自動升級&amp;hellip;
+'>
+<meta property='og:url' content='https://h.cowbay.org/p/ubuntu-18.04-kernel-4.15.0-106-unable-to-start-wireguard-interface/'>
+<meta property='og:site_name' content='MCの部落'>
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='Ubuntu' /><meta property='article:tag' content='Wireguard' /><meta property='article:published_time' content='2020-06-22T09:05:42&#43;08:00'/><meta property='article:modified_time' content='2020-06-22T09:05:42&#43;08:00'/><meta property='og:image' content='https://h.cowbay.org/images/post-default-16.jpg' />
+<meta name="twitter:title" content="Ubuntu 18.04 Kernel 4.15.0-106 Unable to Start Wireguard Interface">
+<meta name="twitter:description" content="工作用的電腦，昨天終於難得的reboot了(uptime 看了一下，大概是三百多天)
+結果重開機之後，發現原本在打tunnel 連 ptt 的 wireguard VPN 掛掉了
+手動下指令也啟動不了
+查了一下發現是 ubuntu 18.04 kernel 4.15.0-106 的包
+看來就連kernel 最好都不要自動升級&amp;hellip;
+"><meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:image" content='https://h.cowbay.org/images/post-default-16.jpg' />
+<script type="application/javascript">
+var doNotTrack = false;
+if (!doNotTrack) {
+	(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+	(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+	m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+	})(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+	ga('create', 'UA-128770427-1', 'auto');
+	
+	ga('send', 'pageview');
+}
+</script>
+    </head>
+    <body class="
+    article-page
+    ">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "auto");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.documentElement.dataset.scheme = 'dark';
+        } else {
+            document.documentElement.dataset.scheme = 'light';
+        }
+    })();
+</script>
+<div class="container main-container flex on-phone--column extended"><aside class="sidebar left-sidebar sticky ">
+    <button class="hamburger hamburger--spin" type="button" id="toggle-menu" aria-label="切換選單">
+        <span class="hamburger-box">
+            <span class="hamburger-inner"></span>
+        </span>
+    </button>
+
+    <header>
+        
+            
+            <figure class="site-avatar">
+                <a href="/">
+                
+                    
+                    
+                    
+                        
+                        <img src="/img/avatar_hu85bfcf0e08404ecf606702eb99c7ed68_43560_300x0_resize_box_3.png" width="300"
+                            height="300" class="site-logo" loading="lazy" alt="Avatar">
+                    
+                
+                </a>
+                
+                    <span class="emoji">🍥</span>
+                
+            </figure>
+            
+        
+        
+        <div class="site-meta">
+            <h1 class="site-name"><a href="/">MCの部落</a></h1>
+            <h2 class="site-description">讀過兩年書，塵世中一個迷途小書僮</h2>
+        </div>
+    </header><ol class="social-menu">
+            
+                <li>
+                    <a 
+                        href='https://www.facebook.com'
+                        target="_blank"
+                        title="facebook"
+                        rel="me"
+                    >
+                        
+                        
+                            <?xml version="1.0" encoding="iso-8859-1"?>
+<!-- Uploaded to: SVG Repo, www.svgrepo.com, Generator: SVG Repo Mixer Tools -->
+<svg height="800px" width="800px" version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" 
+	 viewBox="0 0 512 512" xml:space="preserve">
+<path style="fill:#385C8E;" d="M134.941,272.691h56.123v231.051c0,4.562,3.696,8.258,8.258,8.258h95.159
+	c4.562,0,8.258-3.696,8.258-8.258V273.78h64.519c4.195,0,7.725-3.148,8.204-7.315l9.799-85.061c0.269-2.34-0.472-4.684-2.038-6.44
+	c-1.567-1.757-3.81-2.763-6.164-2.763h-74.316V118.88c0-16.073,8.654-24.224,25.726-24.224c2.433,0,48.59,0,48.59,0
+	c4.562,0,8.258-3.698,8.258-8.258V8.319c0-4.562-3.696-8.258-8.258-8.258h-66.965C309.622,0.038,308.573,0,307.027,0
+	c-11.619,0-52.006,2.281-83.909,31.63c-35.348,32.524-30.434,71.465-29.26,78.217v62.352h-58.918c-4.562,0-8.258,3.696-8.258,8.258
+	v83.975C126.683,268.993,130.379,272.691,134.941,272.691z"/>
+</svg>
+                        
+                    </a>
+                </li>
+            
+                <li>
+                    <a 
+                        href='https://github.com/CaiJimmy/hugo-theme-stack'
+                        target="_blank"
+                        title="GitHub"
+                        rel="me"
+                    >
+                        
+                        
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-github" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M9 19c-4.3 1.4 -4.3 -2.5 -6 -3m12 5v-3.5c0 -1 .1 -1.4 -.5 -2c2.8 -.3 5.5 -1.4 5.5 -6a4.6 4.6 0 0 0 -1.3 -3.2a4.2 4.2 0 0 0 -.1 -3.2s-1.1 -.3 -3.5 1.3a12.3 12.3 0 0 0 -6.2 0c-2.4 -1.6 -3.5 -1.3 -3.5 -1.3a4.2 4.2 0 0 0 -.1 3.2a4.6 4.6 0 0 0 -1.3 3.2c0 4.6 2.7 5.7 5.5 6c-.6 .6 -.6 1.2 -.5 2v3.5" />
+</svg>
+
+
+
+                        
+                    </a>
+                </li>
+            
+                <li>
+                    <a 
+                        href='https://twitter.com'
+                        target="_blank"
+                        title="Twitter"
+                        rel="me"
+                    >
+                        
+                        
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-twitter" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M22 4.01c-1 .49 -1.98 .689 -3 .99c-1.121 -1.265 -2.783 -1.335 -4.38 -.737s-2.643 2.06 -2.62 3.737v1c-3.245 .083 -6.135 -1.395 -8 -4c0 0 -4.182 7.433 4 11c-1.872 1.247 -3.739 2.088 -6 2c3.308 1.803 6.913 2.423 10.034 1.517c3.58 -1.04 6.522 -3.723 7.651 -7.742a13.84 13.84 0 0 0 .497 -3.753c-.002 -.249 1.51 -2.772 1.818 -4.013z" />
+</svg>
+
+
+
+                        
+                    </a>
+                </li>
+            
+        </ol><ol class="menu" id="main-menu">
+        
+        
+        
+        <li >
+            <a href='/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-home" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="5 12 3 12 12 3 21 12 19 12" />
+  <path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-7" />
+  <path d="M9 21v-6a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v6" />
+</svg>
+
+
+
+                
+                <span>Home</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/about/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-user" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="7" r="4" />
+  <path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2" />
+</svg>
+
+
+
+                
+                <span>About</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/archives/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-archive" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <rect x="3" y="4" width="18" height="4" rx="2" />
+  <path d="M5 8v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-10" />
+  <line x1="10" y1="12" x2="14" y2="12" />
+</svg>
+
+
+
+                
+                <span>Archives</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/search/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="10" cy="10" r="7" />
+  <line x1="21" y1="21" x2="15" y2="15" />
+</svg>
+
+
+
+                
+                <span>Search</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/links/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-link" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M10 14a3.5 3.5 0 0 0 5 0l4 -4a3.5 3.5 0 0 0 -5 -5l-.5 .5" />
+  <path d="M14 10a3.5 3.5 0 0 0 -5 0l-4 4a3.5 3.5 0 0 0 5 5l.5 -.5" />
+</svg>
+
+
+
+                
+                <span>Links</span>
+            </a>
+        </li>
+        
+
+        <div class="menu-bottom-section">
+                <li id="i18n-switch">  
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-language" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M4 5h7" />
+  <path d="M9 3v2c0 4.418 -2.239 8 -5 8" />
+  <path d="M5 9c-.003 2.144 2.952 3.908 6.7 4" />
+  <path d="M12 20l4 -9l4 9" />
+  <path d="M19.1 18h-6.2" />
+</svg>
+
+
+
+                    <select name="language" onchange="window.location.href = this.selectedOptions[0].value">
+                        
+                            <option value="https://h.cowbay.org/" selected>中文</option>
+                        
+                            <option value="https://h.cowbay.org/en/" >English</option>
+                        
+                    </select>
+                </li>
+            
+            
+            
+                <li id="dark-mode-toggle">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="8" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="16" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                    <span>夜晚模式</span>
+                </li>
+            
+        </div>
+    </ol>
+</aside>
+
+    
+
+            <main class="main full-width">
+    <article class="has-image main-article">
+    <header class="article-header">
+        <div class="article-image">
+            <a href="/p/ubuntu-18.04-kernel-4.15.0-106-unable-to-start-wireguard-interface/">
+                
+                    <img src="https://h.cowbay.org/images/post-default-16.jpg" loading="lazy" alt="Featured image of post Ubuntu 18.04 Kernel 4.15.0-106 Unable to Start Wireguard Interface" />
+                
+            </a>
+        </div>
+    
+
+    <div class="article-details">
+    
+    <header class="article-category">
+        
+            <a href="/categories/%E7%AD%86%E8%A8%98/" >
+                筆記
+            </a>
+        
+    </header>
+    
+
+    <div class="article-title-wrapper">
+        <h2 class="article-title">
+            <a href="/p/ubuntu-18.04-kernel-4.15.0-106-unable-to-start-wireguard-interface/">Ubuntu 18.04 Kernel 4.15.0-106 Unable to Start Wireguard Interface</a>
+        </h2>
+    
+        
+    </div>
+
+    
+    
+    
+    
+    <footer class="article-time">
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M11.795 21h-6.795a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
+  <circle cx="18" cy="18" r="4" />
+  <path d="M15 3v4" />
+  <path d="M7 3v4" />
+  <path d="M3 11h16" />
+  <path d="M18 16.496v1.504l1 1" />
+</svg>
+                <time class="article-time--published">2020-06-06</time>
+            </div>
+        
+
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+                <time class="article-time--reading">
+                    閱讀時間: 3 分鐘
+                </time>
+            </div>
+        
+    </footer>
+    
+
+    
+</div>
+
+</header>
+
+    <section class="article-content">
+    
+    
+    <p>工作用的電腦，昨天終於難得的reboot了(uptime 看了一下，大概是三百多天)</p>
+<p>結果重開機之後，發現原本在打tunnel 連 ptt 的 wireguard VPN 掛掉了</p>
+<p>手動下指令也啟動不了</p>
+<p>查了一下發現是 ubuntu 18.04 kernel 4.15.0-106 的包</p>
+<p>看來就連kernel 最好都不要自動升級&hellip;</p>
+<p>一開始不管怎麼下指令要啟動wireguard Interface 都會出錯</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">root@hqdc034:~# wg-quick up wg0
+</span></span><span class="line"><span class="cl">[#] ip link add wg0 type wireguard
+</span></span><span class="line"><span class="cl">RTNETLINK answers: Operation not supported
+</span></span><span class="line"><span class="cl">Unable to access interface: Protocol not supported
+</span></span><span class="line"><span class="cl">[#] ip link delete dev wg0
+</span></span><span class="line"><span class="cl">Cannot find device &#34;wg0&#34;
+</span></span><span class="line"><span class="cl">root@hqdc034:~# wg-quick up wg1
+</span></span><span class="line"><span class="cl">[#] ip link add wg1 type wireguard
+</span></span><span class="line"><span class="cl">RTNETLINK answers: Operation not supported
+</span></span><span class="line"><span class="cl">Unable to access interface: Protocol not supported
+</span></span><span class="line"><span class="cl">[#] ip link delete dev wg1
+</span></span><span class="line"><span class="cl">Cannot find device &#34;wg1&#34;
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>因為很久沒動了，所以wireguard config 檔案應該是沒有問題</p>
+<p>不過還是檢查看看？</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">root@hqdc034:~# wg showconf wg0
+</span></span><span class="line"><span class="cl">Unable to access interface: Protocol not supported
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>很好，果然不是config 的問題，看來是wireguard 某些套件有狀況了</p>
+<p>用modprobe 檢查一下</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">root@hqdc034:~# modprobe wireguard
+</span></span><span class="line"><span class="cl">modprobe: FATAL: Module wireguard not found in directory /lib/modules/4.15.0-106-generic
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>OK ，找到問題了，看起來是新版本的kernel 有某些狀況？</p>
+<p>anyway</p>
+<p>要解決其實很簡單，要不就直接上 20.04  XD</p>
+<p>要不就重裝 wireguard-dkms (這個似乎是新釋出的套件，本來沒有這個的)</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span><span class="lnt">37
+</span><span class="lnt">38
+</span><span class="lnt">39
+</span><span class="lnt">40
+</span><span class="lnt">41
+</span><span class="lnt">42
+</span><span class="lnt">43
+</span><span class="lnt">44
+</span><span class="lnt">45
+</span><span class="lnt">46
+</span><span class="lnt">47
+</span><span class="lnt">48
+</span><span class="lnt">49
+</span><span class="lnt">50
+</span><span class="lnt">51
+</span><span class="lnt">52
+</span><span class="lnt">53
+</span><span class="lnt">54
+</span><span class="lnt">55
+</span><span class="lnt">56
+</span><span class="lnt">57
+</span><span class="lnt">58
+</span><span class="lnt">59
+</span><span class="lnt">60
+</span><span class="lnt">61
+</span><span class="lnt">62
+</span><span class="lnt">63
+</span><span class="lnt">64
+</span><span class="lnt">65
+</span><span class="lnt">66
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-v" data-lang="v"><span class="line"><span class="cl"><span class="nv">root</span><span class="o">@</span><span class="nv">hqdc034</span><span class="p">:</span><span class="o">~#</span> <span class="nv">apt</span><span class="o">-</span><span class="nv">get</span> <span class="nv">install</span> <span class="nv">wireguard</span><span class="o">-</span><span class="nv">dkms</span> <span class="nv">wireguard</span><span class="o">-</span><span class="nv">tools</span> <span class="nv">linux</span><span class="o">-</span><span class="nv">headers</span><span class="o">-</span><span class="err">$</span><span class="p">(</span><span class="nv">uname</span> <span class="o">-</span><span class="nv">r</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="err">正在讀取套件清單</span><span class="o">...</span> <span class="err">完成</span>
+</span></span><span class="line"><span class="cl"><span class="err">正在重建相依關係</span>          
+</span></span><span class="line"><span class="cl"><span class="err">正在讀取狀態資料</span><span class="o">...</span> <span class="err">完成</span>
+</span></span><span class="line"><span class="cl"><span class="nv">linux</span><span class="o">-</span><span class="nv">headers</span><span class="o">-</span><span class="mf">4.15.0</span><span class="o">-</span><span class="mi">106</span><span class="o">-</span><span class="nv">generic</span> <span class="err">已是最新版本</span> <span class="p">(</span><span class="mf">4.15.0</span><span class="o">-</span><span class="mf">106.107</span><span class="p">)</span><span class="err">。</span>
+</span></span><span class="line"><span class="cl"><span class="nv">linux</span><span class="o">-</span><span class="nv">headers</span><span class="o">-</span><span class="mf">4.15.0</span><span class="o">-</span><span class="mi">106</span><span class="o">-</span><span class="nv">generic</span> <span class="err">被設定為手動安裝。</span>
+</span></span><span class="line"><span class="cl"><span class="nv">wireguard</span><span class="o">-</span><span class="nv">tools</span> <span class="err">已是最新版本</span> <span class="p">(</span><span class="mf">1.0.20200513</span><span class="o">-</span><span class="mi">1</span><span class="o">~</span><span class="mf">18.04</span><span class="p">)</span><span class="err">。</span>
+</span></span><span class="line"><span class="cl"><span class="nv">wireguard</span><span class="o">-</span><span class="nv">tools</span> <span class="err">被設定為手動安裝。</span>
+</span></span><span class="line"><span class="cl"><span class="err">以下套件為自動安裝，並且已經無用：</span>
+</span></span><span class="line"><span class="cl">  <span class="nv">dmeventd</span> <span class="nv">liblvm2app2</span><span class="mf">.2</span> <span class="nv">liblvm2cmd2</span><span class="mf">.02</span> <span class="nv">libopts25</span> <span class="nv">libreadline5</span> <span class="nv">python</span><span class="o">-</span><span class="nv">egenix</span><span class="o">-</span><span class="nv">mxdatetime</span> <span class="nv">python</span><span class="o">-</span><span class="nv">egenix</span><span class="o">-</span><span class="nv">mxtools</span> <span class="nv">python</span><span class="o">-</span><span class="nv">psutil</span>
+</span></span><span class="line"><span class="cl">  <span class="nv">python</span><span class="o">-</span><span class="nv">psycopg2</span> <span class="nv">python3</span><span class="o">-</span><span class="nv">flask</span><span class="o">-</span><span class="nv">htmlmin</span> <span class="nv">python3</span><span class="o">-</span><span class="nv">htmlmin</span> <span class="nv">sntp</span>
+</span></span><span class="line"><span class="cl"><span class="err">使用</span> <span class="s1">&#39;apt autoremove&#39;</span> <span class="err">將之移除。</span>
+</span></span><span class="line"><span class="cl"><span class="err">下列套件將會被升級：</span>
+</span></span><span class="line"><span class="cl">  <span class="nv">wireguard</span><span class="o">-</span><span class="nv">dkms</span>
+</span></span><span class="line"><span class="cl"><span class="err">升級</span> <span class="mi">1</span> <span class="err">個，新安裝</span> <span class="mi">0</span> <span class="err">個，移除</span> <span class="mi">0</span> <span class="err">個，有</span> <span class="mi">123</span> <span class="err">個未被升級。</span>
+</span></span><span class="line"><span class="cl"><span class="err">需要下載</span> <span class="mi">254</span> <span class="nv">kB</span> <span class="err">的套件檔。</span>
+</span></span><span class="line"><span class="cl"><span class="err">此操作完成之後，會多佔用</span> <span class="mi">1</span><span class="p">,</span><span class="mi">024</span> <span class="nc">B</span> <span class="err">的磁碟空間。</span>
+</span></span><span class="line"><span class="cl"><span class="err">是否繼續進行</span> <span class="p">[</span><span class="nc">Y</span><span class="o">/</span><span class="nv">n</span><span class="p">]</span><span class="err">？</span> <span class="p">[</span><span class="nc">Y</span><span class="o">/</span><span class="nv">n</span><span class="p">]</span> <span class="nv">y</span>
+</span></span><span class="line"><span class="cl"><span class="err">下載</span><span class="p">:</span><span class="mi">1</span> <span class="nv">http</span><span class="p">:</span><span class="c1">//ppa.launchpad.net/wireguard/wireguard/ubuntu bionic/main amd64 wireguard-dkms all 1.0.20200611-0ppa1~18.04 [254 kB]
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="err">取得</span> <span class="mi">254</span> <span class="nv">kB</span> <span class="err">用了</span> <span class="mi">1</span><span class="err">秒</span> <span class="p">(</span><span class="mi">184</span> <span class="nv">kB</span><span class="o">/</span><span class="nv">s</span><span class="p">)</span>          
+</span></span><span class="line"><span class="cl"><span class="err">（讀取資料庫</span> <span class="o">...</span> <span class="err">目前共安裝了</span> <span class="mi">298316</span> <span class="err">個檔案和目錄。）</span>
+</span></span><span class="line"><span class="cl"><span class="err">準備解開</span> <span class="o">.../</span><span class="nv">wireguard</span><span class="o">-</span><span class="nv">dkms_1</span><span class="mf">.0.20200611</span><span class="o">-</span><span class="mi">0</span><span class="nv">ppa1</span><span class="o">~</span><span class="mf">18.04</span><span class="nv">_all</span><span class="p">.</span><span class="nv">deb</span> <span class="o">...</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="o">--------</span> <span class="nc">Uninstall</span> <span class="nc">Beginning</span> <span class="o">--------</span>
+</span></span><span class="line"><span class="cl"><span class="nc">Module</span><span class="p">:</span>  <span class="nv">wireguard</span>
+</span></span><span class="line"><span class="cl"><span class="nc">Version</span><span class="p">:</span> <span class="mf">1.0.20200426</span>
+</span></span><span class="line"><span class="cl"><span class="nc">Kernel</span><span class="p">:</span>  <span class="mf">4.15.0</span><span class="o">-</span><span class="mi">101</span><span class="o">-</span><span class="nv">generic</span> <span class="p">(</span><span class="nv">x86_64</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="o">-------------------------------------</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="nc">Status</span><span class="p">:</span> <span class="nc">Before</span> <span class="nv">uninstall</span><span class="p">,</span> <span class="nv">this</span> <span class="kn">module</span> <span class="nv">version</span> <span class="nv">was</span> <span class="nc">ACTIVE</span> <span class="nv">on</span> <span class="nv">this</span> <span class="nv">kernel</span><span class="p">.</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="nv">wireguard</span><span class="p">.</span><span class="nl">ko</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl"> <span class="o">-</span> <span class="nc">Uninstallation</span>
+</span></span><span class="line"><span class="cl">   <span class="o">-</span> <span class="nc">Deleting</span> <span class="nv">from</span><span class="p">:</span> <span class="o">/</span><span class="nv">lib</span><span class="o">/</span><span class="nv">modules</span><span class="o">/</span><span class="mf">4.15.0</span><span class="o">-</span><span class="mi">101</span><span class="o">-</span><span class="nv">generic</span><span class="o">/</span><span class="nv">updates</span><span class="o">/</span><span class="nv">dkms</span><span class="o">/</span>
+</span></span><span class="line"><span class="cl"> <span class="o">-</span> <span class="nc">Original</span> <span class="kn">module</span>
+</span></span><span class="line"><span class="cl">   <span class="o">-</span> <span class="nc">No</span> <span class="nv">original</span> <span class="kn">module</span> <span class="nv">was</span> <span class="nv">found</span> <span class="k">for</span> <span class="nv">this</span> <span class="kn">module</span> <span class="nv">on</span> <span class="nv">this</span> <span class="nv">kernel</span><span class="p">.</span>
+</span></span><span class="line"><span class="cl">   <span class="o">-</span> <span class="nc">Use</span> <span class="nv">the</span> <span class="nv">dkms</span> <span class="nv">install</span> <span class="nv">command</span> <span class="nv">to</span> <span class="nv">reinstall</span> <span class="kt">any</span> <span class="nv">previous</span> <span class="kn">module</span> <span class="nv">version</span><span class="p">.</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="nv">depmod</span><span class="o">...</span><span class="p">.</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="nc">DKMS</span><span class="p">:</span> <span class="nv">uninstall</span> <span class="nv">completed</span><span class="p">.</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="o">------------------------------</span>
+</span></span><span class="line"><span class="cl"><span class="nc">Deleting</span> <span class="kn">module</span> <span class="nv">version</span><span class="p">:</span> <span class="mf">1.0.20200426</span>
+</span></span><span class="line"><span class="cl"><span class="nv">completely</span> <span class="nv">from</span> <span class="nv">the</span> <span class="nc">DKMS</span> <span class="nv">tree</span><span class="p">.</span>
+</span></span><span class="line"><span class="cl"><span class="o">------------------------------</span>
+</span></span><span class="line"><span class="cl"><span class="nc">Done</span><span class="p">.</span>
+</span></span><span class="line"><span class="cl"><span class="nc">Unpacking</span> <span class="nv">wireguard</span><span class="o">-</span><span class="nv">dkms</span> <span class="p">(</span><span class="mf">1.0.20200611</span><span class="o">-</span><span class="mi">0</span><span class="nv">ppa1</span><span class="o">~</span><span class="mf">18.04</span><span class="p">)</span> <span class="nv">over</span> <span class="p">(</span><span class="mf">1.0.20200426</span><span class="o">-</span><span class="mi">0</span><span class="nv">ppa1</span><span class="o">~</span><span class="mf">18.04</span><span class="p">)</span> <span class="o">...</span>
+</span></span><span class="line"><span class="cl"><span class="err">設定</span> <span class="nv">wireguard</span><span class="o">-</span><span class="nv">dkms</span> <span class="p">(</span><span class="mf">1.0.20200611</span><span class="o">-</span><span class="mi">0</span><span class="nv">ppa1</span><span class="o">~</span><span class="mf">18.04</span><span class="p">)</span> <span class="o">...</span>
+</span></span><span class="line"><span class="cl"><span class="nc">Loading</span> <span class="nv">new</span> <span class="nv">wireguard</span><span class="o">-</span><span class="mf">1.0.20200611</span> <span class="nc">DKMS</span> <span class="nv">files</span><span class="o">...</span>
+</span></span><span class="line"><span class="cl"><span class="nc">Building</span> <span class="k">for</span> <span class="mf">4.15.0</span><span class="o">-</span><span class="mi">106</span><span class="o">-</span><span class="nv">generic</span>
+</span></span><span class="line"><span class="cl"><span class="nc">Building</span> <span class="nv">initial</span> <span class="kn">module</span> <span class="k">for</span> <span class="mf">4.15.0</span><span class="o">-</span><span class="mi">106</span><span class="o">-</span><span class="nv">generic</span>
+</span></span><span class="line"><span class="cl"><span class="nc">Done</span><span class="p">.</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="nl">wireguard</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl"><span class="nc">Running</span> <span class="kn">module</span> <span class="nv">version</span> <span class="nv">sanity</span> <span class="nv">check</span><span class="p">.</span>
+</span></span><span class="line"><span class="cl"> <span class="o">-</span> <span class="nc">Original</span> <span class="kn">module</span>
+</span></span><span class="line"><span class="cl">   <span class="o">-</span> <span class="nc">No</span> <span class="nv">original</span> <span class="kn">module</span> <span class="nv">exists</span> <span class="nv">within</span> <span class="nv">this</span> <span class="nv">kernel</span>
+</span></span><span class="line"><span class="cl"> <span class="o">-</span> <span class="nc">Installation</span>
+</span></span><span class="line"><span class="cl">   <span class="o">-</span> <span class="nc">Installing</span> <span class="nv">to</span> <span class="o">/</span><span class="nv">lib</span><span class="o">/</span><span class="nv">modules</span><span class="o">/</span><span class="mf">4.15.0</span><span class="o">-</span><span class="mi">106</span><span class="o">-</span><span class="nv">generic</span><span class="o">/</span><span class="nv">updates</span><span class="o">/</span><span class="nv">dkms</span><span class="o">/</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="nv">depmod</span><span class="o">...</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="nc">DKMS</span><span class="p">:</span> <span class="nv">install</span> <span class="nv">completed</span><span class="p">.</span>
+</span></span><span class="line"><span class="cl"><span class="nc">Updating</span> <span class="nv">loolwsd</span> <span class="nv">systemplate</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>跑完之後重起wireguard interface 就 OK 了</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span><span class="lnt">37
+</span><span class="lnt">38
+</span><span class="lnt">39
+</span><span class="lnt">40
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">root@hqdc034:~# wg-quick up wg0
+</span></span><span class="line"><span class="cl">[#] ip link add wg0 type wireguard
+</span></span><span class="line"><span class="cl">[#] wg setconf wg0 /dev/fd/63
+</span></span><span class="line"><span class="cl">[#] ip -4 address add 192.168.10.2/24 dev wg0
+</span></span><span class="line"><span class="cl">[#] ip link set mtu 1420 up dev wg0
+</span></span><span class="line"><span class="cl">[#] resolvconf -a tun.wg0 -m 0 -x
+</span></span><span class="line"><span class="cl">[#] ip -4 route add 140.112.0.0/16 dev wg0
+</span></span><span class="line"><span class="cl">[#] ip -4 route add 104.31.0.0/16 dev wg0
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">root@hqdc034:~# ip a
+</span></span><span class="line"><span class="cl">1: lo: &lt;LOOPBACK,UP,LOWER_UP&gt; mtu 65536 qdisc noqueue state UNKNOWN group default qlen 1000
+</span></span><span class="line"><span class="cl">    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
+</span></span><span class="line"><span class="cl">    inet 127.0.0.1/8 scope host lo
+</span></span><span class="line"><span class="cl">       valid_lft forever preferred_lft forever
+</span></span><span class="line"><span class="cl">    inet6 ::1/128 scope host 
+</span></span><span class="line"><span class="cl">       valid_lft forever preferred_lft forever
+</span></span><span class="line"><span class="cl">2: enp3s0: &lt;BROADCAST,MULTICAST,UP,LOWER_UP&gt; mtu 1500 qdisc mq state UP group default qlen 1000
+</span></span><span class="line"><span class="cl">    link/ether 00:10:18:14:0f:0a brd ff:ff:ff:ff:ff:ff
+</span></span><span class="line"><span class="cl">    inet 192.168.11.34/24 brd 192.168.0.255 scope global enp3s0
+</span></span><span class="line"><span class="cl">       valid_lft forever preferred_lft forever
+</span></span><span class="line"><span class="cl">    inet6 fe80::2537:5b36:df2:7c0e/64 scope link 
+</span></span><span class="line"><span class="cl">       valid_lft forever preferred_lft forever
+</span></span><span class="line"><span class="cl">3: enp0s31f6: &lt;NO-CARRIER,BROADCAST,MULTICAST,UP&gt; mtu 1500 qdisc fq_codel state DOWN group default qlen 1000
+</span></span><span class="line"><span class="cl">    link/ether 70:4d:7b:a3:66:f1 brd ff:ff:ff:ff:ff:ff
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">30: wg0: &lt;POINTOPOINT,NOARP,UP,LOWER_UP&gt; mtu 1420 qdisc noqueue state UNKNOWN group default qlen 1000
+</span></span><span class="line"><span class="cl">    link/none 
+</span></span><span class="line"><span class="cl">    inet 192.168.10.2/24 scope global wg0
+</span></span><span class="line"><span class="cl">       valid_lft forever preferred_lft forever
+</span></span><span class="line"><span class="cl">	   
+</span></span><span class="line"><span class="cl">	   
+</span></span><span class="line"><span class="cl">root@hqdc034:~# ip r
+</span></span><span class="line"><span class="cl">default via 192.168.11.253 dev enp3s0 src 192.168.11.34 metric 202 
+</span></span><span class="line"><span class="cl">10.25.0.0/16 dev LoyaltyNet proto kernel scope link src 10.25.25.1 linkdown 
+</span></span><span class="line"><span class="cl">104.31.0.0/16 dev wg0 scope link 
+</span></span><span class="line"><span class="cl">140.112.0.0/16 dev wg0 scope link 
+</span></span><span class="line"><span class="cl">192.168.10.0/24 dev wg0 proto kernel scope link src 192.168.10.2 
+</span></span><span class="line"><span class="cl">192.168.11.0/24 dev enp3s0 proto kernel scope link src 192.168.11.34 metric 202 
+</span></span><span class="line"><span class="cl">root@hqdc034:~# 
+</span></span></code></pre></td></tr></table>
+</div>
+</div>
+</section>
+
+
+    <footer class="article-footer">
+    
+    <section class="article-tags">
+        
+            <a href="/tags/ubuntu/">ubuntu</a>
+        
+            <a href="/tags/wireguard/">wireguard</a>
+        
+    </section>
+
+
+    
+    <section class="article-copyright">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <path d="M14.5 9a3.5 4 0 1 0 0 6" />
+</svg>
+
+
+
+        <span>Licensed under CC BY-NC-SA 4.0</span>
+    </section>
+    </footer>
+
+
+    
+</article>
+
+    
+
+    
+
+<aside class="related-content--wrapper">
+    <h2 class="section-title">相關文章</h2>
+    <div class="related-content">
+        <div class="flex article-list--tile">
+            
+                
+<article class="has-image">
+    <a href="/p/%E5%8F%88%E5%8F%88%E5%8F%88%E5%8F%88%E9%87%8D%E5%BC%84%E4%BA%86%E4%B8%80%E6%AC%A1%E9%83%A8%E8%90%BD%E6%A0%BC-/-restore-blog-again/">
+        
+        
+            <div class="article-image">
+                
+                    <img src="https://h.cowbay.org/images/post-default-2.jpg" loading="lazy" data-key="" data-hash="https://h.cowbay.org/images/post-default-2.jpg"/>
+                
+            </div>
+        
+
+        <div class="article-details">
+            <h2 class="article-title">又又又又重弄了一次部落格 / Restore Blog Again</h2>
+        </div>
+    </a>
+</article>
+
+            
+                
+<article class="has-image">
+    <a href="/p/%E7%AD%86%E8%A8%98-phicomm-%E6%96%90%E8%A8%8A-n1-%E6%95%91%E7%A3%9A%E7%9A%84%E6%96%B9%E6%B3%95/-how-to-save-bricked-n1-router/">
+        
+        
+            <div class="article-image">
+                
+                    <img src="https://h.cowbay.org/images/post-default-14.jpg" loading="lazy" data-key="" data-hash="https://h.cowbay.org/images/post-default-14.jpg"/>
+                
+            </div>
+        
+
+        <div class="article-details">
+            <h2 class="article-title">[筆記] Phicomm 斐訊 N1 救磚的方法/ How to Save Bricked N1 Router</h2>
+        </div>
+    </a>
+</article>
+
+            
+                
+<article class="has-image">
+    <a href="/p/init-script-in-openwrt-to-start-leproxy/%E5%9C%A8openwrt-%E6%96%B0%E5%A2%9E%E8%87%AA%E5%8B%95%E5%95%9F%E5%8B%95leproxy%E7%9A%84script/">
+        
+        
+            <div class="article-image">
+                
+                    <img src="https://h.cowbay.org/images/post-default-17.jpg" loading="lazy" data-key="" data-hash="https://h.cowbay.org/images/post-default-17.jpg"/>
+                
+            </div>
+        
+
+        <div class="article-details">
+            <h2 class="article-title">Init Script in Openwrt to Start Leproxy/在openwrt 新增自動啟動leproxy的script</h2>
+        </div>
+    </a>
+</article>
+
+            
+                
+<article class="has-image">
+    <a href="/p/auto-fetch-wildcard-ssl-certs-with-lego--acme-dns-domain-register-namecheap/">
+        
+        
+            <div class="article-image">
+                
+                    <img src="https://h.cowbay.org/images/post-default-8.jpg" loading="lazy" data-key="" data-hash="https://h.cowbay.org/images/post-default-8.jpg"/>
+                
+            </div>
+        
+
+        <div class="article-details">
+            <h2 class="article-title">auto fetch  Wildcard ssl certs with lego &#43; acme-dns ( Domain Register : Namecheap)</h2>
+        </div>
+    </a>
+</article>
+
+            
+                
+<article class="has-image">
+    <a href="/p/%E7%AD%86%E8%A8%98-web-%E6%AA%94%E6%A1%88%E7%AE%A1%E7%90%86-cloudcmd-web-file-manager/">
+        
+        
+            <div class="article-image">
+                
+                    <img src="https://h.cowbay.org/images/post-default-2.jpg" loading="lazy" data-key="" data-hash="https://h.cowbay.org/images/post-default-2.jpg"/>
+                
+            </div>
+        
+
+        <div class="article-details">
+            <h2 class="article-title">[筆記] WEB 檔案管理 Cloudcmd Web File Manager</h2>
+        </div>
+    </a>
+</article>
+
+            
+        </div>
+    </div>
+</aside>
+
+     
+    
+        
+    <div class="disqus-container">
+    <div id="disqus_thread"></div>
+<script type="application/javascript">
+    window.disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "h-cowbay-org" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+</div>
+
+<style>
+    .disqus-container {
+        background-color: var(--card-background);
+        border-radius: var(--card-border-radius);
+        box-shadow: var(--shadow-l1);
+        padding: var(--card-padding);
+    }
+</style>
+
+<script>
+    window.addEventListener('onColorSchemeChange', (e) => {
+        if (typeof DISQUS == 'object') {
+            DISQUS.reset({
+                reload: true
+            });
+        }
+    })
+</script>
+
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+            2020 - 
+        
+        2023 MCの部落
+    </section>
+    
+    <section class="powerby">
+        
+            鮮衣怒馬少年時 不負韶華行且知 <br/>
+        使用 <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> 建立 <br />
+        主題 <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.16.0">Stack</a></b> 由 <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a> 設計
+    </section>
+</footer>
+
+
+    
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.min.css"crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css"crossorigin="anonymous"
+            >
+
+            </main>
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.6/dist/vibrant.min.js"integrity="sha256-awcR2jno4kI5X0zL8ex0vi2z&#43;KMkF24hUW8WePSA9HM="crossorigin="anonymous"
+                
+                >
+            </script><script type="text/javascript" src="/ts/main.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>

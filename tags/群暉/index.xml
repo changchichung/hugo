@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+    <channel>
+        <title>群暉 on MCの部落</title>
+        <link>https://h.cowbay.org/tags/%E7%BE%A4%E6%9A%89/</link>
+        <description>Recent content in 群暉 on MCの部落</description>
+        <generator>Hugo -- gohugo.io</generator>
+        <language>en-us</language>
+        <lastBuildDate>Tue, 04 Dec 2018 10:25:19 +0800</lastBuildDate><atom:link href="https://h.cowbay.org/tags/%E7%BE%A4%E6%9A%89/index.xml" rel="self" type="application/rss+xml" /><item>
+        <title>[雜念] 群暉 Synology NAS DS 415&#43; 誇張的維修費用</title>
+        <link>https://h.cowbay.org/p/%E9%9B%9C%E5%BF%B5-%E7%BE%A4%E6%9A%89-synology-nas-ds-415-%E8%AA%87%E5%BC%B5%E7%9A%84%E7%B6%AD%E4%BF%AE%E8%B2%BB%E7%94%A8/</link>
+        <pubDate>Tue, 04 Dec 2018 10:25:19 +0800</pubDate>
+        
+        <guid>https://h.cowbay.org/p/%E9%9B%9C%E5%BF%B5-%E7%BE%A4%E6%9A%89-synology-nas-ds-415-%E8%AA%87%E5%BC%B5%E7%9A%84%E7%B6%AD%E4%BF%AE%E8%B2%BB%E7%94%A8/</guid>
+        <description>&lt;p&gt;前幾天公司的一台 Synology DS 415+ 發生異常&lt;/p&gt;
+&lt;p&gt;注意到的時候，四顆硬碟燈號都不斷的在閃爍&lt;/p&gt;
+&lt;p&gt;但是已經無法登入系統&lt;/p&gt;
+&lt;p&gt;重開機之後更慘，四顆硬碟燈號全部橘燈恆亮&lt;/p&gt;
+&lt;p&gt;底下的電源藍燈不斷的在閃爍&lt;/p&gt;
+&lt;p&gt;雖然我一再表示不希望送修了&lt;/p&gt;
+&lt;p&gt;一來是已經過保，二來是DS415+ 本身就有intel bug，三來是因為對synology的NAS 實在沒有愛&amp;hellip;&lt;/p&gt;
+&lt;p&gt;不過主管還是希望能夠先問群暉維修的費用多少&lt;/p&gt;
+&lt;p&gt;登入 account.synology.com 之後，早上10:40 發了一張ticket&lt;/p&gt;
+&lt;p&gt;請群暉提供RMA 流程&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
+&lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt;1
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;2
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;3
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;4
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;5
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;6
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-fallback&#34; data-lang=&#34;fallback&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;線上運作時，發現四個硬碟燈號同時都在快速閃爍，重新開機後，STATUS 藍燈持續閃爍，四個硬碟燈號都是橘燈恆亮。
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;進線客服詢問，把硬碟拔出來，空機開機還是一樣的狀況。
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;請協助提供RMA 流程，謝謝！
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;p&gt;然後「當天」下午 17:40 ，客服回信了&lt;/p&gt;
+&lt;p&gt;嗯，一封郵件要等七個小時才回信&amp;hellip;效率真是高啊！&lt;/p&gt;
+&lt;p&gt;客服表示&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
+&lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt;1
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;2
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;3
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;4
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;5
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;6
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;7
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-fallback&#34; data-lang=&#34;fallback&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;DS415提供原廠保固2年，Synology針對此型號有額外增加1年的保固期限，因此產品為3年保固產品．
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;根據產品的序號目前機器是過保的狀態，為確認目前產品是否仍在保固內，請問您是否還保有當初的購買證明呢？
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;若產品還在保固內我會儘速替您申請機器RMA的程序．
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;若產品確認是過保狀態，我會替您查詢目前最新更換DS415+主機板的報價供您參考
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;p&gt;產品已經過保了，就算用手邊的購買證明去算保固日期也是一樣&lt;/p&gt;
+&lt;p&gt;所以請群暉客服直接提供維修主機板的報價&lt;/p&gt;
+&lt;p&gt;然後隔天收到回信了&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
+&lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt;1
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;2
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;3
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;4
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;5
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-fallback&#34; data-lang=&#34;fallback&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;稍早跟物料人同仁確認目前DS415+的PCBA是還有庫存的．主板報價是新台幣 $15,232(郵寄費 $100NTD)
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;由於主機板是整項產品單價最高的零件，一般我們會建議使用者若有更換的需求，轉考慮同等級新機種其實會比較划算．
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;以上資訊供您參考，非常感謝您對Synology產品的支持．
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;p&gt;嗯哼，一台當初購買價格不過&lt;strong&gt;一萬七千多&lt;/strong&gt;的設備，維修報價是&lt;!-- raw HTML omitted --&gt; 15232&lt;!-- raw HTML omitted --&gt; ，還有什麼好說呢？&lt;/p&gt;
+&lt;p&gt;這個客服也很直接說了，&lt;!-- raw HTML omitted --&gt;考慮換新機種比較划算&lt;!-- raw HTML omitted --&gt;，所以就不維修了&lt;/p&gt;
+&lt;p&gt;只是這個型號(DS-415+)的NAS ，當初一共採購了四台&lt;/p&gt;
+&lt;p&gt;我到這邊不到一年，維修了兩台，更換了兩次硬碟，重建了三次RAID&lt;/p&gt;
+&lt;p&gt;群暉吶&amp;hellip; Synology 吶&amp;hellip;本來以為可以是真正的「台灣之光」的廠商吶..&lt;/p&gt;
+&lt;p&gt;只是這將近十年下來的經驗&amp;hellip;&lt;/p&gt;
+&lt;p&gt;我以後如果不是用「國際」大廠的NAS，不然就是會自己搞 FREENAS 之類的opensource 系統了吧&amp;hellip;&lt;/p&gt;</description>
+        </item>
+        
+    </channel>
+</rss>

@@ -1,0 +1,1459 @@
+<!DOCTYPE html>
+<html lang="en-us" dir="ltr">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='前面測試了用pgbarman / pgbackrest 來備份 postgresql
+這次改從system file level 來下手
+採用zfs 的快照來備份、還原postgresql 資料庫
+'>
+<meta name="keywords" content="postgresql, zfs, backup, restore"><title>[筆記] 用zfs的snapshot 快照功能來做 postgresql 的備份還原 / Postgresql Backup Restore Using Zfs Snapshot</title>
+
+<link rel='canonical' href='https://h.cowbay.org/p/%E7%AD%86%E8%A8%98-%E7%94%A8zfs%E7%9A%84snapshot-%E5%BF%AB%E7%85%A7%E5%8A%9F%E8%83%BD%E4%BE%86%E5%81%9A-postgresql-%E7%9A%84%E5%82%99%E4%BB%BD%E9%82%84%E5%8E%9F-/-postgresql-backup-restore-using-zfs-snapshot/'>
+
+<link rel="stylesheet" href="/scss/style.min.8191399262444ab68b72a18c97392f5349be20a1615d77445be51e974c144cff.css"><meta property='og:title' content='[筆記] 用zfs的snapshot 快照功能來做 postgresql 的備份還原 / Postgresql Backup Restore Using Zfs Snapshot'>
+<meta property='og:description' content='前面測試了用pgbarman / pgbackrest 來備份 postgresql
+這次改從system file level 來下手
+採用zfs 的快照來備份、還原postgresql 資料庫
+'>
+<meta property='og:url' content='https://h.cowbay.org/p/%E7%AD%86%E8%A8%98-%E7%94%A8zfs%E7%9A%84snapshot-%E5%BF%AB%E7%85%A7%E5%8A%9F%E8%83%BD%E4%BE%86%E5%81%9A-postgresql-%E7%9A%84%E5%82%99%E4%BB%BD%E9%82%84%E5%8E%9F-/-postgresql-backup-restore-using-zfs-snapshot/'>
+<meta property='og:site_name' content='MCの部落'>
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='postgresql' /><meta property='article:tag' content='zfs' /><meta property='article:tag' content='backup' /><meta property='article:tag' content='restore' /><meta property='article:published_time' content='2019-09-06T10:42:11&#43;08:00'/><meta property='article:modified_time' content='2019-09-06T10:42:11&#43;08:00'/>
+<meta name="twitter:title" content="[筆記] 用zfs的snapshot 快照功能來做 postgresql 的備份還原 / Postgresql Backup Restore Using Zfs Snapshot">
+<meta name="twitter:description" content="前面測試了用pgbarman / pgbackrest 來備份 postgresql
+這次改從system file level 來下手
+採用zfs 的快照來備份、還原postgresql 資料庫
+">
+<script type="application/javascript">
+var doNotTrack = false;
+if (!doNotTrack) {
+	(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+	(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+	m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+	})(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+	ga('create', 'UA-128770427-1', 'auto');
+	
+	ga('send', 'pageview');
+}
+</script>
+    </head>
+    <body class="
+    article-page
+    ">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "auto");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.documentElement.dataset.scheme = 'dark';
+        } else {
+            document.documentElement.dataset.scheme = 'light';
+        }
+    })();
+</script>
+<div class="container main-container flex on-phone--column extended"><aside class="sidebar left-sidebar sticky ">
+    <button class="hamburger hamburger--spin" type="button" id="toggle-menu" aria-label="切換選單">
+        <span class="hamburger-box">
+            <span class="hamburger-inner"></span>
+        </span>
+    </button>
+
+    <header>
+        
+            
+            <figure class="site-avatar">
+                <a href="/">
+                
+                    
+                    
+                    
+                        
+                        <img src="/img/avatar_hu85bfcf0e08404ecf606702eb99c7ed68_43560_300x0_resize_box_3.png" width="300"
+                            height="300" class="site-logo" loading="lazy" alt="Avatar">
+                    
+                
+                </a>
+                
+                    <span class="emoji">🍥</span>
+                
+            </figure>
+            
+        
+        
+        <div class="site-meta">
+            <h1 class="site-name"><a href="/">MCの部落</a></h1>
+            <h2 class="site-description">讀過兩年書，塵世中一個迷途小書僮</h2>
+        </div>
+    </header><ol class="social-menu">
+            
+                <li>
+                    <a 
+                        href='https://www.facebook.com'
+                        target="_blank"
+                        title="facebook"
+                        rel="me"
+                    >
+                        
+                        
+                            <?xml version="1.0" encoding="iso-8859-1"?>
+<!-- Uploaded to: SVG Repo, www.svgrepo.com, Generator: SVG Repo Mixer Tools -->
+<svg height="800px" width="800px" version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" 
+	 viewBox="0 0 512 512" xml:space="preserve">
+<path style="fill:#385C8E;" d="M134.941,272.691h56.123v231.051c0,4.562,3.696,8.258,8.258,8.258h95.159
+	c4.562,0,8.258-3.696,8.258-8.258V273.78h64.519c4.195,0,7.725-3.148,8.204-7.315l9.799-85.061c0.269-2.34-0.472-4.684-2.038-6.44
+	c-1.567-1.757-3.81-2.763-6.164-2.763h-74.316V118.88c0-16.073,8.654-24.224,25.726-24.224c2.433,0,48.59,0,48.59,0
+	c4.562,0,8.258-3.698,8.258-8.258V8.319c0-4.562-3.696-8.258-8.258-8.258h-66.965C309.622,0.038,308.573,0,307.027,0
+	c-11.619,0-52.006,2.281-83.909,31.63c-35.348,32.524-30.434,71.465-29.26,78.217v62.352h-58.918c-4.562,0-8.258,3.696-8.258,8.258
+	v83.975C126.683,268.993,130.379,272.691,134.941,272.691z"/>
+</svg>
+                        
+                    </a>
+                </li>
+            
+                <li>
+                    <a 
+                        href='https://github.com/CaiJimmy/hugo-theme-stack'
+                        target="_blank"
+                        title="GitHub"
+                        rel="me"
+                    >
+                        
+                        
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-github" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M9 19c-4.3 1.4 -4.3 -2.5 -6 -3m12 5v-3.5c0 -1 .1 -1.4 -.5 -2c2.8 -.3 5.5 -1.4 5.5 -6a4.6 4.6 0 0 0 -1.3 -3.2a4.2 4.2 0 0 0 -.1 -3.2s-1.1 -.3 -3.5 1.3a12.3 12.3 0 0 0 -6.2 0c-2.4 -1.6 -3.5 -1.3 -3.5 -1.3a4.2 4.2 0 0 0 -.1 3.2a4.6 4.6 0 0 0 -1.3 3.2c0 4.6 2.7 5.7 5.5 6c-.6 .6 -.6 1.2 -.5 2v3.5" />
+</svg>
+
+
+
+                        
+                    </a>
+                </li>
+            
+                <li>
+                    <a 
+                        href='https://twitter.com'
+                        target="_blank"
+                        title="Twitter"
+                        rel="me"
+                    >
+                        
+                        
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-twitter" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M22 4.01c-1 .49 -1.98 .689 -3 .99c-1.121 -1.265 -2.783 -1.335 -4.38 -.737s-2.643 2.06 -2.62 3.737v1c-3.245 .083 -6.135 -1.395 -8 -4c0 0 -4.182 7.433 4 11c-1.872 1.247 -3.739 2.088 -6 2c3.308 1.803 6.913 2.423 10.034 1.517c3.58 -1.04 6.522 -3.723 7.651 -7.742a13.84 13.84 0 0 0 .497 -3.753c-.002 -.249 1.51 -2.772 1.818 -4.013z" />
+</svg>
+
+
+
+                        
+                    </a>
+                </li>
+            
+        </ol><ol class="menu" id="main-menu">
+        
+        
+        
+        <li >
+            <a href='/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-home" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="5 12 3 12 12 3 21 12 19 12" />
+  <path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-7" />
+  <path d="M9 21v-6a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v6" />
+</svg>
+
+
+
+                
+                <span>Home</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/about/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-user" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="7" r="4" />
+  <path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2" />
+</svg>
+
+
+
+                
+                <span>About</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/archives/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-archive" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <rect x="3" y="4" width="18" height="4" rx="2" />
+  <path d="M5 8v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-10" />
+  <line x1="10" y1="12" x2="14" y2="12" />
+</svg>
+
+
+
+                
+                <span>Archives</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/search/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="10" cy="10" r="7" />
+  <line x1="21" y1="21" x2="15" y2="15" />
+</svg>
+
+
+
+                
+                <span>Search</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/links/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-link" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M10 14a3.5 3.5 0 0 0 5 0l4 -4a3.5 3.5 0 0 0 -5 -5l-.5 .5" />
+  <path d="M14 10a3.5 3.5 0 0 0 -5 0l-4 4a3.5 3.5 0 0 0 5 5l.5 -.5" />
+</svg>
+
+
+
+                
+                <span>Links</span>
+            </a>
+        </li>
+        
+
+        <div class="menu-bottom-section">
+                <li id="i18n-switch">  
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-language" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M4 5h7" />
+  <path d="M9 3v2c0 4.418 -2.239 8 -5 8" />
+  <path d="M5 9c-.003 2.144 2.952 3.908 6.7 4" />
+  <path d="M12 20l4 -9l4 9" />
+  <path d="M19.1 18h-6.2" />
+</svg>
+
+
+
+                    <select name="language" onchange="window.location.href = this.selectedOptions[0].value">
+                        
+                            <option value="https://h.cowbay.org/" selected>中文</option>
+                        
+                            <option value="https://h.cowbay.org/en/" >English</option>
+                        
+                    </select>
+                </li>
+            
+            
+            
+                <li id="dark-mode-toggle">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="8" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="16" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                    <span>夜晚模式</span>
+                </li>
+            
+        </div>
+    </ol>
+</aside>
+
+    <aside class="sidebar right-sidebar sticky">
+        
+            
+                
+    <section class="widget archives">
+        <div class="widget-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <line x1="5" y1="9" x2="19" y2="9" />
+  <line x1="5" y1="15" x2="19" y2="15" />
+  <line x1="11" y1="4" x2="7" y2="20" />
+  <line x1="17" y1="4" x2="13" y2="20" />
+</svg>
+
+
+
+        </div>
+        <h2 class="widget-title section-title">目錄</h2>
+        
+        <div class="widget--toc">
+            <nav id="TableOfContents">
+  <ol>
+    <li>
+      <ol>
+        <li><a href="#建立測試資料庫tablesnapshot">建立測試資料庫、TABLE、snapshot</a>
+          <ol>
+            <li><a href="#資料庫現況">資料庫現況</a></li>
+            <li><a href="#建立第一次的快照">建立第一次的快照</a></li>
+            <li><a href="#建立倒回測試資料庫-demo">建立、倒回測試資料庫 demo</a></li>
+            <li><a href="#建立第二次快照">建立第二次快照</a></li>
+            <li><a href="#建立測試-table">建立測試 table</a></li>
+            <li><a href="#建立第三次快照">建立第三次快照</a></li>
+            <li><a href="#在test-table-插入100萬筆資料">在test table 插入100萬筆資料</a></li>
+            <li><a href="#建立第四次快照">建立第四次快照</a></li>
+            <li><a href="#再次插入-100萬筆資料">再次插入 100萬筆資料</a></li>
+            <li><a href="#建立第五次快照">建立第五次快照</a></li>
+            <li><a href="#玩大點直接湊滿1000萬筆資料好了">玩大點，直接湊滿1000萬筆資料好了</a></li>
+            <li><a href="#建立第六次快照">建立第六次快照</a></li>
+          </ol>
+        </li>
+        <li><a href="#還原測試">還原測試</a>
+          <ol>
+            <li><a href="#第一次還原">第一次還原</a></li>
+          </ol>
+        </li>
+      </ol>
+    </li>
+  </ol>
+</nav>
+        </div>
+    </section>
+
+            
+        
+    </aside>
+
+
+            <main class="main full-width">
+    <article class="main-article">
+    <header class="article-header">
+
+    <div class="article-details">
+    
+    <header class="article-category">
+        
+            <a href="/categories/%E7%AD%86%E8%A8%98/" >
+                筆記
+            </a>
+        
+    </header>
+    
+
+    <div class="article-title-wrapper">
+        <h2 class="article-title">
+            <a href="/p/%E7%AD%86%E8%A8%98-%E7%94%A8zfs%E7%9A%84snapshot-%E5%BF%AB%E7%85%A7%E5%8A%9F%E8%83%BD%E4%BE%86%E5%81%9A-postgresql-%E7%9A%84%E5%82%99%E4%BB%BD%E9%82%84%E5%8E%9F-/-postgresql-backup-restore-using-zfs-snapshot/">[筆記] 用zfs的snapshot 快照功能來做 postgresql 的備份還原 / Postgresql Backup Restore Using Zfs Snapshot</a>
+        </h2>
+    
+        
+    </div>
+
+    
+    
+    
+    
+    <footer class="article-time">
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M11.795 21h-6.795a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
+  <circle cx="18" cy="18" r="4" />
+  <path d="M15 3v4" />
+  <path d="M7 3v4" />
+  <path d="M3 11h16" />
+  <path d="M18 16.496v1.504l1 1" />
+</svg>
+                <time class="article-time--published">2019-09-09</time>
+            </div>
+        
+
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+                <time class="article-time--reading">
+                    閱讀時間: 6 分鐘
+                </time>
+            </div>
+        
+    </footer>
+    
+
+    
+</div>
+
+</header>
+
+    <section class="article-content">
+    
+    
+    <p>前面測試了用pgbarman / pgbackrest 來備份 postgresql</p>
+<p>這次改從system file level 來下手</p>
+<p>採用zfs 的快照來備份、還原postgresql 資料庫</p>
+<h3 id="建立測試資料庫tablesnapshot">建立測試資料庫、TABLE、snapshot</h3>
+<h4 id="資料庫現況">資料庫現況</h4>
+<p>只有系統預設的DB，沒有其他多的東西</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">postgres@hqdc034:~$ psql -c &#39;\l&#39;
+</span></span><span class="line"><span class="cl">                                  List of databases
+</span></span><span class="line"><span class="cl">   Name    |  Owner   | Encoding |   Collate   |    Ctype    |   Access privileges   
+</span></span><span class="line"><span class="cl">-----------+----------+----------+-------------+-------------+-----------------------
+</span></span><span class="line"><span class="cl"> postgres  | postgres | UTF8     | en_US.UTF-8 | en_US.UTF-8 | 
+</span></span><span class="line"><span class="cl"> template0 | postgres | UTF8     | en_US.UTF-8 | en_US.UTF-8 | =c/postgres          +
+</span></span><span class="line"><span class="cl">           |          |          |             |             | postgres=CTc/postgres
+</span></span><span class="line"><span class="cl"> template1 | postgres | UTF8     | en_US.UTF-8 | en_US.UTF-8 | =c/postgres          +
+</span></span><span class="line"><span class="cl">           |          |          |             |             | postgres=CTc/postgres
+</span></span><span class="line"><span class="cl">(3 rows)
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">postgres@hqdc034:~$ du -sh /zp/database/10/main/
+</span></span><span class="line"><span class="cl">232M	/zp/database/10/main/
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h4 id="建立第一次的快照">建立第一次的快照</h4>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">2019-09-06 09:03:46 [changch@hqdc034 ~]$ sudo zfs list -t snapshot
+</span></span><span class="line"><span class="cl">no datasets available
+</span></span><span class="line"><span class="cl">2019-09-06 09:03:53 [changch@hqdc034 ~]$ sudo zfs snapshot zp/database@init_db_no_demo
+</span></span><span class="line"><span class="cl">2019-09-06 09:04:09 [changch@hqdc034 ~]$ sudo zfs list -t snapshot
+</span></span><span class="line"><span class="cl">NAME                          USED  AVAIL  REFER  MOUNTPOINT
+</span></span><span class="line"><span class="cl">zp/database@init_db_no_demo      0      -   231M  -
+</span></span><span class="line"><span class="cl">2019-09-06 09:04:15 [changch@hqdc034 ~]$
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h4 id="建立倒回測試資料庫-demo">建立、倒回測試資料庫 demo</h4>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">postgres@hqdc034:~$ createdb demo
+</span></span><span class="line"><span class="cl">postgres@hqdc034:~$ psql demo &lt; /home/changch/Downloads/demo.sql 
+</span></span><span class="line"><span class="cl">SET
+</span></span><span class="line"><span class="cl">SET
+</span></span><span class="line"><span class="cl">略...
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>再檢查一次資料庫的狀況，看到 demo DB出現了，資料庫目錄也變大了</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">postgres@hqdc034:~$ psql -c &#39;\l&#39;
+</span></span><span class="line"><span class="cl">                                  List of databases
+</span></span><span class="line"><span class="cl">   Name    |  Owner   | Encoding |   Collate   |    Ctype    |   Access privileges   
+</span></span><span class="line"><span class="cl">-----------+----------+----------+-------------+-------------+-----------------------
+</span></span><span class="line"><span class="cl"> demo      | postgres | UTF8     | en_US.UTF-8 | en_US.UTF-8 | 
+</span></span><span class="line"><span class="cl"> postgres  | postgres | UTF8     | en_US.UTF-8 | en_US.UTF-8 | 
+</span></span><span class="line"><span class="cl"> template0 | postgres | UTF8     | en_US.UTF-8 | en_US.UTF-8 | =c/postgres          +
+</span></span><span class="line"><span class="cl">           |          |          |             |             | postgres=CTc/postgres
+</span></span><span class="line"><span class="cl"> template1 | postgres | UTF8     | en_US.UTF-8 | en_US.UTF-8 | =c/postgres          +
+</span></span><span class="line"><span class="cl">           |          |          |             |             | postgres=CTc/postgres
+</span></span><span class="line"><span class="cl">(4 rows)
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">postgres@hqdc034:~$ du -sh /zp/database/10/main/
+</span></span><span class="line"><span class="cl">2.1G	/zp/database/10/main/
+</span></span><span class="line"><span class="cl">postgres@hqdc034:~$ 
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h4 id="建立第二次快照">建立第二次快照</h4>
+<p>這次的快照，將包含剛剛倒回的 demo DB，但是不包含等下才要建立的測試 table</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">2019-09-06 09:16:01 [changch@hqdc034 ~]$ sudo zfs list -t snapshot
+</span></span><span class="line"><span class="cl">NAME                               USED  AVAIL  REFER  MOUNTPOINT
+</span></span><span class="line"><span class="cl">zp/database@init_db_no_demo        250K      -   231M  -
+</span></span><span class="line"><span class="cl">zp/database@demo_db_just_restore      0      -  2.08G  -
+</span></span><span class="line"><span class="cl">2019-09-06 09:16:04 [changch@hqdc034 ~]$
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h4 id="建立測試-table">建立測試 table</h4>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">postgres@hqdc034:~$ psql -c &#39;create table test ( a int, b varchar(50) );&#39;
+</span></span><span class="line"><span class="cl">CREATE TABLE
+</span></span><span class="line"><span class="cl">postgres@hqdc034:~$
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h4 id="建立第三次快照">建立第三次快照</h4>
+<p>這次快照，只有建立 test table ，但是裡面沒有資料</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">2019-09-06 09:18:34 [changch@hqdc034 ~]$ sudo zfs list -t snapshot
+</span></span><span class="line"><span class="cl">NAME                                                USED  AVAIL  REFER  MOUNTPOINT
+</span></span><span class="line"><span class="cl">zp/database@init_db_no_demo                         250K      -   231M  -
+</span></span><span class="line"><span class="cl">zp/database@demo_db_just_restore                    138K      -  2.08G  -
+</span></span><span class="line"><span class="cl">zp/database@demo_db_create_test_table_but_no_data      0      -  2.08G  -
+</span></span><span class="line"><span class="cl">2019-09-06 09:18:36 [changch@hqdc034 ~]$
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h4 id="在test-table-插入100萬筆資料">在test table 插入100萬筆資料</h4>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span><span class="lnt">9
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">postgres@hqdc034:~$ psql -c &#39;with aa as ( select * from generate_series (1,1000000) a ) insert into test select aa.a, md5(aa.a::varchar) from aa;&#39;
+</span></span><span class="line"><span class="cl">INSERT 0 1000000
+</span></span><span class="line"><span class="cl">postgres@hqdc034:~$ psql -c &#39;select count(*) from test;&#39;
+</span></span><span class="line"><span class="cl">  count  
+</span></span><span class="line"><span class="cl">---------
+</span></span><span class="line"><span class="cl"> 1000000
+</span></span><span class="line"><span class="cl">(1 row)
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">postgres@hqdc034:~$
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h4 id="建立第四次快照">建立第四次快照</h4>
+<p>test table 內有 1000000 筆資料</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">2019-09-06 09:18:36 [changch@hqdc034 ~]$ sudo zfs snapshot zp/database@demo_db_test_table_with_1M_rows
+</span></span><span class="line"><span class="cl">2019-09-06 09:21:08 [changch@hqdc034 ~]$ sudo zfs list -t snapshot
+</span></span><span class="line"><span class="cl">NAME                                                USED  AVAIL  REFER  MOUNTPOINT
+</span></span><span class="line"><span class="cl">zp/database@init_db_no_demo                         250K      -   231M  -
+</span></span><span class="line"><span class="cl">zp/database@demo_db_just_restore                    138K      -  2.08G  -
+</span></span><span class="line"><span class="cl">zp/database@demo_db_create_test_table_but_no_data   116K      -  2.08G  -
+</span></span><span class="line"><span class="cl">zp/database@demo_db_test_table_with_1M_rows            0      -  2.15G  -
+</span></span><span class="line"><span class="cl">2019-09-06 09:21:09 [changch@hqdc034 ~]$
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h4 id="再次插入-100萬筆資料">再次插入 100萬筆資料</h4>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">postgres@hqdc034:~$ time psql -c &#39;with aa as ( select * from generate_series (1,1000000) a ) insert into test select aa.a, md5(aa.a::varchar) from aa;&#39;
+</span></span><span class="line"><span class="cl">INSERT 0 1000000
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">real	0m4.276s
+</span></span><span class="line"><span class="cl">user	0m0.020s
+</span></span><span class="line"><span class="cl">sys	0m0.012s
+</span></span><span class="line"><span class="cl">postgres@hqdc034:~$ psql -c &#39;select count(*) from test;&#39;
+</span></span><span class="line"><span class="cl">  count  
+</span></span><span class="line"><span class="cl">---------
+</span></span><span class="line"><span class="cl"> 2000000
+</span></span><span class="line"><span class="cl">(1 row)
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">postgres@hqdc034:~$
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h4 id="建立第五次快照">建立第五次快照</h4>
+<p>現在 test table 有 200萬筆資料了</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span><span class="lnt">9
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">2019-09-06 09:21:09 [changch@hqdc034 ~]$ sudo zfs snapshot zp/database@demo_db_test_table_with_2M_rows
+</span></span><span class="line"><span class="cl">2019-09-06 09:22:29 [changch@hqdc034 ~]$ sudo zfs list -t snapshot
+</span></span><span class="line"><span class="cl">NAME                                                USED  AVAIL  REFER  MOUNTPOINT
+</span></span><span class="line"><span class="cl">zp/database@init_db_no_demo                         250K      -   231M  -
+</span></span><span class="line"><span class="cl">zp/database@demo_db_just_restore                    138K      -  2.08G  -
+</span></span><span class="line"><span class="cl">zp/database@demo_db_create_test_table_but_no_data   116K      -  2.08G  -
+</span></span><span class="line"><span class="cl">zp/database@demo_db_test_table_with_1M_rows         218K      -  2.15G  -
+</span></span><span class="line"><span class="cl">zp/database@demo_db_test_table_with_2M_rows            0      -  2.23G  -
+</span></span><span class="line"><span class="cl">2019-09-06 09:22:30 [changch@hqdc034 ~]$
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h4 id="玩大點直接湊滿1000萬筆資料好了">玩大點，直接湊滿1000萬筆資料好了</h4>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">postgres@hqdc034:~$ time psql -c &#39;with aa as ( select * from generate_series (1,8000000) a ) insert into test select aa.a, md5(aa.a::varchar) from aa;&#39;
+</span></span><span class="line"><span class="cl">INSERT 0 8000000
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">real	0m32.172s
+</span></span><span class="line"><span class="cl">user	0m0.024s
+</span></span><span class="line"><span class="cl">sys	0m0.008s
+</span></span><span class="line"><span class="cl">postgres@hqdc034:~$ psql -c &#39;select count(*) from test;&#39;
+</span></span><span class="line"><span class="cl">  count   
+</span></span><span class="line"><span class="cl">----------
+</span></span><span class="line"><span class="cl"> 10000000
+</span></span><span class="line"><span class="cl">(1 row)
+</span></span><span class="line"><span class="cl">postgres@hqdc034:~$
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h4 id="建立第六次快照">建立第六次快照</h4>
+<p>10M rows in test table</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">2019-09-06 09:22:30 [changch@hqdc034 ~]$ sudo zfs snapshot zp/database@demo_db_test_table_with_10M_rows
+</span></span><span class="line"><span class="cl">2019-09-06 09:25:18 [changch@hqdc034 ~]$ sudo zfs list -t snapshot
+</span></span><span class="line"><span class="cl">NAME                                                USED  AVAIL  REFER  MOUNTPOINT
+</span></span><span class="line"><span class="cl">zp/database@init_db_no_demo                         250K      -   231M  -
+</span></span><span class="line"><span class="cl">zp/database@demo_db_just_restore                    138K      -  2.08G  -
+</span></span><span class="line"><span class="cl">zp/database@demo_db_create_test_table_but_no_data   116K      -  2.08G  -
+</span></span><span class="line"><span class="cl">zp/database@demo_db_test_table_with_1M_rows         218K      -  2.15G  -
+</span></span><span class="line"><span class="cl">zp/database@demo_db_test_table_with_2M_rows         530K      -  2.23G  -
+</span></span><span class="line"><span class="cl">zp/database@demo_db_test_table_with_10M_rows        163K      -  2.97G  -
+</span></span><span class="line"><span class="cl">2019-09-06 09:25:21 [changch@hqdc034 ~]$
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>到1000萬筆資料為止，現在資料庫大小是這樣</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">postgres@hqdc034:~$ du -sh /zp/database/10/main/
+</span></span><span class="line"><span class="cl">3.0G	/zp/database/10/main/
+</span></span><span class="line"><span class="cl">postgres@hqdc034:~$
+</span></span></code></pre></td></tr></table>
+</div>
+</div><hr>
+<h3 id="還原測試">還原測試</h3>
+<p>最後一次做快照的時候，demo DB 裡面有一千萬筆資料，現在來砍掉500萬筆</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">postgres@hqdc034:~$ time psql -c &#39;delete from test where a &gt; 5000000;&#39;
+</span></span><span class="line"><span class="cl">DELETE 3000000
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">real	0m7.844s
+</span></span><span class="line"><span class="cl">user	0m0.024s
+</span></span><span class="line"><span class="cl">sys	0m0.004s
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">postgres@hqdc034:~$ time psql -c &#39;select count(*) from test;&#39;
+</span></span><span class="line"><span class="cl">  count  
+</span></span><span class="line"><span class="cl">---------
+</span></span><span class="line"><span class="cl"> 7000000
+</span></span><span class="line"><span class="cl">(1 row)
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">real	0m0.268s
+</span></span><span class="line"><span class="cl">user	0m0.024s
+</span></span><span class="line"><span class="cl">sys	0m0.004s
+</span></span><span class="line"><span class="cl">postgres@hqdc034:~$
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>咦，怪怪的，為什麼只有砍掉300萬筆？
+好，這邊先不管，等等正好來驗證restore的狀況</p>
+<p>假設剛剛這個刪除是錯誤的動作，我要回到1000萬資料的狀態，就可以用zfs rollback 來達成</p>
+<h4 id="第一次還原">第一次還原</h4>
+<p>目標是還原到包含1000萬筆資料的狀態(現在是700萬筆)</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">2019-09-06 09:25:21 [changch@hqdc034 ~]$ sudo service postgresql stop
+</span></span><span class="line"><span class="cl"> * Stopping PostgreSQL 10 database server      [ OK ] 
+</span></span><span class="line"><span class="cl">2019-09-06 10:14:12 [changch@hqdc034 ~]$ sudo zfs rollback -r zp/database@demo_db_test_table_with_10M_rows
+</span></span><span class="line"><span class="cl">2019-09-06 10:14:28 [changch@hqdc034 ~]$ sudo service postgresql start
+</span></span><span class="line"><span class="cl"> * Starting PostgreSQL 10 database server      [ OK ]
+</span></span><span class="line"><span class="cl">2019-09-06 10:14:57 [changch@hqdc034 ~]$ 
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>檢查一下</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">postgres@hqdc034:~$ time psql -c &#39;select count(*) from test;&#39;
+</span></span><span class="line"><span class="cl">  count   
+</span></span><span class="line"><span class="cl">----------
+</span></span><span class="line"><span class="cl"> 10000000
+</span></span><span class="line"><span class="cl">(1 row)
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">real	0m5.019s
+</span></span><span class="line"><span class="cl">user	0m0.040s
+</span></span><span class="line"><span class="cl">sys	0m0.008s
+</span></span><span class="line"><span class="cl">postgres@hqdc034:~$
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>沒錯，又回到1000萬筆資料的狀態了</p>
+<p>要注意的是，如果回到更之前的狀態，在該狀態之後的快照將會被清除，除非你先做clone
+比如我現在要回到 200萬筆的狀態，那1000萬筆資料的快照就會被刪除</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">2019-09-06 10:17:32 [changch@hqdc034 ~]$ sudo service postgresql stop
+</span></span><span class="line"><span class="cl"> * Stopping PostgreSQL 10 database server         [ OK ] 
+</span></span><span class="line"><span class="cl">2019-09-06 10:18:50 [changch@hqdc034 ~]$ sudo zfs rollback -r zp/database@demo_db_test_table_with_2M_rows
+</span></span><span class="line"><span class="cl">2019-09-06 10:18:57 [changch@hqdc034 ~]$ sudo zfs list -t snapshot
+</span></span><span class="line"><span class="cl">NAME                                                USED  AVAIL  REFER  MOUNTPOINT
+</span></span><span class="line"><span class="cl">zp/database@init_db_no_demo                         250K      -   231M  -
+</span></span><span class="line"><span class="cl">zp/database@demo_db_just_restore                    138K      -  2.08G  -
+</span></span><span class="line"><span class="cl">zp/database@demo_db_create_test_table_but_no_data   116K      -  2.08G  -
+</span></span><span class="line"><span class="cl">zp/database@demo_db_test_table_with_1M_rows         218K      -  2.15G  -
+</span></span><span class="line"><span class="cl">zp/database@demo_db_test_table_with_2M_rows            0      -  2.23G  -
+</span></span><span class="line"><span class="cl">2019-09-06 10:19:04 [changch@hqdc034 ~]$ sudo service postgresql start
+</span></span><span class="line"><span class="cl"> * Starting PostgreSQL 10 database server        [ OK ] 
+</span></span><span class="line"><span class="cl">2019-09-06 10:19:17 [changch@hqdc034 ~]$
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">postgres@hqdc034:~$ time psql -c &#39;select count(*) from test;&#39;
+</span></span><span class="line"><span class="cl">  count  
+</span></span><span class="line"><span class="cl">---------
+</span></span><span class="line"><span class="cl"> 2000000
+</span></span><span class="line"><span class="cl">(1 row)
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">real	0m0.175s
+</span></span><span class="line"><span class="cl">user	0m0.024s
+</span></span><span class="line"><span class="cl">sys	0m0.008s
+</span></span><span class="line"><span class="cl">postgres@hqdc034:~$ 
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>啊，我剛剛應該先clone的&hellip;.
+沒關係，我們再做一次，新增800萬筆資料，湊齊1000萬筆，然後快照</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">postgres@hqdc034:~$ time psql -c &#39;with aa as ( select * from generate_series (1,8000000) a ) insert into test select aa.a, md5(aa.a::varchar) from aa;&#39;
+</span></span><span class="line"><span class="cl">INSERT 0 8000000
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">real	0m35.662s
+</span></span><span class="line"><span class="cl">user	0m0.048s
+</span></span><span class="line"><span class="cl">sys	0m0.004s
+</span></span><span class="line"><span class="cl">postgres@hqdc034:~$ time psql -c &#39;select count(*) from test;&#39;
+</span></span><span class="line"><span class="cl">  count   
+</span></span><span class="line"><span class="cl">----------
+</span></span><span class="line"><span class="cl"> 10000000
+</span></span><span class="line"><span class="cl">(1 row)
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">real	0m5.259s
+</span></span><span class="line"><span class="cl">user	0m0.024s
+</span></span><span class="line"><span class="cl">sys	0m0.008s
+</span></span><span class="line"><span class="cl">postgres@hqdc034:~$ 
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>做快照</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">2019-09-06 10:19:17 [changch@hqdc034 ~]$ sudo zfs snapshot zp/database@demo_db_test_table_with_10M_rows
+</span></span><span class="line"><span class="cl">2019-09-06 10:22:59 [changch@hqdc034 ~]$ sudo zfs list -t snapshot
+</span></span><span class="line"><span class="cl">NAME                                                USED  AVAIL  REFER  MOUNTPOINT
+</span></span><span class="line"><span class="cl">zp/database@init_db_no_demo                         250K      -   231M  -
+</span></span><span class="line"><span class="cl">zp/database@demo_db_just_restore                    138K      -  2.08G  -
+</span></span><span class="line"><span class="cl">zp/database@demo_db_create_test_table_but_no_data   116K      -  2.08G  -
+</span></span><span class="line"><span class="cl">zp/database@demo_db_test_table_with_1M_rows         218K      -  2.15G  -
+</span></span><span class="line"><span class="cl">zp/database@demo_db_test_table_with_2M_rows        56.4M      -  2.23G  -
+</span></span><span class="line"><span class="cl">zp/database@demo_db_test_table_with_10M_rows           0      -  1.81G  -
+</span></span><span class="line"><span class="cl">2019-09-06 10:23:02 [changch@hqdc034 ~]$
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>接著來測試看看 clone snapshot，這是基本的說明</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">Clones can only be created from a snapshot and a snapshot can not 
+</span></span><span class="line"><span class="cl">be deleted until you delete the clone that is based on this snapshot. 
+</span></span><span class="line"><span class="cl">To create a clone, use the zfs clone command.
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>clone 會做出一份跟clone來源一模一樣的資料，在快照模式下，資料是唯讀的，clone出來後，就可以做異動。但是不能刪除clone來源的快照，會提示錯誤。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">2019-09-06 10:28:31 [changch@hqdc034 ~]$ sudo zfs clone zp/database@demo_db_test_table_with_10M_rows zp/database/clone_with_10M_rows
+</span></span><span class="line"><span class="cl">2019-09-06 10:29:21 [changch@hqdc034 ~]$ sudo zfs list
+</span></span><span class="line"><span class="cl">NAME                              USED  AVAIL  REFER  MOUNTPOINT
+</span></span><span class="line"><span class="cl">zp                               3.08G   231G    22K  /zp
+</span></span><span class="line"><span class="cl">zp/database                      3.08G   231G  1.88G  /zp/database
+</span></span><span class="line"><span class="cl">zp/database/clone_with_10M_rows      0   231G  1.81G  /zp/database/clone_with_10M_rows
+</span></span><span class="line"><span class="cl">2019-09-06 10:29:26 [changch@hqdc034 ~]$
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>可以看到做了clone之後，多了一個 zfs dataset
+試試看把資料庫路徑直接改到這個新做的dataset 看看能不能啟動資料庫
+修改 /etc/postgresql/10/main/postgresql.conf，然後重起postgresql</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">#data_directory = &#39;/var/lib/postgresql/10/main&#39;     # use data in another directory
+</span></span><span class="line"><span class="cl">#data_directory = &#39;/zp/database/10/main&#39;
+</span></span><span class="line"><span class="cl">data_directory = &#39;/zp/database/clone_with_10M_rows/10/main&#39;
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p><strong>啟動有比較久一點</strong> 而且好像沒成功啟動</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">2019-09-06 10:32:27 [changch@hqdc034 ~]$ sudo service postgresql restart
+</span></span><span class="line"><span class="cl"> * Restarting PostgreSQL 10 database server       [ OK ]
+</span></span><span class="line"><span class="cl">2019-09-06 10:33:37 [changch@hqdc034 ~]$ 
+</span></span><span class="line"><span class="cl">2019-09-06 10:33:37 [changch@hqdc034 ~]$ sudo netstat -antlp |grep 5432
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>而且在 syslog &amp; postgresql log 中看不到什麼異常，怪了！
+而且再啟動一次就好了？</p>
+<p>再來測試一次看看</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">2019-09-06 10:37:22 [changch@hqdc034 ~]$ sudo service postgresql stop
+</span></span><span class="line"><span class="cl"> * Stopping PostgreSQL 10 database server        [ OK ] 
+</span></span><span class="line"><span class="cl">2019-09-06 10:38:03 [changch@hqdc034 ~]$ sudo zfs list
+</span></span><span class="line"><span class="cl">NAME                              USED  AVAIL  REFER  MOUNTPOINT
+</span></span><span class="line"><span class="cl">zp                               3.24G   231G    22K  /zp
+</span></span><span class="line"><span class="cl">zp/database                      3.24G   231G  1.88G  /zp/database
+</span></span><span class="line"><span class="cl">zp/database/clone_with_10M_rows   165M   231G  1.88G  /zp/database/clone_with_10M_rows
+</span></span><span class="line"><span class="cl">2019-09-06 10:38:13 [changch@hqdc034 ~]$ sudo zfs destroy zp/database/clone_with_10M_rows
+</span></span><span class="line"><span class="cl">2019-09-06 10:38:21 [changch@hqdc034 ~]$ sudo zfs clone zp/database@demo_db_test_table_with_10M_rows zp/database/clone_with_10M_rows
+</span></span><span class="line"><span class="cl">2019-09-06 10:38:32 [changch@hqdc034 ~]$ sudo zfs list
+</span></span><span class="line"><span class="cl">NAME                              USED  AVAIL  REFER  MOUNTPOINT
+</span></span><span class="line"><span class="cl">zp                               3.08G   231G    22K  /zp
+</span></span><span class="line"><span class="cl">zp/database                      3.08G   231G  1.88G  /zp/database
+</span></span><span class="line"><span class="cl">zp/database/clone_with_10M_rows      0   231G  1.81G  /zp/database/clone_with_10M_rows
+</span></span><span class="line"><span class="cl">2019-09-06 10:38:35 [changch@hqdc034 ~]$ sudo service postgresql start^C
+</span></span><span class="line"><span class="cl">2019-09-06 10:38:44 [changch@hqdc034 ~]$ sudo zfs list
+</span></span><span class="line"><span class="cl">NAME                              USED  AVAIL  REFER  MOUNTPOINT
+</span></span><span class="line"><span class="cl">zp                               3.08G   231G    22K  /zp
+</span></span><span class="line"><span class="cl">zp/database                      3.08G   231G  1.88G  /zp/database
+</span></span><span class="line"><span class="cl">zp/database/clone_with_10M_rows      0   231G  1.81G  /zp/database/clone_with_10M_rows
+</span></span><span class="line"><span class="cl">2019-09-06 10:38:45 [changch@hqdc034 ~]$ sudo service postgresql start
+</span></span><span class="line"><span class="cl"> * Starting PostgreSQL 10 database server               [ OK ] 
+</span></span><span class="line"><span class="cl">2019-09-06 10:39:04 [changch@hqdc034 ~]$ netstat -antlp |grep 5432
+</span></span><span class="line"><span class="cl">(Not all processes could be identified, non-owned process info
+</span></span><span class="line"><span class="cl"> will not be shown, you would have to be root to see it all.)
+</span></span><span class="line"><span class="cl">tcp        0      0 0.0.0.0:5432            0.0.0.0:*               LISTEN      -               
+</span></span><span class="line"><span class="cl">tcp6       0      0 :::5432                 :::*                    LISTEN      -               
+</span></span><span class="line"><span class="cl">2019-09-06 10:39:13 [changch@hqdc034 ~]$ 
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>這次就沒問題？看來是我第一次下指令的時候，不該用sudo netstat -antlp 去檢查？
+anyway ，回到psql 來看看內容</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">postgres@hqdc034:~$ time psql -c &#39;select count(*) from test;&#39;
+</span></span><span class="line"><span class="cl">  count   
+</span></span><span class="line"><span class="cl">----------
+</span></span><span class="line"><span class="cl"> 10000000
+</span></span><span class="line"><span class="cl">(1 row)
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">real	0m4.716s
+</span></span><span class="line"><span class="cl">user	0m0.028s
+</span></span><span class="line"><span class="cl">sys	0m0.004s
+</span></span><span class="line"><span class="cl">postgres@hqdc034:~$ 
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>Good ，clone 出來的果然是1000萬筆資料時的狀態</p>
+<hr>
+<p>這次測試就先到此為止，後面再來測試zfs的 replication and send/recv</p>
+</section>
+
+
+    <footer class="article-footer">
+    
+    <section class="article-tags">
+        
+            <a href="/tags/postgresql/">postgresql</a>
+        
+            <a href="/tags/zfs/">zfs</a>
+        
+            <a href="/tags/backup/">backup</a>
+        
+            <a href="/tags/restore/">restore</a>
+        
+    </section>
+
+
+    
+    <section class="article-copyright">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <path d="M14.5 9a3.5 4 0 1 0 0 6" />
+</svg>
+
+
+
+        <span>Licensed under CC BY-NC-SA 4.0</span>
+    </section>
+    </footer>
+
+
+    
+</article>
+
+    
+
+    
+
+<aside class="related-content--wrapper">
+    <h2 class="section-title">相關文章</h2>
+    <div class="related-content">
+        <div class="flex article-list--tile">
+            
+                
+<article class="has-image">
+    <a href="/p/ubuntu-20.04-install-nvidia-driver-/-cuda-/-postgresql-/-pg_strom/">
+        
+        
+            <div class="article-image">
+                
+                    <img src="https://h.cowbay.org/images/post-default-3.jpg" loading="lazy" data-key="" data-hash="https://h.cowbay.org/images/post-default-3.jpg"/>
+                
+            </div>
+        
+
+        <div class="article-details">
+            <h2 class="article-title">ubuntu 20.04 install nvidia driver / CUDA / postgresql / pg_strom</h2>
+        </div>
+    </a>
+</article>
+
+            
+                
+<article class="has-image">
+    <a href="/p/%E7%AD%86%E8%A8%98-postgresql-%E6%95%88%E8%83%BD%E6%B8%AC%E8%A9%A6-/-postgresql-benchmakr-using-pgbench/">
+        
+        
+            <div class="article-image">
+                
+                    <img src="https://h.cowbay.org/images/post-default-17.jpg" loading="lazy" data-key="" data-hash="https://h.cowbay.org/images/post-default-17.jpg"/>
+                
+            </div>
+        
+
+        <div class="article-details">
+            <h2 class="article-title">[筆記] postgresql 效能測試 / postgresql benchmakr using pgbench</h2>
+        </div>
+    </a>
+</article>
+
+            
+                
+<article class="has-image">
+    <a href="/p/%E7%AD%86%E8%A8%98-%E6%B8%AC%E8%A9%A6-postgresql-%E7%9A%84pg_prewarm-%E5%B0%8D%E6%95%88%E8%83%BD%E7%9A%84%E5%BD%B1%E9%9F%BF-/-test-pg_prewarm-in-postgresql-11/">
+        
+        
+            <div class="article-image">
+                
+                    <img src="https://h.cowbay.org/images/post-default-9.jpg" loading="lazy" data-key="" data-hash="https://h.cowbay.org/images/post-default-9.jpg"/>
+                
+            </div>
+        
+
+        <div class="article-details">
+            <h2 class="article-title">[筆記] 測試 postgresql 的pg_prewarm 對效能的影響 / test pg_prewarm in postgresql 11</h2>
+        </div>
+    </a>
+</article>
+
+            
+                
+<article class="">
+    <a href="/p/%E7%AD%86%E8%A8%98-%E5%9C%A8ubuntu-18.04%E5%AE%89%E8%A3%9Dpsql-11-%E4%BB%A5%E5%8F%8A-pg_auto_failover-/-install-psql-11-and-pg_auto_failover-in-ubuntu-18.04/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">[筆記] 在ubuntu 18.04安裝psql 11 以及 pg_auto_failover / install psql 11 and pg_auto_failover in ubuntu 18.04</h2>
+        </div>
+    </a>
+</article>
+
+            
+                
+<article class="">
+    <a href="/p/%E7%AD%86%E8%A8%98-%E6%B8%AC%E8%A9%A6-usb-3.1-gen2-nvme-ssd-%E5%A4%96%E6%8E%A5%E7%9B%92-%E5%85%A7%E5%BB%BApci-e-ssd-%E5%A4%96%E6%8E%A5sata-ssd-/-bencmark-with-external-internal-nvme-ssd-and-external-sata-ssd/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">[筆記] 測試 USB 3.1 Gen2 NVME SSD 外接盒 &amp; 內建pci-e ssd &amp; 外接SATA SSD / Bencmark With External Internal Nvme Ssd and External Sata Ssd</h2>
+        </div>
+    </a>
+</article>
+
+            
+        </div>
+    </div>
+</aside>
+
+     
+    
+        
+    <div class="disqus-container">
+    <div id="disqus_thread"></div>
+<script type="application/javascript">
+    window.disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "h-cowbay-org" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+</div>
+
+<style>
+    .disqus-container {
+        background-color: var(--card-background);
+        border-radius: var(--card-border-radius);
+        box-shadow: var(--shadow-l1);
+        padding: var(--card-padding);
+    }
+</style>
+
+<script>
+    window.addEventListener('onColorSchemeChange', (e) => {
+        if (typeof DISQUS == 'object') {
+            DISQUS.reset({
+                reload: true
+            });
+        }
+    })
+</script>
+
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+            2020 - 
+        
+        2023 MCの部落
+    </section>
+    
+    <section class="powerby">
+        
+            鮮衣怒馬少年時 不負韶華行且知 <br/>
+        使用 <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> 建立 <br />
+        主題 <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.16.0">Stack</a></b> 由 <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a> 設計
+    </section>
+</footer>
+
+
+    
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.min.css"crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css"crossorigin="anonymous"
+            >
+
+            </main>
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.6/dist/vibrant.min.js"integrity="sha256-awcR2jno4kI5X0zL8ex0vi2z&#43;KMkF24hUW8WePSA9HM="crossorigin="anonymous"
+                
+                >
+            </script><script type="text/javascript" src="/ts/main.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>

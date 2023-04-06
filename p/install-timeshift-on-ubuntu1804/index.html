@@ -1,0 +1,1804 @@
+<!DOCTYPE html>
+<html lang="en-us" dir="ltr">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='最近要開始測試client安裝 ubuntu 18.04 的 ansible playbook
+因為要不斷的修正，所以想到一直有在自己電腦上執行的timeshift這個軟體
+可以很簡單快速的備份、恢復系統狀態
+可是不知道為什麼，在ubuntu 18.04 上安裝就是會發生錯誤&amp;hellip;.
+'>
+<title>Install Timeshift on Ubuntu1804</title>
+
+<link rel='canonical' href='https://h.cowbay.org/p/install-timeshift-on-ubuntu1804/'>
+
+<link rel="stylesheet" href="/scss/style.min.8191399262444ab68b72a18c97392f5349be20a1615d77445be51e974c144cff.css"><meta property='og:title' content='Install Timeshift on Ubuntu1804'>
+<meta property='og:description' content='最近要開始測試client安裝 ubuntu 18.04 的 ansible playbook
+因為要不斷的修正，所以想到一直有在自己電腦上執行的timeshift這個軟體
+可以很簡單快速的備份、恢復系統狀態
+可是不知道為什麼，在ubuntu 18.04 上安裝就是會發生錯誤&amp;hellip;.
+'>
+<meta property='og:url' content='https://h.cowbay.org/p/install-timeshift-on-ubuntu1804/'>
+<meta property='og:site_name' content='MCの部落'>
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='ubuntu' /><meta property='article:tag' content='backup' /><meta property='article:published_time' content='2019-03-11T14:02:30&#43;08:00'/><meta property='article:modified_time' content='2019-03-11T14:02:30&#43;08:00'/>
+<meta name="twitter:title" content="Install Timeshift on Ubuntu1804">
+<meta name="twitter:description" content="最近要開始測試client安裝 ubuntu 18.04 的 ansible playbook
+因為要不斷的修正，所以想到一直有在自己電腦上執行的timeshift這個軟體
+可以很簡單快速的備份、恢復系統狀態
+可是不知道為什麼，在ubuntu 18.04 上安裝就是會發生錯誤&amp;hellip;.
+">
+<script type="application/javascript">
+var doNotTrack = false;
+if (!doNotTrack) {
+	(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+	(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+	m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+	})(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+	ga('create', 'UA-128770427-1', 'auto');
+	
+	ga('send', 'pageview');
+}
+</script>
+    </head>
+    <body class="
+    article-page
+    ">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "auto");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.documentElement.dataset.scheme = 'dark';
+        } else {
+            document.documentElement.dataset.scheme = 'light';
+        }
+    })();
+</script>
+<div class="container main-container flex on-phone--column extended"><aside class="sidebar left-sidebar sticky ">
+    <button class="hamburger hamburger--spin" type="button" id="toggle-menu" aria-label="切換選單">
+        <span class="hamburger-box">
+            <span class="hamburger-inner"></span>
+        </span>
+    </button>
+
+    <header>
+        
+            
+            <figure class="site-avatar">
+                <a href="/">
+                
+                    
+                    
+                    
+                        
+                        <img src="/img/avatar_hu85bfcf0e08404ecf606702eb99c7ed68_43560_300x0_resize_box_3.png" width="300"
+                            height="300" class="site-logo" loading="lazy" alt="Avatar">
+                    
+                
+                </a>
+                
+                    <span class="emoji">🍥</span>
+                
+            </figure>
+            
+        
+        
+        <div class="site-meta">
+            <h1 class="site-name"><a href="/">MCの部落</a></h1>
+            <h2 class="site-description">讀過兩年書，塵世中一個迷途小書僮</h2>
+        </div>
+    </header><ol class="social-menu">
+            
+                <li>
+                    <a 
+                        href='https://www.facebook.com'
+                        target="_blank"
+                        title="facebook"
+                        rel="me"
+                    >
+                        
+                        
+                            <?xml version="1.0" encoding="iso-8859-1"?>
+<!-- Uploaded to: SVG Repo, www.svgrepo.com, Generator: SVG Repo Mixer Tools -->
+<svg height="800px" width="800px" version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" 
+	 viewBox="0 0 512 512" xml:space="preserve">
+<path style="fill:#385C8E;" d="M134.941,272.691h56.123v231.051c0,4.562,3.696,8.258,8.258,8.258h95.159
+	c4.562,0,8.258-3.696,8.258-8.258V273.78h64.519c4.195,0,7.725-3.148,8.204-7.315l9.799-85.061c0.269-2.34-0.472-4.684-2.038-6.44
+	c-1.567-1.757-3.81-2.763-6.164-2.763h-74.316V118.88c0-16.073,8.654-24.224,25.726-24.224c2.433,0,48.59,0,48.59,0
+	c4.562,0,8.258-3.698,8.258-8.258V8.319c0-4.562-3.696-8.258-8.258-8.258h-66.965C309.622,0.038,308.573,0,307.027,0
+	c-11.619,0-52.006,2.281-83.909,31.63c-35.348,32.524-30.434,71.465-29.26,78.217v62.352h-58.918c-4.562,0-8.258,3.696-8.258,8.258
+	v83.975C126.683,268.993,130.379,272.691,134.941,272.691z"/>
+</svg>
+                        
+                    </a>
+                </li>
+            
+                <li>
+                    <a 
+                        href='https://github.com/CaiJimmy/hugo-theme-stack'
+                        target="_blank"
+                        title="GitHub"
+                        rel="me"
+                    >
+                        
+                        
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-github" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M9 19c-4.3 1.4 -4.3 -2.5 -6 -3m12 5v-3.5c0 -1 .1 -1.4 -.5 -2c2.8 -.3 5.5 -1.4 5.5 -6a4.6 4.6 0 0 0 -1.3 -3.2a4.2 4.2 0 0 0 -.1 -3.2s-1.1 -.3 -3.5 1.3a12.3 12.3 0 0 0 -6.2 0c-2.4 -1.6 -3.5 -1.3 -3.5 -1.3a4.2 4.2 0 0 0 -.1 3.2a4.6 4.6 0 0 0 -1.3 3.2c0 4.6 2.7 5.7 5.5 6c-.6 .6 -.6 1.2 -.5 2v3.5" />
+</svg>
+
+
+
+                        
+                    </a>
+                </li>
+            
+                <li>
+                    <a 
+                        href='https://twitter.com'
+                        target="_blank"
+                        title="Twitter"
+                        rel="me"
+                    >
+                        
+                        
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-twitter" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M22 4.01c-1 .49 -1.98 .689 -3 .99c-1.121 -1.265 -2.783 -1.335 -4.38 -.737s-2.643 2.06 -2.62 3.737v1c-3.245 .083 -6.135 -1.395 -8 -4c0 0 -4.182 7.433 4 11c-1.872 1.247 -3.739 2.088 -6 2c3.308 1.803 6.913 2.423 10.034 1.517c3.58 -1.04 6.522 -3.723 7.651 -7.742a13.84 13.84 0 0 0 .497 -3.753c-.002 -.249 1.51 -2.772 1.818 -4.013z" />
+</svg>
+
+
+
+                        
+                    </a>
+                </li>
+            
+        </ol><ol class="menu" id="main-menu">
+        
+        
+        
+        <li >
+            <a href='/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-home" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="5 12 3 12 12 3 21 12 19 12" />
+  <path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-7" />
+  <path d="M9 21v-6a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v6" />
+</svg>
+
+
+
+                
+                <span>Home</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/about/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-user" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="7" r="4" />
+  <path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2" />
+</svg>
+
+
+
+                
+                <span>About</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/archives/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-archive" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <rect x="3" y="4" width="18" height="4" rx="2" />
+  <path d="M5 8v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-10" />
+  <line x1="10" y1="12" x2="14" y2="12" />
+</svg>
+
+
+
+                
+                <span>Archives</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/search/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="10" cy="10" r="7" />
+  <line x1="21" y1="21" x2="15" y2="15" />
+</svg>
+
+
+
+                
+                <span>Search</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/links/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-link" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M10 14a3.5 3.5 0 0 0 5 0l4 -4a3.5 3.5 0 0 0 -5 -5l-.5 .5" />
+  <path d="M14 10a3.5 3.5 0 0 0 -5 0l-4 4a3.5 3.5 0 0 0 5 5l.5 -.5" />
+</svg>
+
+
+
+                
+                <span>Links</span>
+            </a>
+        </li>
+        
+
+        <div class="menu-bottom-section">
+                <li id="i18n-switch">  
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-language" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M4 5h7" />
+  <path d="M9 3v2c0 4.418 -2.239 8 -5 8" />
+  <path d="M5 9c-.003 2.144 2.952 3.908 6.7 4" />
+  <path d="M12 20l4 -9l4 9" />
+  <path d="M19.1 18h-6.2" />
+</svg>
+
+
+
+                    <select name="language" onchange="window.location.href = this.selectedOptions[0].value">
+                        
+                            <option value="https://h.cowbay.org/" selected>中文</option>
+                        
+                            <option value="https://h.cowbay.org/en/" >English</option>
+                        
+                    </select>
+                </li>
+            
+            
+            
+                <li id="dark-mode-toggle">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="8" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="16" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                    <span>夜晚模式</span>
+                </li>
+            
+        </div>
+    </ol>
+</aside>
+
+    
+
+            <main class="main full-width">
+    <article class="main-article">
+    <header class="article-header">
+
+    <div class="article-details">
+    
+    <header class="article-category">
+        
+            <a href="/categories/%E7%AD%86%E8%A8%98/" >
+                筆記
+            </a>
+        
+    </header>
+    
+
+    <div class="article-title-wrapper">
+        <h2 class="article-title">
+            <a href="/p/install-timeshift-on-ubuntu1804/">Install Timeshift on Ubuntu1804</a>
+        </h2>
+    
+        
+    </div>
+
+    
+    
+    
+    
+    <footer class="article-time">
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M11.795 21h-6.795a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
+  <circle cx="18" cy="18" r="4" />
+  <path d="M15 3v4" />
+  <path d="M7 3v4" />
+  <path d="M3 11h16" />
+  <path d="M18 16.496v1.504l1 1" />
+</svg>
+                <time class="article-time--published">2019-03-03</time>
+            </div>
+        
+
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+                <time class="article-time--reading">
+                    閱讀時間: 6 分鐘
+                </time>
+            </div>
+        
+    </footer>
+    
+
+    
+</div>
+
+</header>
+
+    <section class="article-content">
+    
+    
+    <p>最近要開始測試client安裝 ubuntu 18.04 的 ansible playbook</p>
+<p>因為要不斷的修正，所以想到一直有在自己電腦上執行的timeshift這個軟體</p>
+<p>可以很簡單快速的備份、恢復系統狀態</p>
+<p>可是不知道為什麼，在ubuntu 18.04 上安裝就是會發生錯誤&hellip;.</p>
+<p>因為client 的環境都躲在proxy後面，一開始我想說直接下</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">export http_proxy=http://proxy_server:port
+</span></span><span class="line"><span class="cl">export https_proxy=http://proxy_server:port
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>然後再去依照官方的指令，新增repository就好</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">sudo add-apt-repository ppa:teejee2008/ppa
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>結果當然不是我想的那麼簡單&hellip;</p>
+<p>直接就跳錯誤出來了</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">2019-03-11 13:57:28 [mini@pc074 ~]$ sudo add-apt-repository ppa:teejee2008/ppa
+</span></span><span class="line"><span class="cl">Cannot add PPA: &#39;ppa:~teejee2008/ubuntu/ppa&#39;.
+</span></span><span class="line"><span class="cl">ERROR: &#39;~teejee2008&#39; user or team does not exist.
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>翻了一下google，有找到解法，但沒找到原因，就先這樣吧&hellip;(不求甚解)</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">export http_proxy=http://proxy_server:port
+</span></span><span class="line"><span class="cl">export https_proxy=http://proxy_server:port
+</span></span><span class="line"><span class="cl">sudo -E add-apt-repository -y ppa:teejee2008/ppa
+</span></span><span class="line"><span class="cl">sudo apt isntall timeshift
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>裝好之後，看一下怎麼執行，其實很簡單，也不用特別去指定什麼路徑</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">2019-03-11 14:00:59 [minion@hqpc074 ~]$ sudo timeshift --create --comments &#34;after ansible&#34;
+</span></span><span class="line"><span class="cl">First run mode (config file not found)
+</span></span><span class="line"><span class="cl">Selected default snapshot type: RSYNC
+</span></span><span class="line"><span class="cl">Selected default snapshot device: /dev/sda1
+</span></span><span class="line"><span class="cl">------------------------------------------------------------------------------
+</span></span><span class="line"><span class="cl">Estimating system size...
+</span></span><span class="line"><span class="cl">Creating new snapshot...(RSYNC)
+</span></span><span class="line"><span class="cl">Saving to device: /dev/sda1, mounted at path: /
+</span></span><span class="line"><span class="cl">Synching files with rsync...
+</span></span><span class="line"><span class="cl">Created control file: /timeshift/snapshots/2019-03-11_14-01-01/info.json        
+</span></span><span class="line"><span class="cl">RSYNC Snapshot saved successfully (79s)
+</span></span><span class="line"><span class="cl">Tagged snapshot &#39;2019-03-11_14-01-01&#39;: ondemand
+</span></span><span class="line"><span class="cl">------------------------------------------------------------------------------
+</span></span><span class="line"><span class="cl">2019-03-11 14:02:20 [mini@pc074 ~]$ 
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>這樣就備份完了，來測試一下備份是否正常，先隨便裝個本來沒裝的軟體</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="mi">2019</span><span class="o">-</span><span class="mo">03</span><span class="o">-</span><span class="mi">11</span> <span class="mi">14</span><span class="p">:</span><span class="mo">02</span><span class="p">:</span><span class="mi">20</span> <span class="p">[</span><span class="nx">minion</span><span class="err">@</span><span class="nx">hqpc074</span> <span class="err">~</span><span class="p">]</span><span class="err">$</span> <span class="nx">sudo</span> <span class="nx">apt</span> <span class="nx">install</span> <span class="nx">joe</span>
+</span></span><span class="line"><span class="cl"><span class="nx">Reading</span> <span class="kn">package</span> <span class="nx">lists</span><span class="o">...</span> <span class="nx">Done</span>
+</span></span><span class="line"><span class="cl"><span class="nx">Building</span> <span class="nx">dependency</span> <span class="nx">tree</span>       
+</span></span><span class="line"><span class="cl"><span class="nx">Reading</span> <span class="nx">state</span> <span class="nx">information</span><span class="o">...</span> <span class="nx">Done</span>
+</span></span><span class="line"><span class="cl"><span class="nx">The</span> <span class="nx">following</span> <span class="nx">NEW</span> <span class="nx">packages</span> <span class="nx">will</span> <span class="nx">be</span> <span class="nx">installed</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">  <span class="nx">joe</span>
+</span></span><span class="line"><span class="cl"><span class="mi">0</span> <span class="nx">upgraded</span><span class="p">,</span> <span class="mi">1</span> <span class="nx">newly</span> <span class="nx">installed</span><span class="p">,</span> <span class="mi">0</span> <span class="nx">to</span> <span class="nx">remove</span> <span class="nx">and</span> <span class="mi">310</span> <span class="nx">not</span> <span class="nx">upgraded</span><span class="p">.</span>
+</span></span><span class="line"><span class="cl"><span class="nx">Need</span> <span class="nx">to</span> <span class="nx">get</span> <span class="mi">509</span> <span class="nx">kB</span> <span class="nx">of</span> <span class="nx">archives</span><span class="p">.</span>
+</span></span><span class="line"><span class="cl"><span class="nx">After</span> <span class="nx">this</span> <span class="nx">operation</span><span class="p">,</span> <span class="mi">2137</span> <span class="nx">kB</span> <span class="nx">of</span> <span class="nx">additional</span> <span class="nx">disk</span> <span class="nx">space</span> <span class="nx">will</span> <span class="nx">be</span> <span class="nx">used</span><span class="p">.</span>
+</span></span><span class="line"><span class="cl"><span class="nx">Get</span><span class="p">:</span><span class="mi">1</span> <span class="nx">http</span><span class="p">:</span><span class="c1">//tw.archive.ubuntu.com/ubuntu bionic/universe amd64 joe amd64 4.6-1 [509 kB]
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nx">Fetched</span> <span class="mi">509</span> <span class="nx">kB</span> <span class="nx">in</span> <span class="mi">2</span><span class="nf">s</span> <span class="p">(</span><span class="mi">254</span> <span class="nx">kB</span><span class="o">/</span><span class="nx">s</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="nx">Selecting</span> <span class="nx">previously</span> <span class="nx">unselected</span> <span class="kn">package</span> <span class="nx">joe</span><span class="p">.</span>
+</span></span><span class="line"><span class="cl"><span class="p">(</span><span class="nx">Reading</span> <span class="nx">database</span> <span class="o">...</span> <span class="mi">150020</span> <span class="nx">files</span> <span class="nx">and</span> <span class="nx">directories</span> <span class="nx">currently</span> <span class="nx">installed</span><span class="p">.)</span>
+</span></span><span class="line"><span class="cl"><span class="nx">Preparing</span> <span class="nx">to</span> <span class="nx">unpack</span> <span class="o">.../</span><span class="nx">archives</span><span class="o">/</span><span class="nx">joe_4</span><span class="mf">.6</span><span class="o">-</span><span class="mi">1_</span><span class="nx">amd64</span><span class="p">.</span><span class="nx">deb</span> <span class="o">...</span>
+</span></span><span class="line"><span class="cl"><span class="nx">Unpacking</span> <span class="nf">joe</span> <span class="p">(</span><span class="mf">4.6</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span> <span class="o">...</span>
+</span></span><span class="line"><span class="cl"><span class="nx">Processing</span> <span class="nx">triggers</span> <span class="k">for</span> <span class="nx">mime</span><span class="o">-</span><span class="nf">support</span> <span class="p">(</span><span class="mf">3.60</span><span class="nx">ubuntu1</span><span class="p">)</span> <span class="o">...</span>
+</span></span><span class="line"><span class="cl"><span class="nx">Processing</span> <span class="nx">triggers</span> <span class="k">for</span> <span class="nx">desktop</span><span class="o">-</span><span class="nx">file</span><span class="o">-</span><span class="nf">utils</span> <span class="p">(</span><span class="mf">0.23</span><span class="o">-</span><span class="mi">1</span><span class="nx">ubuntu3</span><span class="p">)</span> <span class="o">...</span>
+</span></span><span class="line"><span class="cl"><span class="nx">Setting</span> <span class="nx">up</span> <span class="nf">joe</span> <span class="p">(</span><span class="mf">4.6</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span> <span class="o">...</span>
+</span></span><span class="line"><span class="cl"><span class="nx">update</span><span class="o">-</span><span class="nx">alternatives</span><span class="p">:</span> <span class="nx">using</span> <span class="o">/</span><span class="nx">usr</span><span class="o">/</span><span class="nx">bin</span><span class="o">/</span><span class="nx">joe</span> <span class="nx">to</span> <span class="nx">provide</span> <span class="o">/</span><span class="nx">usr</span><span class="o">/</span><span class="nx">bin</span><span class="o">/</span><span class="nf">editor</span> <span class="p">(</span><span class="nx">editor</span><span class="p">)</span> <span class="nx">in</span> <span class="nx">auto</span> <span class="nx">mode</span>
+</span></span><span class="line"><span class="cl"><span class="nx">Processing</span> <span class="nx">triggers</span> <span class="k">for</span> <span class="nx">man</span><span class="o">-</span><span class="nf">db</span> <span class="p">(</span><span class="mf">2.8.3</span><span class="o">-</span><span class="mi">2</span><span class="p">)</span> <span class="o">...</span>
+</span></span><span class="line"><span class="cl"><span class="nx">Processing</span> <span class="nx">triggers</span> <span class="k">for</span> <span class="nx">gnome</span><span class="o">-</span><span class="nf">menus</span> <span class="p">(</span><span class="mf">3.13.3</span><span class="o">-</span><span class="mi">11</span><span class="nx">ubuntu1</span><span class="p">)</span> <span class="o">...</span>
+</span></span><span class="line"><span class="cl"><span class="mi">2019</span><span class="o">-</span><span class="mo">03</span><span class="o">-</span><span class="mi">11</span> <span class="mi">14</span><span class="p">:</span><span class="mi">09</span><span class="p">:</span><span class="mi">39</span> <span class="p">[</span><span class="nx">minion</span><span class="err">@</span><span class="nx">hqpc074</span> <span class="err">~</span><span class="p">]</span><span class="err">$</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>確定 joe 已經安裝</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">  1
+</span><span class="lnt">  2
+</span><span class="lnt">  3
+</span><span class="lnt">  4
+</span><span class="lnt">  5
+</span><span class="lnt">  6
+</span><span class="lnt">  7
+</span><span class="lnt">  8
+</span><span class="lnt">  9
+</span><span class="lnt"> 10
+</span><span class="lnt"> 11
+</span><span class="lnt"> 12
+</span><span class="lnt"> 13
+</span><span class="lnt"> 14
+</span><span class="lnt"> 15
+</span><span class="lnt"> 16
+</span><span class="lnt"> 17
+</span><span class="lnt"> 18
+</span><span class="lnt"> 19
+</span><span class="lnt"> 20
+</span><span class="lnt"> 21
+</span><span class="lnt"> 22
+</span><span class="lnt"> 23
+</span><span class="lnt"> 24
+</span><span class="lnt"> 25
+</span><span class="lnt"> 26
+</span><span class="lnt"> 27
+</span><span class="lnt"> 28
+</span><span class="lnt"> 29
+</span><span class="lnt"> 30
+</span><span class="lnt"> 31
+</span><span class="lnt"> 32
+</span><span class="lnt"> 33
+</span><span class="lnt"> 34
+</span><span class="lnt"> 35
+</span><span class="lnt"> 36
+</span><span class="lnt"> 37
+</span><span class="lnt"> 38
+</span><span class="lnt"> 39
+</span><span class="lnt"> 40
+</span><span class="lnt"> 41
+</span><span class="lnt"> 42
+</span><span class="lnt"> 43
+</span><span class="lnt"> 44
+</span><span class="lnt"> 45
+</span><span class="lnt"> 46
+</span><span class="lnt"> 47
+</span><span class="lnt"> 48
+</span><span class="lnt"> 49
+</span><span class="lnt"> 50
+</span><span class="lnt"> 51
+</span><span class="lnt"> 52
+</span><span class="lnt"> 53
+</span><span class="lnt"> 54
+</span><span class="lnt"> 55
+</span><span class="lnt"> 56
+</span><span class="lnt"> 57
+</span><span class="lnt"> 58
+</span><span class="lnt"> 59
+</span><span class="lnt"> 60
+</span><span class="lnt"> 61
+</span><span class="lnt"> 62
+</span><span class="lnt"> 63
+</span><span class="lnt"> 64
+</span><span class="lnt"> 65
+</span><span class="lnt"> 66
+</span><span class="lnt"> 67
+</span><span class="lnt"> 68
+</span><span class="lnt"> 69
+</span><span class="lnt"> 70
+</span><span class="lnt"> 71
+</span><span class="lnt"> 72
+</span><span class="lnt"> 73
+</span><span class="lnt"> 74
+</span><span class="lnt"> 75
+</span><span class="lnt"> 76
+</span><span class="lnt"> 77
+</span><span class="lnt"> 78
+</span><span class="lnt"> 79
+</span><span class="lnt"> 80
+</span><span class="lnt"> 81
+</span><span class="lnt"> 82
+</span><span class="lnt"> 83
+</span><span class="lnt"> 84
+</span><span class="lnt"> 85
+</span><span class="lnt"> 86
+</span><span class="lnt"> 87
+</span><span class="lnt"> 88
+</span><span class="lnt"> 89
+</span><span class="lnt"> 90
+</span><span class="lnt"> 91
+</span><span class="lnt"> 92
+</span><span class="lnt"> 93
+</span><span class="lnt"> 94
+</span><span class="lnt"> 95
+</span><span class="lnt"> 96
+</span><span class="lnt"> 97
+</span><span class="lnt"> 98
+</span><span class="lnt"> 99
+</span><span class="lnt">100
+</span><span class="lnt">101
+</span><span class="lnt">102
+</span><span class="lnt">103
+</span><span class="lnt">104
+</span><span class="lnt">105
+</span><span class="lnt">106
+</span><span class="lnt">107
+</span><span class="lnt">108
+</span><span class="lnt">109
+</span><span class="lnt">110
+</span><span class="lnt">111
+</span><span class="lnt">112
+</span><span class="lnt">113
+</span><span class="lnt">114
+</span><span class="lnt">115
+</span><span class="lnt">116
+</span><span class="lnt">117
+</span><span class="lnt">118
+</span><span class="lnt">119
+</span><span class="lnt">120
+</span><span class="lnt">121
+</span><span class="lnt">122
+</span><span class="lnt">123
+</span><span class="lnt">124
+</span><span class="lnt">125
+</span><span class="lnt">126
+</span><span class="lnt">127
+</span><span class="lnt">128
+</span><span class="lnt">129
+</span><span class="lnt">130
+</span><span class="lnt">131
+</span><span class="lnt">132
+</span><span class="lnt">133
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">2019-03-11 14:09:51 [minion@hqpc074 ~]$ joe --help
+</span></span><span class="line"><span class="cl">Joe&#39;s Own Editor v4.6
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">Usage: joe [global-options] [ [local-options] filename ]...
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">Global options:
+</span></span><span class="line"><span class="cl">    -[-]restore             Restore cursor mode
+</span></span><span class="line"><span class="cl">    -[-]regex               Standard or JOE regular expression syntax
+</span></span><span class="line"><span class="cl">    -[-]square              Rectangular region mode
+</span></span><span class="line"><span class="cl">    -[-]icase               Case insensitive search mode 
+</span></span><span class="line"><span class="cl">    -[-]wrap                Search wraps mode
+</span></span><span class="line"><span class="cl">    -[-]menu_explorer       Menu explorer mode
+</span></span><span class="line"><span class="cl">    -[-]menu_above          Menu above/below mode
+</span></span><span class="line"><span class="cl">    -[-]notagsmenu          Tags menu mode
+</span></span><span class="line"><span class="cl">    -[-]search_prompting    Search prompting mode
+</span></span><span class="line"><span class="cl">    -[-]menu_jump           Jump into menu mode
+</span></span><span class="line"><span class="cl">    -[-]autoswap            Autoswap mode 
+</span></span><span class="line"><span class="cl">    -[-]mid                 Center on scroll mode
+</span></span><span class="line"><span class="cl">    -left nnn               Left scroll amount
+</span></span><span class="line"><span class="cl">    -right nnn              Right scroll amount
+</span></span><span class="line"><span class="cl">    -[-]guess_crlf          Auto detect CR-LF mode
+</span></span><span class="line"><span class="cl">    -[-]guess_indent        Guess indent mode
+</span></span><span class="line"><span class="cl">    -[-]guess_non_utf8      Guess non-UTF-8 mode
+</span></span><span class="line"><span class="cl">    -[-]guess_utf8          Guess UTF-8 mode
+</span></span><span class="line"><span class="cl">    -[-]guess_utf16         Guess UTF-16 mode
+</span></span><span class="line"><span class="cl">    -[-]transpose           Transpose menus mode
+</span></span><span class="line"><span class="cl">    -[-]marking             Region marking mode
+</span></span><span class="line"><span class="cl">    -[-]asis                Display meta chars as-is mode
+</span></span><span class="line"><span class="cl">    -[-]force               Force last NL mode
+</span></span><span class="line"><span class="cl">    -[-]joe_state           Joe_state file mode
+</span></span><span class="line"><span class="cl">    -[-]nobackups           Disable backups mode
+</span></span><span class="line"><span class="cl">    -[-]nodeadjoe           Disable DEADJOE mode
+</span></span><span class="line"><span class="cl">    -[-]nolocks             Disable locks mode
+</span></span><span class="line"><span class="cl">    -[-]nomodcheck          Disable mtime check mode
+</span></span><span class="line"><span class="cl">    -[-]nocurdir            Disable current dir 
+</span></span><span class="line"><span class="cl">    -[-]break_hardlinks     Break hard links 
+</span></span><span class="line"><span class="cl">    -[-]break_links         Break links 
+</span></span><span class="line"><span class="cl">    -[-]lightoff            Auto unmark 
+</span></span><span class="line"><span class="cl">    -[-]exask               Exit ask 
+</span></span><span class="line"><span class="cl">    -[-]beep                Beeps 
+</span></span><span class="line"><span class="cl">    -[-]nosta               Disable status line 
+</span></span><span class="line"><span class="cl">    -[-]keepup              Fast status line 
+</span></span><span class="line"><span class="cl">    -pg nnn                 No. PgUp/PgDn lines 
+</span></span><span class="line"><span class="cl">    -undo_keep nnn          No. undo records 
+</span></span><span class="line"><span class="cl">    -[-]csmode              Continued search 
+</span></span><span class="line"><span class="cl">    -backpath sss           Path to backup files 
+</span></span><span class="line"><span class="cl">    -[-]floatmouse          Click past end 
+</span></span><span class="line"><span class="cl">    -[-]rtbutton            Right button 
+</span></span><span class="line"><span class="cl">    -[-]nonotice            Suppress startup notice
+</span></span><span class="line"><span class="cl">    -[-]noexmsg             Suppress exit message
+</span></span><span class="line"><span class="cl">    -[-]help_is_utf8        Help is UTF-8
+</span></span><span class="line"><span class="cl">    -[-]noxon               Disable XON/XOFF
+</span></span><span class="line"><span class="cl">    -[-]orphan              Orphan extra files
+</span></span><span class="line"><span class="cl">    -[-]helpon              Start editor with help displayed
+</span></span><span class="line"><span class="cl">    -[-]dopadding           Emit padding NULs
+</span></span><span class="line"><span class="cl">    -lines nnn              No. screen lines (if no window size ioctl)
+</span></span><span class="line"><span class="cl">    -baud nnn               Baud rate
+</span></span><span class="line"><span class="cl">    -columns nnn            No. screen columns (if no window size ioctl)
+</span></span><span class="line"><span class="cl">    -skiptop nnn            No. screen lines to skip
+</span></span><span class="line"><span class="cl">    -[-]notite              Suppress tty init sequence
+</span></span><span class="line"><span class="cl">    -[-]brpaste             Bracketed paste mode
+</span></span><span class="line"><span class="cl">    -[-]pastehack           Paste quoting hack
+</span></span><span class="line"><span class="cl">    -[-]nolinefeeds         Suppress history preserving linefeeds
+</span></span><span class="line"><span class="cl">    -[-]mouse               Enable mouse
+</span></span><span class="line"><span class="cl">    -[-]usetabs             Screen update uses tabs
+</span></span><span class="line"><span class="cl">    -[-]assume_color        Assume terminal supports color
+</span></span><span class="line"><span class="cl">    -[-]assume_256color     Assume terminal supports 256 colors
+</span></span><span class="line"><span class="cl">    -[-]joexterm            Assume xterm patched for JOE
+</span></span><span class="line"><span class="cl">    -xmsg sss               Exit message
+</span></span><span class="line"><span class="cl">    -aborthint sss          Abort hint
+</span></span><span class="line"><span class="cl">    -helphint sss           Help hint
+</span></span><span class="line"><span class="cl">    -lmsg sss               Left side status line format
+</span></span><span class="line"><span class="cl">    -rmsg sss               Right side status line format
+</span></span><span class="line"><span class="cl">    -smsg sss               Status command format
+</span></span><span class="line"><span class="cl">    -zmsg sss               Status command format EOF
+</span></span><span class="line"><span class="cl">    -keymap sss             Keymap to use
+</span></span><span class="line"><span class="cl">    -mnew sss               Macro to execute for new files
+</span></span><span class="line"><span class="cl">    -mfirst sss             Macro to execute on first change
+</span></span><span class="line"><span class="cl">    -mold sss               Macro to execute on existing files
+</span></span><span class="line"><span class="cl">    -msnew sss              Macro to execute when new files are saved
+</span></span><span class="line"><span class="cl">    -msold sss              Macro to execute when existing files are saved
+</span></span><span class="line"><span class="cl">    -text_color sss         Text color
+</span></span><span class="line"><span class="cl">    -help_color sss         Help color
+</span></span><span class="line"><span class="cl">    -status_color sss       Status bar color
+</span></span><span class="line"><span class="cl">    -menu_color sss         Menu color
+</span></span><span class="line"><span class="cl">    -prompt_color sss       Prompt color
+</span></span><span class="line"><span class="cl">    -msg_color sss          Message color
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">Local options:
+</span></span><span class="line"><span class="cl">    +nnn                    Start cursor on specified line
+</span></span><span class="line"><span class="cl">    -[-]overwrite           Overtype mode
+</span></span><span class="line"><span class="cl">    -[-]hex                 Hex edit display mode
+</span></span><span class="line"><span class="cl">    -[-]ansi                Hide ANSI mode
+</span></span><span class="line"><span class="cl">    -[-]title               Status line context display mode
+</span></span><span class="line"><span class="cl">    -[-]autoindent          Autoindent mode
+</span></span><span class="line"><span class="cl">    -[-]wordwrap            Word wrap mode
+</span></span><span class="line"><span class="cl">    -tab nnn                Tab width
+</span></span><span class="line"><span class="cl">    -lmargin nnn            Left margin 
+</span></span><span class="line"><span class="cl">    -rmargin nnn            Right margin 
+</span></span><span class="line"><span class="cl">    -indentc nnn            Indent char 
+</span></span><span class="line"><span class="cl">    -istep nnn              Indent step 
+</span></span><span class="line"><span class="cl">    -[-]french              French spacing mode
+</span></span><span class="line"><span class="cl">    -[-]flowed              Flowed text mode
+</span></span><span class="line"><span class="cl">    -[-]highlight           Syntax highlighting mode
+</span></span><span class="line"><span class="cl">    -[-]spaces              No tabs mode
+</span></span><span class="line"><span class="cl">    -[-]crlf                CR-LF (MS-DOS) mode
+</span></span><span class="line"><span class="cl">    -[-]linums              Line numbers mode
+</span></span><span class="line"><span class="cl">    -[-]hiline              Highlight cursor line
+</span></span><span class="line"><span class="cl">    -[-]nobackup            No backup mode
+</span></span><span class="line"><span class="cl">    -[-]rdonly              Read only 
+</span></span><span class="line"><span class="cl">    -[-]smarthome           Smart home key 
+</span></span><span class="line"><span class="cl">    -[-]indentfirst         To indent first 
+</span></span><span class="line"><span class="cl">    -[-]smartbacks          Smart backspace 
+</span></span><span class="line"><span class="cl">    -[-]purify              Clean up indents 
+</span></span><span class="line"><span class="cl">    -[-]picture             Picture mode 
+</span></span><span class="line"><span class="cl">    -syntax sss             Syntax
+</span></span><span class="line"><span class="cl">    -colors sss             Scheme 
+</span></span><span class="line"><span class="cl">    -encoding sss           Encoding 
+</span></span><span class="line"><span class="cl">    -type sss               File type 
+</span></span><span class="line"><span class="cl">    -[-]highlighter_context ^G uses highlighter context 
+</span></span><span class="line"><span class="cl">    -[-]single_quoted       ^G ignores &#39;... &#39; 
+</span></span><span class="line"><span class="cl">    -[-]no_double_quoted    ^G ignores &#34;... &#34; 
+</span></span><span class="line"><span class="cl">    -[-]c_comment           ^G ignores /*...*/ 
+</span></span><span class="line"><span class="cl">    -[-]cpp_comment         ^G ignores //... 
+</span></span><span class="line"><span class="cl">    -[-]pound_comment       ^G ignores #... 
+</span></span><span class="line"><span class="cl">    -[-]vhdl_comment        ^G ignores --... 
+</span></span><span class="line"><span class="cl">    -[-]semi_comment        ^G ignores ;... 
+</span></span><span class="line"><span class="cl">    -[-]tex_comment         ^G ignores %... 
+</span></span><span class="line"><span class="cl">    -text_delimiters sss    Text delimiters 
+</span></span><span class="line"><span class="cl">    -language sss           Language 
+</span></span><span class="line"><span class="cl">    -cpara sss              Paragraph indent chars 
+</span></span><span class="line"><span class="cl">    -cnotpara sss           Non-paragraph chars 
+</span></span><span class="line"><span class="cl">2019-03-11 14:09:54 [minion@hqpc074 ~]$ 
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>然後還原到剛剛做的備份，用 &ndash;list 看一下</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">2019-03-11 14:11:08 [minion@hqpc074 ~]$ sudo timeshift --list
+</span></span><span class="line"><span class="cl">Device : /dev/sda1
+</span></span><span class="line"><span class="cl">UUID   : d0efcb3d-e04a-41b8-a046-55557499f4d3
+</span></span><span class="line"><span class="cl">Path   : /
+</span></span><span class="line"><span class="cl">Mode   : RSYNC
+</span></span><span class="line"><span class="cl">Device is OK
+</span></span><span class="line"><span class="cl">1 snapshots, 108.3 GB free
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">Num     Name                 Tags  Description    
+</span></span><span class="line"><span class="cl">------------------------------------------------------------------------------
+</span></span><span class="line"><span class="cl">0    &gt;  2019-03-11_14-01-01  O     after ansible  
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">2019-03-11 14:11:17 [minion@hqpc074 ~]$ 
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>然後還原，中間會問你要不要重新安裝 grub ，就看個人需求，我是都會讓它重新安裝一次啦</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">  1
+</span><span class="lnt">  2
+</span><span class="lnt">  3
+</span><span class="lnt">  4
+</span><span class="lnt">  5
+</span><span class="lnt">  6
+</span><span class="lnt">  7
+</span><span class="lnt">  8
+</span><span class="lnt">  9
+</span><span class="lnt"> 10
+</span><span class="lnt"> 11
+</span><span class="lnt"> 12
+</span><span class="lnt"> 13
+</span><span class="lnt"> 14
+</span><span class="lnt"> 15
+</span><span class="lnt"> 16
+</span><span class="lnt"> 17
+</span><span class="lnt"> 18
+</span><span class="lnt"> 19
+</span><span class="lnt"> 20
+</span><span class="lnt"> 21
+</span><span class="lnt"> 22
+</span><span class="lnt"> 23
+</span><span class="lnt"> 24
+</span><span class="lnt"> 25
+</span><span class="lnt"> 26
+</span><span class="lnt"> 27
+</span><span class="lnt"> 28
+</span><span class="lnt"> 29
+</span><span class="lnt"> 30
+</span><span class="lnt"> 31
+</span><span class="lnt"> 32
+</span><span class="lnt"> 33
+</span><span class="lnt"> 34
+</span><span class="lnt"> 35
+</span><span class="lnt"> 36
+</span><span class="lnt"> 37
+</span><span class="lnt"> 38
+</span><span class="lnt"> 39
+</span><span class="lnt"> 40
+</span><span class="lnt"> 41
+</span><span class="lnt"> 42
+</span><span class="lnt"> 43
+</span><span class="lnt"> 44
+</span><span class="lnt"> 45
+</span><span class="lnt"> 46
+</span><span class="lnt"> 47
+</span><span class="lnt"> 48
+</span><span class="lnt"> 49
+</span><span class="lnt"> 50
+</span><span class="lnt"> 51
+</span><span class="lnt"> 52
+</span><span class="lnt"> 53
+</span><span class="lnt"> 54
+</span><span class="lnt"> 55
+</span><span class="lnt"> 56
+</span><span class="lnt"> 57
+</span><span class="lnt"> 58
+</span><span class="lnt"> 59
+</span><span class="lnt"> 60
+</span><span class="lnt"> 61
+</span><span class="lnt"> 62
+</span><span class="lnt"> 63
+</span><span class="lnt"> 64
+</span><span class="lnt"> 65
+</span><span class="lnt"> 66
+</span><span class="lnt"> 67
+</span><span class="lnt"> 68
+</span><span class="lnt"> 69
+</span><span class="lnt"> 70
+</span><span class="lnt"> 71
+</span><span class="lnt"> 72
+</span><span class="lnt"> 73
+</span><span class="lnt"> 74
+</span><span class="lnt"> 75
+</span><span class="lnt"> 76
+</span><span class="lnt"> 77
+</span><span class="lnt"> 78
+</span><span class="lnt"> 79
+</span><span class="lnt"> 80
+</span><span class="lnt"> 81
+</span><span class="lnt"> 82
+</span><span class="lnt"> 83
+</span><span class="lnt"> 84
+</span><span class="lnt"> 85
+</span><span class="lnt"> 86
+</span><span class="lnt"> 87
+</span><span class="lnt"> 88
+</span><span class="lnt"> 89
+</span><span class="lnt"> 90
+</span><span class="lnt"> 91
+</span><span class="lnt"> 92
+</span><span class="lnt"> 93
+</span><span class="lnt"> 94
+</span><span class="lnt"> 95
+</span><span class="lnt"> 96
+</span><span class="lnt"> 97
+</span><span class="lnt"> 98
+</span><span class="lnt"> 99
+</span><span class="lnt">100
+</span><span class="lnt">101
+</span><span class="lnt">102
+</span><span class="lnt">103
+</span><span class="lnt">104
+</span><span class="lnt">105
+</span><span class="lnt">106
+</span><span class="lnt">107
+</span><span class="lnt">108
+</span><span class="lnt">109
+</span><span class="lnt">110
+</span><span class="lnt">111
+</span><span class="lnt">112
+</span><span class="lnt">113
+</span><span class="lnt">114
+</span><span class="lnt">115
+</span><span class="lnt">116
+</span><span class="lnt">117
+</span><span class="lnt">118
+</span><span class="lnt">119
+</span><span class="lnt">120
+</span><span class="lnt">121
+</span><span class="lnt">122
+</span><span class="lnt">123
+</span><span class="lnt">124
+</span><span class="lnt">125
+</span><span class="lnt">126
+</span><span class="lnt">127
+</span><span class="lnt">128
+</span><span class="lnt">129
+</span><span class="lnt">130
+</span><span class="lnt">131
+</span><span class="lnt">132
+</span><span class="lnt">133
+</span><span class="lnt">134
+</span><span class="lnt">135
+</span><span class="lnt">136
+</span><span class="lnt">137
+</span><span class="lnt">138
+</span><span class="lnt">139
+</span><span class="lnt">140
+</span><span class="lnt">141
+</span><span class="lnt">142
+</span><span class="lnt">143
+</span><span class="lnt">144
+</span><span class="lnt">145
+</span><span class="lnt">146
+</span><span class="lnt">147
+</span><span class="lnt">148
+</span><span class="lnt">149
+</span><span class="lnt">150
+</span><span class="lnt">151
+</span><span class="lnt">152
+</span><span class="lnt">153
+</span><span class="lnt">154
+</span><span class="lnt">155
+</span><span class="lnt">156
+</span><span class="lnt">157
+</span><span class="lnt">158
+</span><span class="lnt">159
+</span><span class="lnt">160
+</span><span class="lnt">161
+</span><span class="lnt">162
+</span><span class="lnt">163
+</span><span class="lnt">164
+</span><span class="lnt">165
+</span><span class="lnt">166
+</span><span class="lnt">167
+</span><span class="lnt">168
+</span><span class="lnt">169
+</span><span class="lnt">170
+</span><span class="lnt">171
+</span><span class="lnt">172
+</span><span class="lnt">173
+</span><span class="lnt">174
+</span><span class="lnt">175
+</span><span class="lnt">176
+</span><span class="lnt">177
+</span><span class="lnt">178
+</span><span class="lnt">179
+</span><span class="lnt">180
+</span><span class="lnt">181
+</span><span class="lnt">182
+</span><span class="lnt">183
+</span><span class="lnt">184
+</span><span class="lnt">185
+</span><span class="lnt">186
+</span><span class="lnt">187
+</span><span class="lnt">188
+</span><span class="lnt">189
+</span><span class="lnt">190
+</span><span class="lnt">191
+</span><span class="lnt">192
+</span><span class="lnt">193
+</span><span class="lnt">194
+</span><span class="lnt">195
+</span><span class="lnt">196
+</span><span class="lnt">197
+</span><span class="lnt">198
+</span><span class="lnt">199
+</span><span class="lnt">200
+</span><span class="lnt">201
+</span><span class="lnt">202
+</span><span class="lnt">203
+</span><span class="lnt">204
+</span><span class="lnt">205
+</span><span class="lnt">206
+</span><span class="lnt">207
+</span><span class="lnt">208
+</span><span class="lnt">209
+</span><span class="lnt">210
+</span><span class="lnt">211
+</span><span class="lnt">212
+</span><span class="lnt">213
+</span><span class="lnt">214
+</span><span class="lnt">215
+</span><span class="lnt">216
+</span><span class="lnt">217
+</span><span class="lnt">218
+</span><span class="lnt">219
+</span><span class="lnt">220
+</span><span class="lnt">221
+</span><span class="lnt">222
+</span><span class="lnt">223
+</span><span class="lnt">224
+</span><span class="lnt">225
+</span><span class="lnt">226
+</span><span class="lnt">227
+</span><span class="lnt">228
+</span><span class="lnt">229
+</span><span class="lnt">230
+</span><span class="lnt">231
+</span><span class="lnt">232
+</span><span class="lnt">233
+</span><span class="lnt">234
+</span><span class="lnt">235
+</span><span class="lnt">236
+</span><span class="lnt">237
+</span><span class="lnt">238
+</span><span class="lnt">239
+</span><span class="lnt">240
+</span><span class="lnt">241
+</span><span class="lnt">242
+</span><span class="lnt">243
+</span><span class="lnt">244
+</span><span class="lnt">245
+</span><span class="lnt">246
+</span><span class="lnt">247
+</span><span class="lnt">248
+</span><span class="lnt">249
+</span><span class="lnt">250
+</span><span class="lnt">251
+</span><span class="lnt">252
+</span><span class="lnt">253
+</span><span class="lnt">254
+</span><span class="lnt">255
+</span><span class="lnt">256
+</span><span class="lnt">257
+</span><span class="lnt">258
+</span><span class="lnt">259
+</span><span class="lnt">260
+</span><span class="lnt">261
+</span><span class="lnt">262
+</span><span class="lnt">263
+</span><span class="lnt">264
+</span><span class="lnt">265
+</span><span class="lnt">266
+</span><span class="lnt">267
+</span><span class="lnt">268
+</span><span class="lnt">269
+</span><span class="lnt">270
+</span><span class="lnt">271
+</span><span class="lnt">272
+</span><span class="lnt">273
+</span><span class="lnt">274
+</span><span class="lnt">275
+</span><span class="lnt">276
+</span><span class="lnt">277
+</span><span class="lnt">278
+</span><span class="lnt">279
+</span><span class="lnt">280
+</span><span class="lnt">281
+</span><span class="lnt">282
+</span><span class="lnt">283
+</span><span class="lnt">284
+</span><span class="lnt">285
+</span><span class="lnt">286
+</span><span class="lnt">287
+</span><span class="lnt">288
+</span><span class="lnt">289
+</span><span class="lnt">290
+</span><span class="lnt">291
+</span><span class="lnt">292
+</span><span class="lnt">293
+</span><span class="lnt">294
+</span><span class="lnt">295
+</span><span class="lnt">296
+</span><span class="lnt">297
+</span><span class="lnt">298
+</span><span class="lnt">299
+</span><span class="lnt">300
+</span><span class="lnt">301
+</span><span class="lnt">302
+</span><span class="lnt">303
+</span><span class="lnt">304
+</span><span class="lnt">305
+</span><span class="lnt">306
+</span><span class="lnt">307
+</span><span class="lnt">308
+</span><span class="lnt">309
+</span><span class="lnt">310
+</span><span class="lnt">311
+</span><span class="lnt">312
+</span><span class="lnt">313
+</span><span class="lnt">314
+</span><span class="lnt">315
+</span><span class="lnt">316
+</span><span class="lnt">317
+</span><span class="lnt">318
+</span><span class="lnt">319
+</span><span class="lnt">320
+</span><span class="lnt">321
+</span><span class="lnt">322
+</span><span class="lnt">323
+</span><span class="lnt">324
+</span><span class="lnt">325
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">2019-03-11 14:11:53 [minion@hqpc074 ~]$ sudo timeshift --restore --snapshot &#39;2019-03-11_14-01-01&#39; --target /dev/sda1
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">******************************************************************************
+</span></span><span class="line"><span class="cl">To restore with default options, press the ENTER key for all prompts!
+</span></span><span class="line"><span class="cl">******************************************************************************
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">Press ENTER to continue...
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">Re-install GRUB2 bootloader? (recommended) (y/n): y
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">Select GRUB device:
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">Num     Device  Description              
+</span></span><span class="line"><span class="cl">------------------------------------------------------------------------------
+</span></span><span class="line"><span class="cl">0    &gt;  sda     ATA TS128GSSD370S [MBR]  
+</span></span><span class="line"><span class="cl">1    &gt;  sda1     ext4, 128.0 GB GB       
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">[ENTER = Default (/dev/sda), a = Abort]
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">Enter device name or number (a=Abort): 0
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">******************************************************************************
+</span></span><span class="line"><span class="cl">GRUB Device: /dev/sda
+</span></span><span class="line"><span class="cl">******************************************************************************
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">======================================================================
+</span></span><span class="line"><span class="cl">WARNING
+</span></span><span class="line"><span class="cl">======================================================================
+</span></span><span class="line"><span class="cl">Data will be modified on following devices:
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">Device     Mount
+</span></span><span class="line"><span class="cl">---------  -----
+</span></span><span class="line"><span class="cl">/dev/sda1  /    
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">Please save your work and close all applications.
+</span></span><span class="line"><span class="cl">System will reboot after files are restored.
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">======================================================================
+</span></span><span class="line"><span class="cl">DISCLAIMER
+</span></span><span class="line"><span class="cl">======================================================================
+</span></span><span class="line"><span class="cl">This software comes without absolutely NO warranty and the author takes no responsibility for any damage arising from the use of this program. If these terms are not acceptable to you, please do not proceed beyond this point!
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">Continue with restore? (y/n): y
+</span></span><span class="line"><span class="cl">Mounted &#39;/dev/sda1&#39; at &#39;/mnt/timeshift/restore/&#39;
+</span></span><span class="line"><span class="cl">******************************************************************************
+</span></span><span class="line"><span class="cl">Backup Device: /dev/sda1
+</span></span><span class="line"><span class="cl">******************************************************************************
+</span></span><span class="line"><span class="cl">******************************************************************************
+</span></span><span class="line"><span class="cl">Snapshot: 2019-03-11_14-01-01 ~ after ansible
+</span></span><span class="line"><span class="cl">******************************************************************************
+</span></span><span class="line"><span class="cl">Restoring snapshot...
+</span></span><span class="line"><span class="cl">Synching files with rsync...
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">Please do not interrupt the restore process!
+</span></span><span class="line"><span class="cl">System will reboot after files are restored
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">.d..t...... etc/
+</span></span><span class="line"><span class="cl">&gt;f.st...... etc/mailcap
+</span></span><span class="line"><span class="cl">.d..t...... etc/alternatives/
+</span></span><span class="line"><span class="cl">cLc.t...... etc/alternatives/editor -&gt; /usr/bin/vim.gtk3
+</span></span><span class="line"><span class="cl">cLc.t...... etc/alternatives/editor.1.gz -&gt; /usr/share/man/man1/vim.1.gz
+</span></span><span class="line"><span class="cl">cL+++++++++ etc/alternatives/editor.fr.1.gz -&gt; /usr/share/man/fr/man1/vim.1.gz
+</span></span><span class="line"><span class="cl">cL+++++++++ etc/alternatives/editor.it.1.gz -&gt; /usr/share/man/it/man1/vim.1.gz
+</span></span><span class="line"><span class="cl">cL+++++++++ etc/alternatives/editor.ja.1.gz -&gt; /usr/share/man/ja/man1/vim.1.gz
+</span></span><span class="line"><span class="cl">cL+++++++++ etc/alternatives/editor.pl.1.gz -&gt; /usr/share/man/pl/man1/vim.1.gz
+</span></span><span class="line"><span class="cl">cL+++++++++ etc/alternatives/editor.ru.1.gz -&gt; /usr/share/man/ru/man1/vim.1.gz
+</span></span><span class="line"><span class="cl">.d..t...... home/minion/
+</span></span><span class="line"><span class="cl">.d..t...... mnt/
+</span></span><span class="line"><span class="cl">.d..t...... timeshift/
+</span></span><span class="line"><span class="cl">.d..t...... tmp/
+</span></span><span class="line"><span class="cl">.d..t...... usr/bin/
+</span></span><span class="line"><span class="cl">.d..t...... usr/share/
+</span></span><span class="line"><span class="cl">.d..t...... usr/share/applications/
+</span></span><span class="line"><span class="cl">&gt;f.st...... usr/share/applications/mimeinfo.cache
+</span></span><span class="line"><span class="cl">.d..t...... usr/share/doc/
+</span></span><span class="line"><span class="cl">.d..t...... usr/share/man/fr/man1/
+</span></span><span class="line"><span class="cl">cL+++++++++ usr/share/man/fr/man1/editor.1.gz -&gt; /etc/alternatives/editor.fr.1.gz
+</span></span><span class="line"><span class="cl">.d..t...... usr/share/man/it/man1/
+</span></span><span class="line"><span class="cl">cL+++++++++ usr/share/man/it/man1/editor.1.gz -&gt; /etc/alternatives/editor.it.1.gz
+</span></span><span class="line"><span class="cl">.d..t...... usr/share/man/ja/man1/
+</span></span><span class="line"><span class="cl">cL+++++++++ usr/share/man/ja/man1/editor.1.gz -&gt; /etc/alternatives/editor.ja.1.gz
+</span></span><span class="line"><span class="cl">.d..t...... usr/share/man/man1/
+</span></span><span class="line"><span class="cl">.d..t...... usr/share/man/pl/man1/
+</span></span><span class="line"><span class="cl">cL+++++++++ usr/share/man/pl/man1/editor.1.gz -&gt; /etc/alternatives/editor.pl.1.gz
+</span></span><span class="line"><span class="cl">.d..t...... usr/share/man/ru/man1/
+</span></span><span class="line"><span class="cl">cL+++++++++ usr/share/man/ru/man1/editor.1.gz -&gt; /etc/alternatives/editor.ru.1.gz
+</span></span><span class="line"><span class="cl">.d..t...... usr/share/menu/
+</span></span><span class="line"><span class="cl">.d..t...... var/cache/apt/
+</span></span><span class="line"><span class="cl">&gt;f..t...... var/cache/apt/pkgcache.bin
+</span></span><span class="line"><span class="cl">.d..t...... var/cache/apt/archives/
+</span></span><span class="line"><span class="cl">.d..t...... var/cache/apt/archives/partial/
+</span></span><span class="line"><span class="cl">.d..t...... var/cache/man/
+</span></span><span class="line"><span class="cl">&gt;f..t...... var/cache/man/index.db
+</span></span><span class="line"><span class="cl">.d..t...... var/cache/man/cs/
+</span></span><span class="line"><span class="cl">.d..t...... var/cache/man/da/
+</span></span><span class="line"><span class="cl">.d..t...... var/cache/man/de/
+</span></span><span class="line"><span class="cl">.d..t...... var/cache/man/el/
+</span></span><span class="line"><span class="cl">.d..t...... var/cache/man/es/
+</span></span><span class="line"><span class="cl">.d..t...... var/cache/man/fi/
+</span></span><span class="line"><span class="cl">.d..t...... var/cache/man/fr.ISO8859-1/
+</span></span><span class="line"><span class="cl">.d..t...... var/cache/man/fr.UTF-8/
+</span></span><span class="line"><span class="cl">.d..t...... var/cache/man/fr/
+</span></span><span class="line"><span class="cl">&gt;f..t...... var/cache/man/fr/index.db
+</span></span><span class="line"><span class="cl">.d..t...... var/cache/man/hr/
+</span></span><span class="line"><span class="cl">.d..t...... var/cache/man/hu/
+</span></span><span class="line"><span class="cl">.d..t...... var/cache/man/id/
+</span></span><span class="line"><span class="cl">.d..t...... var/cache/man/it/
+</span></span><span class="line"><span class="cl">&gt;f..t...... var/cache/man/it/index.db
+</span></span><span class="line"><span class="cl">.d..t...... var/cache/man/ja/
+</span></span><span class="line"><span class="cl">&gt;f..t...... var/cache/man/ja/index.db
+</span></span><span class="line"><span class="cl">.d..t...... var/cache/man/ko/
+</span></span><span class="line"><span class="cl">.d..t...... var/cache/man/nl/
+</span></span><span class="line"><span class="cl">.d..t...... var/cache/man/oldlocal/
+</span></span><span class="line"><span class="cl">.d..t...... var/cache/man/pl/
+</span></span><span class="line"><span class="cl">&gt;f..t...... var/cache/man/pl/index.db
+</span></span><span class="line"><span class="cl">.d..t...... var/cache/man/pt/
+</span></span><span class="line"><span class="cl">.d..t...... var/cache/man/pt_BR/
+</span></span><span class="line"><span class="cl">.d..t...... var/cache/man/ro/
+</span></span><span class="line"><span class="cl">.d..t...... var/cache/man/ru/
+</span></span><span class="line"><span class="cl">&gt;f..t...... var/cache/man/ru/index.db
+</span></span><span class="line"><span class="cl">.d..t...... var/cache/man/sk/
+</span></span><span class="line"><span class="cl">.d..t...... var/cache/man/sl/
+</span></span><span class="line"><span class="cl">.d..t...... var/cache/man/sr/
+</span></span><span class="line"><span class="cl">.d..t...... var/cache/man/sv/
+</span></span><span class="line"><span class="cl">.d..t...... var/cache/man/tr/
+</span></span><span class="line"><span class="cl">.d..t...... var/cache/man/zh/
+</span></span><span class="line"><span class="cl">.d..t...... var/cache/man/zh_CN/
+</span></span><span class="line"><span class="cl">.d..t...... var/cache/man/zh_TW/
+</span></span><span class="line"><span class="cl">.d..t...... var/lib/apt/
+</span></span><span class="line"><span class="cl">&gt;f..t...... var/lib/apt/extended_states
+</span></span><span class="line"><span class="cl">.d..t...... var/lib/dpkg/
+</span></span><span class="line"><span class="cl">&gt;f..t...... var/lib/dpkg/lock
+</span></span><span class="line"><span class="cl">&gt;f.st...... var/lib/dpkg/status
+</span></span><span class="line"><span class="cl">&gt;f.st...... var/lib/dpkg/status-old
+</span></span><span class="line"><span class="cl">.d..t...... var/lib/dpkg/alternatives/
+</span></span><span class="line"><span class="cl">&gt;f.st...... var/lib/dpkg/alternatives/editor
+</span></span><span class="line"><span class="cl">.d..t...... var/lib/dpkg/info/
+</span></span><span class="line"><span class="cl">&gt;f..t...... var/lib/dpkg/triggers/Lock
+</span></span><span class="line"><span class="cl">.d..t...... var/lib/dpkg/updates/
+</span></span><span class="line"><span class="cl">.d..t...... var/lib/misc/
+</span></span><span class="line"><span class="cl">&gt;f..t...... var/lib/update-notifier/dpkg-run-stamp
+</span></span><span class="line"><span class="cl">&gt;f.st...... var/log/alternatives.log
+</span></span><span class="line"><span class="cl">&gt;f.st...... var/log/auth.log
+</span></span><span class="line"><span class="cl">&gt;f.st...... var/log/dpkg.log
+</span></span><span class="line"><span class="cl">&gt;f.st...... var/log/syslog
+</span></span><span class="line"><span class="cl">.d..t...... var/log/apt/
+</span></span><span class="line"><span class="cl">&gt;f.st...... var/log/apt/eipp.log.xz
+</span></span><span class="line"><span class="cl">&gt;f.st...... var/log/apt/history.log
+</span></span><span class="line"><span class="cl">&gt;f.st...... var/log/apt/term.log
+</span></span><span class="line"><span class="cl">&gt;f..t...... var/log/journal/8268f4544e414a37ab92123151d94126/system.journal
+</span></span><span class="line"><span class="cl">&gt;f..t...... var/log/journal/8268f4544e414a37ab92123151d94126/user-1001.journal
+</span></span><span class="line"><span class="cl">.d..t...... var/log/timeshift/
+</span></span><span class="line"><span class="cl">*deleting   etc/joe/shell.sh
+</span></span><span class="line"><span class="cl">*deleting   etc/joe/shell.csh
+</span></span><span class="line"><span class="cl">*deleting   etc/joe/rjoerc
+</span></span><span class="line"><span class="cl">*deleting   etc/joe/jstarrc
+</span></span><span class="line"><span class="cl">*deleting   etc/joe/jpicorc
+</span></span><span class="line"><span class="cl">*deleting   etc/joe/joerc.zh_TW
+</span></span><span class="line"><span class="cl">*deleting   etc/joe/joerc
+</span></span><span class="line"><span class="cl">*deleting   etc/joe/jmacsrc
+</span></span><span class="line"><span class="cl">*deleting   etc/joe/jicerc.ru
+</span></span><span class="line"><span class="cl">*deleting   etc/joe/ftyperc
+</span></span><span class="line"><span class="cl">*deleting   etc/joe/editorrc
+</span></span><span class="line"><span class="cl">*deleting   etc/joe/
+</span></span><span class="line"><span class="cl">*deleting   etc/alternatives/editorrc
+</span></span><span class="line"><span class="cl">*deleting   usr/bin/rjoe
+</span></span><span class="line"><span class="cl">*deleting   usr/bin/jstar
+</span></span><span class="line"><span class="cl">*deleting   usr/bin/jpico
+</span></span><span class="line"><span class="cl">*deleting   usr/bin/joe
+</span></span><span class="line"><span class="cl">*deleting   usr/bin/jmacs
+</span></span><span class="line"><span class="cl">*deleting   usr/share/joe/syntax/yaml.jsf
+</span></span><span class="line"><span class="cl">*deleting   usr/share/joe/syntax/xml.jsf
+</span></span><span class="line"><span class="cl">*deleting   usr/share/joe/syntax/whitespace.jsf
+</span></span><span class="line"><span class="cl">*deleting   usr/share/joe/syntax/vhdl.jsf
+</span></span><span class="line"><span class="cl">*deleting   usr/share/joe/syntax/verilog.jsf
+</span></span><span class="line"><span class="cl">*deleting   usr/share/joe/syntax/typescript.jsf
+</span></span><span class="line"><span class="cl">*deleting   usr/share/joe/syntax/troff.jsf
+</span></span><span class="line"><span class="cl">*deleting   usr/share/joe/syntax/tex.jsf
+</span></span><span class="line"><span class="cl">*deleting   usr/share/joe/syntax/tcl.jsf
+</span></span><span class="line"><span class="cl">*deleting   usr/share/joe/syntax/swift.jsf
+</span></span><span class="line"><span class="cl">*deleting   usr/share/joe/syntax/sql.jsf
+</span></span><span class="line"><span class="cl">*deleting   usr/share/joe/syntax/spec.jsf
+</span></span><span class="line"><span class="cl">*deleting   usr/share/joe/syntax/sml.jsf
+</span></span><span class="line"><span class="cl">*deleting   usr/share/joe/syntax/skill.jsf
+</span></span><span class="line"><span class="cl">*deleting   usr/share/joe/syntax/sieve.jsf
+</span></span><span class="line"><span class="cl">*deleting   usr/share/joe/syntax/sh.jsf
+</span></span><span class="line"><span class="cl">*deleting   usr/share/joe/syntax/sed.jsf
+</span></span><span class="line"><span class="cl">*deleting   usr/share/joe/syntax/scala.jsf
+</span></span><span class="line"><span class="cl">*deleting   usr/share/joe/syntax/rust.jsf
+</span></span><span class="line"><span class="cl">*deleting   usr/share/joe/syntax/ruby.jsf
+</span></span><span class="line"><span class="cl">*deleting   usr/share/joe/syntax/rexx.jsf
+</span></span><span class="line"><span class="cl">*deleting   usr/share/joe/syntax/r.jsf
+</span></span><span class="line"><span class="cl">*deleting   usr/share/joe/syntax/python.jsf
+</span></span><span class="line"><span class="cl">*deleting   usr/share/joe/syntax/puppet.jsf
+</span></span><span class="line"><span class="cl">*deleting   usr/share/joe/syntax/ps.jsf
+</span></span><span class="line"><span class="cl">*deleting   usr/share/joe/syntax/properties.jsf
+</span></span><span class="line"><span class="cl">*deleting   usr/share/joe/syntax/prolog.jsf
+</span></span><span class="line"><span class="cl">*deleting   usr/share/joe/syntax/powershell.jsf
+</span></span><span class="line"><span class="cl">*deleting   usr/share/joe/syntax/php.jsf
+</span></span><span class="line"><span class="cl">*deleting   usr/share/joe/syntax/perl.jsf
+</span></span><span class="line"><span class="cl">*deleting   usr/share/joe/syntax/pascal.jsf
+</span></span><span class="line"><span class="cl">*deleting   usr/share/joe/syntax/ocaml.jsf
+</span></span><span class="line"><span class="cl">*deleting   usr/share/joe/syntax/md.jsf
+</span></span><span class="line"><span class="cl">*deleting   usr/share/joe/syntax/matlab.jsf
+</span></span><span class="line"><span class="cl">*deleting   usr/share/joe/syntax/mason.jsf
+</span></span><span class="line"><span class="cl">*deleting   usr/share/joe/syntax/mail.jsf
+</span></span><span class="line"><span class="cl">*deleting   usr/share/joe/syntax/m4.jsf
+</span></span><span class="line"><span class="cl">*deleting   usr/share/joe/syntax/lua.jsf
+</span></span><span class="line"><span class="cl">*deleting   usr/share/joe/syntax/lisp.jsf
+</span></span><span class="line"><span class="cl">*deleting   usr/share/joe/syntax/json.jsf
+</span></span><span class="line"><span class="cl">*deleting   usr/share/joe/syntax/jsf_check.jsf
+</span></span><span class="line"><span class="cl">*deleting   usr/share/joe/syntax/jsf.jsf
+</span></span><span class="line"><span class="cl">*deleting   usr/share/joe/syntax/js.jsf
+</span></span><span class="line"><span class="cl">*deleting   usr/share/joe/syntax/joerc.jsf
+</span></span><span class="line"><span class="cl">*deleting   usr/share/joe/syntax/jcf.jsf
+</span></span><span class="line"><span class="cl">*deleting   usr/share/joe/syntax/java.jsf
+</span></span><span class="line"><span class="cl">*deleting   usr/share/joe/syntax/iptables.jsf
+</span></span><span class="line"><span class="cl">*deleting   usr/share/joe/syntax/ini.jsf
+</span></span><span class="line"><span class="cl">*deleting   usr/share/joe/syntax/htmlerb.jsf
+</span></span><span class="line"><span class="cl">*deleting   usr/share/joe/syntax/html.jsf
+</span></span><span class="line"><span class="cl">*deleting   usr/share/joe/syntax/haskell.jsf
+</span></span><span class="line"><span class="cl">*deleting   usr/share/joe/syntax/haml.jsf
+</span></span><span class="line"><span class="cl">*deleting   usr/share/joe/syntax/groovy.jsf
+</span></span><span class="line"><span class="cl">*deleting   usr/share/joe/syntax/go.jsf
+</span></span><span class="line"><span class="cl">*deleting   usr/share/joe/syntax/git-commit.jsf
+</span></span><span class="line"><span class="cl">*deleting   usr/share/joe/syntax/fortran.jsf
+</span></span><span class="line"><span class="cl">*deleting   usr/share/joe/syntax/filename.jsf
+</span></span><span class="line"><span class="cl">*deleting   usr/share/joe/syntax/erlang.jsf
+</span></span><span class="line"><span class="cl">*deleting   usr/share/joe/syntax/erb.jsf
+</span></span><span class="line"><span class="cl">*deleting   usr/share/joe/syntax/elixir.jsf
+</span></span><span class="line"><span class="cl">*deleting   usr/share/joe/syntax/dockerfile.jsf
+</span></span><span class="line"><span class="cl">*deleting   usr/share/joe/syntax/diff.jsf
+</span></span><span class="line"><span class="cl">*deleting   usr/share/joe/syntax/debian.jsf
+</span></span><span class="line"><span class="cl">*deleting   usr/share/joe/syntax/debcontrol.jsf
+</span></span><span class="line"><span class="cl">*deleting   usr/share/joe/syntax/d.jsf
+</span></span><span class="line"><span class="cl">*deleting   usr/share/joe/syntax/css.jsf
+</span></span><span class="line"><span class="cl">*deleting   usr/share/joe/syntax/csharp.jsf
+</span></span><span class="line"><span class="cl">*deleting   usr/share/joe/syntax/csh.jsf
+</span></span><span class="line"><span class="cl">*deleting   usr/share/joe/syntax/context.jsf
+</span></span><span class="line"><span class="cl">*deleting   usr/share/joe/syntax/conf.jsf
+</span></span><span class="line"><span class="cl">*deleting   usr/share/joe/syntax/comment_todo.jsf
+</span></span><span class="line"><span class="cl">*deleting   usr/share/joe/syntax/coffee.jsf
+</span></span><span class="line"><span class="cl">*deleting   usr/share/joe/syntax/cobol.jsf
+</span></span><span class="line"><span class="cl">*deleting   usr/share/joe/syntax/clojure.jsf
+</span></span><span class="line"><span class="cl">*deleting   usr/share/joe/syntax/c.jsf
+</span></span><span class="line"><span class="cl">*deleting   usr/share/joe/syntax/batch.jsf
+</span></span><span class="line"><span class="cl">*deleting   usr/share/joe/syntax/awk.jsf
+</span></span><span class="line"><span class="cl">*deleting   usr/share/joe/syntax/avr.jsf
+</span></span><span class="line"><span class="cl">*deleting   usr/share/joe/syntax/asm.jsf
+</span></span><span class="line"><span class="cl">*deleting   usr/share/joe/syntax/ant.jsf
+</span></span><span class="line"><span class="cl">*deleting   usr/share/joe/syntax/ada.jsf
+</span></span><span class="line"><span class="cl">*deleting   usr/share/joe/syntax/4gl.jsf
+</span></span><span class="line"><span class="cl">*deleting   usr/share/joe/syntax/
+</span></span><span class="line"><span class="cl">*deleting   usr/share/joe/lang/zh_TW.po
+</span></span><span class="line"><span class="cl">*deleting   usr/share/joe/lang/uk.po
+</span></span><span class="line"><span class="cl">*deleting   usr/share/joe/lang/ru.po
+</span></span><span class="line"><span class="cl">*deleting   usr/share/joe/lang/fr.po
+</span></span><span class="line"><span class="cl">*deleting   usr/share/joe/lang/de.po
+</span></span><span class="line"><span class="cl">*deleting   usr/share/joe/lang/
+</span></span><span class="line"><span class="cl">*deleting   usr/share/joe/colors/zenburn.jcf
+</span></span><span class="line"><span class="cl">*deleting   usr/share/joe/colors/zenburn-hc.jcf
+</span></span><span class="line"><span class="cl">*deleting   usr/share/joe/colors/xoria.jcf
+</span></span><span class="line"><span class="cl">*deleting   usr/share/joe/colors/wombat.jcf
+</span></span><span class="line"><span class="cl">*deleting   usr/share/joe/colors/solarized.jcf
+</span></span><span class="line"><span class="cl">*deleting   usr/share/joe/colors/molokai.jcf
+</span></span><span class="line"><span class="cl">*deleting   usr/share/joe/colors/ir_black.jcf
+</span></span><span class="line"><span class="cl">*deleting   usr/share/joe/colors/gruvbox.jcf
+</span></span><span class="line"><span class="cl">*deleting   usr/share/joe/colors/default.jcf
+</span></span><span class="line"><span class="cl">*deleting   usr/share/joe/colors/
+</span></span><span class="line"><span class="cl">*deleting   usr/share/joe/charmaps/klingon
+</span></span><span class="line"><span class="cl">*deleting   usr/share/joe/charmaps/
+</span></span><span class="line"><span class="cl">*deleting   usr/share/joe/
+</span></span><span class="line"><span class="cl">*deleting   usr/share/applications/jstar.desktop
+</span></span><span class="line"><span class="cl">*deleting   usr/share/applications/jpico.desktop
+</span></span><span class="line"><span class="cl">*deleting   usr/share/applications/joe.desktop
+</span></span><span class="line"><span class="cl">*deleting   usr/share/applications/jmacs.desktop
+</span></span><span class="line"><span class="cl">*deleting   usr/share/doc/joe/man.md
+</span></span><span class="line"><span class="cl">*deleting   usr/share/doc/joe/help.pl.txt
+</span></span><span class="line"><span class="cl">*deleting   usr/share/doc/joe/hacking.md
+</span></span><span class="line"><span class="cl">*deleting   usr/share/doc/joe/copyright
+</span></span><span class="line"><span class="cl">*deleting   usr/share/doc/joe/changelog.Debian.gz
+</span></span><span class="line"><span class="cl">*deleting   usr/share/doc/joe/README.old
+</span></span><span class="line"><span class="cl">*deleting   usr/share/doc/joe/README.md
+</span></span><span class="line"><span class="cl">*deleting   usr/share/doc/joe/README.Debian
+</span></span><span class="line"><span class="cl">*deleting   usr/share/doc/joe/NEWS.md
+</span></span><span class="line"><span class="cl">*deleting   usr/share/doc/joe/
+</span></span><span class="line"><span class="cl">*deleting   usr/share/man/man1/rjoe.1.gz
+</span></span><span class="line"><span class="cl">*deleting   usr/share/man/man1/jstar.1.gz
+</span></span><span class="line"><span class="cl">*deleting   usr/share/man/man1/jpico.1.gz
+</span></span><span class="line"><span class="cl">*deleting   usr/share/man/man1/joe.1.gz
+</span></span><span class="line"><span class="cl">*deleting   usr/share/man/man1/jmacs.1.gz
+</span></span><span class="line"><span class="cl">*deleting   usr/share/man/ru/man1/joe.1.gz
+</span></span><span class="line"><span class="cl">*deleting   usr/share/menu/joe
+</span></span><span class="line"><span class="cl">*deleting   var/lib/dpkg/info/joe.prerm
+</span></span><span class="line"><span class="cl">*deleting   var/lib/dpkg/info/joe.preinst
+</span></span><span class="line"><span class="cl">*deleting   var/lib/dpkg/info/joe.postrm
+</span></span><span class="line"><span class="cl">*deleting   var/lib/dpkg/info/joe.postinst
+</span></span><span class="line"><span class="cl">*deleting   var/lib/dpkg/info/joe.md5sums
+</span></span><span class="line"><span class="cl">*deleting   var/lib/dpkg/info/joe.list
+</span></span><span class="line"><span class="cl">*deleting   var/lib/dpkg/info/joe.conffiles
+</span></span><span class="line"><span class="cl">*deleting   var/lib/misc/editorrc
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">sent 122,966,173 bytes  received 829 bytes  35,133,429.14 bytes/sec
+</span></span><span class="line"><span class="cl">total size is 7,201,040,584  speedup is 58.56
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">Re-installing GRUB2 bootloader...
+</span></span><span class="line"><span class="cl">Installing for i386-pc platform.
+</span></span><span class="line"><span class="cl">Installation finished. No error reported.
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">Updating GRUB menu...
+</span></span><span class="line"><span class="cl">Generating grub configuration file ...
+</span></span><span class="line"><span class="cl">Warning: Setting GRUB_TIMEOUT to a non-zero value when GRUB_HIDDEN_TIMEOUT is set is no longer supported.
+</span></span><span class="line"><span class="cl">Found linux image: /boot/vmlinuz-4.15.0-20-generic
+</span></span><span class="line"><span class="cl">Found initrd image: /boot/initrd.img-4.15.0-20-generic
+</span></span><span class="line"><span class="cl">Found memtest86+ image: /boot/memtest86+.elf
+</span></span><span class="line"><span class="cl">Found memtest86+ image: /boot/memtest86+.bin
+</span></span><span class="line"><span class="cl">done
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">Synching file systems...
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">Rebooting system...
+</span></span><span class="line"><span class="cl">Rebooting.
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p><strong>要特別注意，restore完後，會自動reboot</strong></p>
+<p>重新開機完成後，就入系統，執行看看 joe</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">2019-03-11 14:14:53 [minion@hqpc074 ~]$ joe
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">Command &#39;joe&#39; not found, but can be installed with:
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">sudo apt install joe     
+</span></span><span class="line"><span class="cl">sudo apt install joe-jupp
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">2019-03-11 14:14:54 [minion@hqpc074 ~]$ 
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>可以看到，剛剛安裝的joe 又變成還沒安裝的狀態了，符合預期中的結果！</p>
+<p>可以繼續測試playbook了！</p>
+</section>
+
+
+    <footer class="article-footer">
+    
+    <section class="article-tags">
+        
+            <a href="/tags/ubuntu/">ubuntu</a>
+        
+            <a href="/tags/backup/">backup</a>
+        
+    </section>
+
+
+    
+    <section class="article-copyright">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <path d="M14.5 9a3.5 4 0 1 0 0 6" />
+</svg>
+
+
+
+        <span>Licensed under CC BY-NC-SA 4.0</span>
+    </section>
+    </footer>
+
+
+    
+</article>
+
+    
+
+    
+
+<aside class="related-content--wrapper">
+    <h2 class="section-title">相關文章</h2>
+    <div class="related-content">
+        <div class="flex article-list--tile">
+            
+                
+<article class="has-image">
+    <a href="/p/%E7%AD%86%E8%A8%98-%E5%9C%A8-ubuntu-20.04-%E4%B8%8A%E5%AE%89%E8%A3%9D-wireguard--pihole-%E4%BD%9C-ad-blocking/install-wireguard-and-pihole-to-do-ad-block-in-ubuntu-20.04/">
+        
+        
+            <div class="article-image">
+                
+                    <img src="https://h.cowbay.org/images/post-default-16.jpg" loading="lazy" data-key="" data-hash="https://h.cowbay.org/images/post-default-16.jpg"/>
+                
+            </div>
+        
+
+        <div class="article-details">
+            <h2 class="article-title">[筆記] 在 ubuntu 20.04 上安裝 wireguard &#43; pihole 作 AD Blocking/install wireguard and pihole to do ad block in ubuntu 20.04 </h2>
+        </div>
+    </a>
+</article>
+
+            
+                
+<article class="has-image">
+    <a href="/p/%E7%AD%86%E8%A8%98-%E5%9C%A8-ubuntu-1404-preseed-%E5%8A%A0%E5%85%A5%E9%96%8B%E6%A9%9F%E5%BE%8C%E8%87%AA%E5%8B%95%E7%99%BC%E9%83%B5%E4%BB%B6%E9%80%9A%E7%9F%A5%E5%AE%89%E8%A3%9D%E5%AE%8C%E6%88%90/">
+        
+        
+            <div class="article-image">
+                
+                    <img src="https://h.cowbay.org/images/post-default-5.jpg" loading="lazy" data-key="" data-hash="https://h.cowbay.org/images/post-default-5.jpg"/>
+                
+            </div>
+        
+
+        <div class="article-details">
+            <h2 class="article-title">[筆記] 在 Ubuntu 1404 Preseed 加入開機後自動發郵件通知安裝完成</h2>
+        </div>
+    </a>
+</article>
+
+            
+                
+<article class="has-image">
+    <a href="/p/%E5%9C%A8ubuntu-18.04%E4%B8%AD%E9%80%8F%E9%81%8E-dconf-%E8%A8%AD%E5%AE%9A%E7%B3%BB%E7%B5%B1%E5%B1%A4%E7%B4%9A%E7%9A%84%E6%88%91%E7%9A%84%E6%9C%80%E6%84%9B/-add-system-wide-favorite-apps-in-dock-with-dconf-in-ubuntu-18.04/">
+        
+        
+            <div class="article-image">
+                
+                    <img src="https://h.cowbay.org/images/post-default-2.jpg" loading="lazy" data-key="" data-hash="https://h.cowbay.org/images/post-default-2.jpg"/>
+                
+            </div>
+        
+
+        <div class="article-details">
+            <h2 class="article-title">在ubuntu 18.04中，透過 dconf 設定系統層級的「我的最愛」/ Add System Wide Favorite Apps in dock with Dconf in ubuntu 18.04</h2>
+        </div>
+    </a>
+</article>
+
+            
+                
+<article class="">
+    <a href="/p/%E7%AD%86%E8%A8%98-%E7%94%A8zfs%E7%9A%84snapshot-%E5%BF%AB%E7%85%A7%E5%8A%9F%E8%83%BD%E4%BE%86%E5%81%9A-postgresql-%E7%9A%84%E5%82%99%E4%BB%BD%E9%82%84%E5%8E%9F-/-postgresql-backup-restore-using-zfs-snapshot/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">[筆記] 用zfs的snapshot 快照功能來做 postgresql 的備份還原 / Postgresql Backup Restore Using Zfs Snapshot</h2>
+        </div>
+    </a>
+</article>
+
+            
+                
+<article class="">
+    <a href="/p/%E7%AD%86%E8%A8%98-%E9%80%8F%E9%81%8E-wireguard-%E5%BB%BA%E7%AB%8B%E5%A4%9A%E9%BB%9E-site-to-site-vpn-/-multiple-site-to-site-vpn-using-wireguard/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">[筆記] 透過 wireguard 建立多點 site to site VPN / Multiple Site to Site VPN Using Wireguard</h2>
+        </div>
+    </a>
+</article>
+
+            
+        </div>
+    </div>
+</aside>
+
+     
+    
+        
+    <div class="disqus-container">
+    <div id="disqus_thread"></div>
+<script type="application/javascript">
+    window.disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "h-cowbay-org" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+</div>
+
+<style>
+    .disqus-container {
+        background-color: var(--card-background);
+        border-radius: var(--card-border-radius);
+        box-shadow: var(--shadow-l1);
+        padding: var(--card-padding);
+    }
+</style>
+
+<script>
+    window.addEventListener('onColorSchemeChange', (e) => {
+        if (typeof DISQUS == 'object') {
+            DISQUS.reset({
+                reload: true
+            });
+        }
+    })
+</script>
+
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+            2020 - 
+        
+        2023 MCの部落
+    </section>
+    
+    <section class="powerby">
+        
+            鮮衣怒馬少年時 不負韶華行且知 <br/>
+        使用 <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> 建立 <br />
+        主題 <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.16.0">Stack</a></b> 由 <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a> 設計
+    </section>
+</footer>
+
+
+    
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.min.css"crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css"crossorigin="anonymous"
+            >
+
+            </main>
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.6/dist/vibrant.min.js"integrity="sha256-awcR2jno4kI5X0zL8ex0vi2z&#43;KMkF24hUW8WePSA9HM="crossorigin="anonymous"
+                
+                >
+            </script><script type="text/javascript" src="/ts/main.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>

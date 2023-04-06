@@ -1,0 +1,713 @@
+<!DOCTYPE html>
+<html lang="en-us" dir="ltr">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='因為實在受夠了現在用的 openwrt &#43; strongswan 建立 IPSec VPN
+雖然說其實沒有什麼不好，但是畢竟不是我建立的，而當初的文件也都不見了
+完全沒辦法了解當時設計的邏輯，造成後續debug 困難
+可以想像一下，一台VPN router ping 不到remote、ping不到internet、甚至ping不到自己 是要怎麼debug !?(翻桌
+之前買了兩台edgerouter X 拿來玩了一下 wireguard，感覺還不錯，不過只有測試到點對點
+這次試試看躲在gateway後面，看看能不能建立多點的VPN環境
+'>
+<title>[筆記] 透過 wireguard 建立多點 site to site VPN / Multiple Site to Site VPN Using Wireguard</title>
+
+<link rel='canonical' href='https://h.cowbay.org/post/multiple-site-to-site-vpn-using-wireguard/'>
+
+<link rel="stylesheet" href="/scss/style.min.8191399262444ab68b72a18c97392f5349be20a1615d77445be51e974c144cff.css"><meta property='og:title' content='[筆記] 透過 wireguard 建立多點 site to site VPN / Multiple Site to Site VPN Using Wireguard'>
+<meta property='og:description' content='因為實在受夠了現在用的 openwrt &#43; strongswan 建立 IPSec VPN
+雖然說其實沒有什麼不好，但是畢竟不是我建立的，而當初的文件也都不見了
+完全沒辦法了解當時設計的邏輯，造成後續debug 困難
+可以想像一下，一台VPN router ping 不到remote、ping不到internet、甚至ping不到自己 是要怎麼debug !?(翻桌
+之前買了兩台edgerouter X 拿來玩了一下 wireguard，感覺還不錯，不過只有測試到點對點
+這次試試看躲在gateway後面，看看能不能建立多點的VPN環境
+'>
+<meta property='og:url' content='https://h.cowbay.org/post/multiple-site-to-site-vpn-using-wireguard/'>
+<meta property='og:site_name' content='My New Hugo Site'>
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='vpn' /><meta property='article:tag' content='ubuntu' /><meta property='article:tag' content='wireguard' /><meta property='article:published_time' content='2019-08-13T15:50:31&#43;08:00'/><meta property='article:modified_time' content='2019-08-13T15:50:31&#43;08:00'/>
+<meta name="twitter:title" content="[筆記] 透過 wireguard 建立多點 site to site VPN / Multiple Site to Site VPN Using Wireguard">
+<meta name="twitter:description" content="因為實在受夠了現在用的 openwrt &#43; strongswan 建立 IPSec VPN
+雖然說其實沒有什麼不好，但是畢竟不是我建立的，而當初的文件也都不見了
+完全沒辦法了解當時設計的邏輯，造成後續debug 困難
+可以想像一下，一台VPN router ping 不到remote、ping不到internet、甚至ping不到自己 是要怎麼debug !?(翻桌
+之前買了兩台edgerouter X 拿來玩了一下 wireguard，感覺還不錯，不過只有測試到點對點
+這次試試看躲在gateway後面，看看能不能建立多點的VPN環境
+">
+    </head>
+    <body class="
+    article-page
+    ">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "auto");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.documentElement.dataset.scheme = 'dark';
+        } else {
+            document.documentElement.dataset.scheme = 'light';
+        }
+    })();
+</script>
+<div class="container main-container flex on-phone--column compact"><aside class="sidebar left-sidebar sticky ">
+    <button class="hamburger hamburger--spin" type="button" id="toggle-menu" aria-label="Toggle Menu">
+        <span class="hamburger-box">
+            <span class="hamburger-inner"></span>
+        </span>
+    </button>
+
+    <header>
+        
+            
+            <figure class="site-avatar">
+                <a href="/">
+                
+                    
+                    
+                    
+                        
+                        <img src="/img/avatar.png" width="300"
+                            height="300" class="site-logo" loading="lazy" alt="Avatar">
+                    
+                
+                </a>
+                
+            </figure>
+            
+        
+        
+        <div class="site-meta">
+            <h1 class="site-name"><a href="/">My New Hugo Site</a></h1>
+            <h2 class="site-description"></h2>
+        </div>
+    </header><ol class="menu" id="main-menu">
+        
+        
+        
+        <li >
+            <a href='/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-home" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="5 12 3 12 12 3 21 12 19 12" />
+  <path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-7" />
+  <path d="M9 21v-6a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v6" />
+</svg>
+
+
+
+                
+                <span>Home</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/page/about/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-user" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="7" r="4" />
+  <path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2" />
+</svg>
+
+
+
+                
+                <span>About</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/page/archives/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-archive" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <rect x="3" y="4" width="18" height="4" rx="2" />
+  <path d="M5 8v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-10" />
+  <line x1="10" y1="12" x2="14" y2="12" />
+</svg>
+
+
+
+                
+                <span>Archives</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/page/search/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="10" cy="10" r="7" />
+  <line x1="21" y1="21" x2="15" y2="15" />
+</svg>
+
+
+
+                
+                <span>Search</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/page/links/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-link" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M10 14a3.5 3.5 0 0 0 5 0l4 -4a3.5 3.5 0 0 0 -5 -5l-.5 .5" />
+  <path d="M14 10a3.5 3.5 0 0 0 -5 0l-4 4a3.5 3.5 0 0 0 5 5l.5 -.5" />
+</svg>
+
+
+
+                
+                <span>Links</span>
+            </a>
+        </li>
+        
+
+        <div class="menu-bottom-section">
+            
+            
+                <li id="dark-mode-toggle">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="8" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="16" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                    <span>Dark Mode</span>
+                </li>
+            
+        </div>
+    </ol>
+</aside>
+
+    
+
+            <main class="main full-width">
+    <article class="main-article">
+    <header class="article-header">
+
+    <div class="article-details">
+    
+    <header class="article-category">
+        
+            <a href="/categories/%E7%AD%86%E8%A8%98/" >
+                筆記
+            </a>
+        
+    </header>
+    
+
+    <div class="article-title-wrapper">
+        <h2 class="article-title">
+            <a href="/post/multiple-site-to-site-vpn-using-wireguard/">[筆記] 透過 wireguard 建立多點 site to site VPN / Multiple Site to Site VPN Using Wireguard</a>
+        </h2>
+    
+        
+    </div>
+
+    
+    
+    
+    
+    <footer class="article-time">
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M11.795 21h-6.795a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
+  <circle cx="18" cy="18" r="4" />
+  <path d="M15 3v4" />
+  <path d="M7 3v4" />
+  <path d="M3 11h16" />
+  <path d="M18 16.496v1.504l1 1" />
+</svg>
+                <time class="article-time--published">Aug 13, 2019</time>
+            </div>
+        
+
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+                <time class="article-time--reading">
+                    6 minute read
+                </time>
+            </div>
+        
+    </footer>
+    
+
+    
+</div>
+
+</header>
+
+    <section class="article-content">
+    
+    
+    <p>因為實在受夠了現在用的 openwrt + strongswan 建立 IPSec VPN</p>
+<p>雖然說其實沒有什麼不好，但是畢竟不是我建立的，而當初的文件也都不見了</p>
+<p>完全沒辦法了解當時設計的邏輯，造成後續debug 困難</p>
+<p>可以想像一下，一台VPN router ping 不到remote、ping不到internet、甚至ping不到自己 是要怎麼debug !?(翻桌</p>
+<p>之前買了兩台edgerouter X 拿來玩了一下 wireguard，感覺還不錯，不過只有測試到點對點</p>
+<p>這次試試看躲在gateway後面，看看能不能建立多點的VPN環境</p>
+<h4 id="every-node">every node</h4>
+<h5 id="enable-ip_forward">enable ip_forward</h5>
+<p>edit /etc/sysctl.conf
+add below line in the end of the file</p>
+<pre tabindex="0"><code>net.ipv4.ip_forward=1
+</code></pre><h5 id="install-wireguard">install wireguard</h5>
+<pre tabindex="0"><code>sudo apt-get install libmnl-dev linux-headers-$(uname -r) build-essential make git libelf-dev
+git clone https://git.zx2c4.com/WireGuard
+cd WireGuard/src/
+make
+sudo make install
+</code></pre><p>or
+<strong>via apt</strong></p>
+<pre tabindex="0"><code>sudo add-apt-repository ppa:wireguard/wireguard
+sudo apt install wireguard
+</code></pre><h5 id="create-wireguard-service-file">create wireguard service file</h5>
+<p>add /etc/systemd/system/multi-user.target.wants/wg-quick@wg0.service</p>
+<pre tabindex="0"><code>[Unit]
+Description=WireGuard via wg-quick(8) for %I
+After=network-online.target nss-lookup.target
+Wants=network-online.target nss-lookup.target
+Documentation=man:wg-quick(8)
+Documentation=man:wg(8)
+Documentation=https://www.wireguard.com/
+Documentation=https://www.wireguard.com/quickstart/
+Documentation=https://git.zx2c4.com/WireGuard/about/src/tools/man/wg-quick.8
+Documentation=https://git.zx2c4.com/WireGuard/about/src/tools/man/wg.8
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStart=/usr/bin/wg-quick up %i
+ExecStop=/usr/bin/wg-quick down %i
+Environment=WG_ENDPOINT_RESOLUTION_RETRIES=infinity
+
+[Install]
+WantedBy=multi-user.target
+</code></pre><h4 id="node-a">Node A</h4>
+<h5 id="create-wireguard-privatepublic-key">create wireguard private/public key</h5>
+<pre tabindex="0"><code>wg genkey &gt; /etc/wireguard/private
+cat /etc/wireguard/private | wg pubkey &gt; /etc/wireguard/public
+</code></pre><h5 id="etcwireguardwg0conf">/etc/wireguard/wg0.conf</h5>
+<p>watch the interface name , must meets the interface name in system , ens18 is the default value of my test VM</p>
+<pre tabindex="0"><code>[Interface]
+Address = 10.0.0.40/24
+ListenPort = 12000
+PrivateKey = private key of node A
+PostUp   = iptables -A FORWARD -i %i -j ACCEPT; iptables -A FORWARD -o %i -j ACCEPT; iptables -t nat -A POSTROUTING -o ens18 -j MASQUERADE
+PostDown = iptables -D FORWARD -i %i -j ACCEPT; iptables -D FORWARD -o %i -j ACCEPT; iptables -t nat -D POSTROUTING -o ens18 -j MASQUERADE
+
+[Peer]
+PublicKey = public key of node B
+AllowedIPs = 10.0.0.28/32,192.168.28.0/24
+Endpoint = 2.2.2.2:12000
+PersistentKeepalive = 15
+
+[Peer]
+PublicKey = public key of node C
+AllowedIPs = 10.0.0.80/32,192.168.80.0/24
+Endpoint = 3.3.3.3:12000
+PersistentKeepalive = 15
+</code></pre><h4 id="node-b-peer-1">Node B (peer 1)</h4>
+<h5 id="create-wireguard-privatepublic-key-1">create wireguard private/public key</h5>
+<pre tabindex="0"><code>wg genkey &gt; /etc/wireguard/private
+cat /etc/wireguard/private | wg pubkey &gt; /etc/wireguard/public
+</code></pre><h5 id="etcwireguardwg0conf-1">/etc/wireguard/wg0.conf</h5>
+<p>watch the interface name , must meets the interface name in system , ens18 is the default value of my test VM</p>
+<pre tabindex="0"><code>[Interface]
+ListenPort = 12000
+PrivateKey = private key of node B
+Address = 10.0.0.28/24
+PostUp   = iptables -A FORWARD -i %i -j ACCEPT; iptables -A FORWARD -o %i -j ACCEPT; iptables -t nat -A POSTROUTING -o ens18 -j MASQUERADE
+PostDown = iptables -D FORWARD -i %i -j ACCEPT; iptables -D FORWARD -o %i -j ACCEPT; iptables -t nat -D POSTROUTING -o ens18 -j MASQUERADE
+
+[Peer]
+PublicKey = public key of node A
+AllowedIPs = 10.0.0.40/32,192.168.40.0/24
+Endpoint = 1.1.1.1:12000
+PersistentKeepalive = 15
+
+[Peer]
+PublicKey = public key of node C
+AllowedIPs = 10.0.0.80/32,192.168.80.0/24
+Endpoint = 3.3.3.3:12000
+PersistentKeepalive = 15
+</code></pre><h4 id="node-c-peer-2">Node C (peer 2)</h4>
+<h5 id="create-wireguard-privatepublic-key-2">create wireguard private/public key</h5>
+<pre tabindex="0"><code>wg genkey &gt; /etc/wireguard/private
+cat /etc/wireguard/private | wg pubkey &gt; /etc/wireguard/public
+</code></pre><h4 id="etcwireguardwg0conf-2">/etc/wireguard/wg0.conf</h4>
+<p>watch the interface name , must meets the interface name in system , ens18 is the default value of my test VM</p>
+<pre tabindex="0"><code>[Interface]
+ListenPort = 12000
+PrivateKey = private key of node C
+Address = 10.0.0.80/24
+PostUp   = iptables -A FORWARD -i %i -j ACCEPT; iptables -A FORWARD -o %i -j ACCEPT; iptables -t nat -A POSTROUTING -o ens18 -j MASQUERADE
+PostDown = iptables -D FORWARD -i %i -j ACCEPT; iptables -D FORWARD -o %i -j ACCEPT; iptables -t nat -D POSTROUTING -o ens18 -j MASQUERADE
+
+
+[Peer]
+PublicKey = public key of node A
+AllowedIPs = 10.0.0.40/32,192.168.40.0/24
+Endpoint = 1.1.1.1:12000
+PersistentKeepalive = 15
+
+[Peer]
+PublicKey = public key of node B
+AllowedIPs = 10.0.0.28/32,192.168.28.0/24
+Endpoint = 2.2.2.2:12000
+PersistentKeepalive = 15
+</code></pre><h5 id="test">Test</h5>
+<p>Reboot all nodes , check if interface wg0 up by default or not</p>
+<p>use command wg show to check status</p>
+<p>for example , this is result of wg show in node C</p>
+<pre tabindex="0"><code>root@sdvpn:~# wg show
+interface: wg0
+  public key: public key of Node C
+  private key: (hidden)
+  listening port: 12000
+
+peer: public key of node A
+  endpoint: 1.1.1.1:12000
+  allowed ips: 10.0.0.40/32, 192.168.40.0/24
+  latest handshake: 49 seconds ago
+  transfer: 9.77 KiB received, 9.73 KiB sent
+  persistent keepalive: every 15 seconds
+
+peer: public key of node B
+  endpoint: 2.2.2.2:12000
+  allowed ips: 10.0.0.28/32, 192.168.28.0/24
+  latest handshake: 2 minutes, 8 seconds ago
+  transfer: 3.93 KiB received, 7.89 KiB sent
+  persistent keepalive: every 15 seconds
+</code></pre><p>and the ping test</p>
+<pre tabindex="0"><code>root@sdvpn:~# ping -c 1 192.168.40.40
+PING 192.168.40.40 (192.168.40.40) 56(84) bytes of data.
+64 bytes from 192.168.40.40: icmp_seq=1 ttl=63 time=21.2 ms
+
+--- 192.168.40.40 ping statistics ---
+1 packets transmitted, 1 received, 0% packet loss, time 0ms
+rtt min/avg/max/mdev = 21.204/21.204/21.204/0.000 ms
+root@sdvpn:~# ping -c 1 192.168.28.40
+PING 192.168.28.40 (192.168.28.40) 56(84) bytes of data.
+64 bytes from 192.168.28.40: icmp_seq=1 ttl=63 time=24.2 ms
+
+--- 192.168.28.40 ping statistics ---
+1 packets transmitted, 1 received, 0% packet loss, time 0ms
+rtt min/avg/max/mdev = 24.208/24.208/24.208/0.000 ms
+root@sdvpn:~# 
+</code></pre><p>and the traceroute</p>
+<pre tabindex="0"><code>root@sdvpn:~# traceroute 192.168.40.40
+traceroute to 192.168.40.40 (192.168.40.40), 30 hops max, 60 byte packets
+ 1  10.0.0.40 (10.0.0.40)  21.349 ms  22.337 ms  22.576 ms
+ 2  tcpc040.abc.com (192.168.40.40)  22.565 ms  22.551 ms  22.541 ms
+root@sdvpn:~# traceroute 192.168.28.40
+traceroute to 192.168.28.40 (192.168.28.40), 30 hops max, 60 byte packets
+ 1  10.0.0.28 (10.0.0.28)  25.481 ms  30.117 ms  32.086 ms
+ 2  dcpc040.abc.com (192.168.28.40)  33.811 ms  35.360 ms  36.769 ms
+root@sdvpn:~#
+</code></pre><h4 id="additonal-steps">additonal steps</h4>
+<h5 id="enable-firewall-nat-in-each-nodes-router">enable firewall NAT in each nodes router</h5>
+<p>not necessary , but if the wireguard node is behind a NAT router , then must enable NAT for wireguard</p>
+<p>1.1.1.1 is the WAN IP of the router , and 192.168.80.4 is the wireguard LAN ip, I map port 224 to ssh and 12000 for wireguard</p>
+<pre tabindex="0"><code>iptables -t nat -A PREROUTING -i eth1 -d 1.1.1.1 -p tcp --dport 224 -j DNAT --to-destination 192.168.80.4:22
+iptables -t nat -A PREROUTING -i eth1 -d 1.1.1.1 -p udp --dport 12000 -j DNAT --to-destination 192.168.80.4:12000
+</code></pre><h4 id="summary">summary</h4>
+<p>if want to add more nodes into VPN , just follow the logic and steps.</p>
+<pre tabindex="0"><code>create private/public key
+create wg0.conf 
+add new nodes in every other nodes wg0.conf as peer
+</code></pre><ol>
+<li>for route , must add remote network in AllowedIPs</li>
+<li>check ip_forward is enable</li>
+<li>I think the postup haws no effect here , because the firewall service was disable by default , and if I use iptables -F to flush all firewall rules , the network still remain in connected.</li>
+<li>need to create an ansible playbook for this</li>
+</ol>
+<h4 id="update">Update</h4>
+<h5 id="strongswan-ipsec-vs-wireguard">strongswan IPSEC VS wireguard</h5>
+<p><strong>wireguard almost twice faster than strongswan</strong></p>
+<p>iperf test with wireguard VPN 30 seconds benchmark</p>
+<pre tabindex="0"><code>root@sdvpn:~# iperf -c 192.168.40.7 -t 30
+------------------------------------------------------------
+Client connecting to 192.168.40.7, TCP port 5001
+TCP window size: 85.0 KByte (default)
+------------------------------------------------------------
+[  3] local 10.0.0.80 port 48270 connected with 192.168.40.7 port 5001
+[ ID] Interval       Transfer     Bandwidth
+[  3]  0.0-30.1 sec  65.1 MBytes  18.1 Mbits/sec
+root@sdvpn:~# 
+</code></pre><p>iperf test with strongswan VPN</p>
+<pre tabindex="0"><code>root@sdvpn:~# iperf -c 192.168.40.7 -t 30
+------------------------------------------------------------
+Client connecting to 192.168.40.7, TCP port 5001
+TCP window size: 85.0 KByte (default)
+------------------------------------------------------------
+[  3] local 192.168.80.4 port 57806 connected with 192.168.40.7 port 5001
+[ ID] Interval       Transfer     Bandwidth
+[  3]  0.0-30.1 sec  35.6 MBytes  9.94 Mbits/sec
+root@sdvpn:~# 
+</code></pre>
+</section>
+
+
+    <footer class="article-footer">
+    
+    <section class="article-tags">
+        
+            <a href="/tags/vpn/">vpn</a>
+        
+            <a href="/tags/ubuntu/">ubuntu</a>
+        
+            <a href="/tags/wireguard/">wireguard</a>
+        
+    </section>
+
+
+    </footer>
+
+
+    
+</article>
+
+    
+
+    
+
+<aside class="related-content--wrapper">
+    <h2 class="section-title">Related content</h2>
+    <div class="related-content">
+        <div class="flex article-list--tile">
+            
+                
+<article class="">
+    <a href="/post/site-to-site-vpn-using-wireguard-in-two-edgerouters/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">[筆記] 在edgerouter上用wireguard 建立site to site VPN / Site to Site Vpn Using Wireguard in Two Edgerouters</h2>
+        </div>
+    </a>
+</article>
+
+            
+                
+<article class="">
+    <a href="/post/send-mail-to-notify-after-pxe-install/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">[筆記] 用pxe 安裝系統，完成後送出郵件通知 / send mail notification after pxe install</h2>
+        </div>
+    </a>
+</article>
+
+            
+                
+<article class="">
+    <a href="/post/install-timeshift-on-ubuntu1804/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">Install Timeshift on Ubuntu1804</h2>
+        </div>
+    </a>
+</article>
+
+            
+                
+<article class="">
+    <a href="/post/install-ubuntu1804-on-dell-6ir-raid-controller/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">用DELL 6 i/R 建立RAID，並在上面安裝ubuntu 18.04 </h2>
+        </div>
+    </a>
+</article>
+
+            
+                
+<article class="">
+    <a href="/post/ubuntu-1804-install-root-on-raid/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">Ubuntu 1804 Install Root on Raid</h2>
+        </div>
+    </a>
+</article>
+
+            
+        </div>
+    </div>
+</aside>
+
+     
+    
+        
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+        2023 My New Hugo Site
+    </section>
+    
+    <section class="powerby">
+        Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
+        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.16.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+    </section>
+</footer>
+
+
+    
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.min.css"crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css"crossorigin="anonymous"
+            >
+
+            </main>
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.6/dist/vibrant.min.js"integrity="sha256-awcR2jno4kI5X0zL8ex0vi2z&#43;KMkF24hUW8WePSA9HM="crossorigin="anonymous"
+                
+                >
+            </script><script type="text/javascript" src="/ts/main.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>

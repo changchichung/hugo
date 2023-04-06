@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html lang="en-us" dir="ltr">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='最近因為一直碰到硬碟故障的問題，算起來那一批同時購買的5X顆 seagate 2T硬碟，已經有一半以上故障返修了&amp;hellip;.
+然後又因為一直沒有添購新的硬碟，只能用這些快過保/已過保的撐著
+所以最近不斷的在更換機器內的硬碟，而且還沒有熱插拔！
+也導致原本負責處理盤點資產的同事困擾，因為跟手邊的紀錄已經對不起來了
+然後就變成要對資產的時候，需要一台一台登入，然後去下不同的指令，取得想要的硬體資訊，超級麻煩的！
+'>
+<title>[筆記] inxi 蒐集詳盡的硬體資訊 / inxi Collect Detail Hardware Info</title>
+
+<link rel='canonical' href='https://h.cowbay.org/post/inx-collect-detail-hardware-info/'>
+
+<link rel="stylesheet" href="/scss/style.min.8191399262444ab68b72a18c97392f5349be20a1615d77445be51e974c144cff.css"><meta property='og:title' content='[筆記] inxi 蒐集詳盡的硬體資訊 / inxi Collect Detail Hardware Info'>
+<meta property='og:description' content='最近因為一直碰到硬碟故障的問題，算起來那一批同時購買的5X顆 seagate 2T硬碟，已經有一半以上故障返修了&amp;hellip;.
+然後又因為一直沒有添購新的硬碟，只能用這些快過保/已過保的撐著
+所以最近不斷的在更換機器內的硬碟，而且還沒有熱插拔！
+也導致原本負責處理盤點資產的同事困擾，因為跟手邊的紀錄已經對不起來了
+然後就變成要對資產的時候，需要一台一台登入，然後去下不同的指令，取得想要的硬體資訊，超級麻煩的！
+'>
+<meta property='og:url' content='https://h.cowbay.org/post/inx-collect-detail-hardware-info/'>
+<meta property='og:site_name' content='My New Hugo Site'>
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='linux' /><meta property='article:tag' content='bsd' /><meta property='article:tag' content='inventory' /><meta property='article:published_time' content='2019-04-23T15:28:56&#43;08:00'/><meta property='article:modified_time' content='2019-04-23T15:28:56&#43;08:00'/>
+<meta name="twitter:title" content="[筆記] inxi 蒐集詳盡的硬體資訊 / inxi Collect Detail Hardware Info">
+<meta name="twitter:description" content="最近因為一直碰到硬碟故障的問題，算起來那一批同時購買的5X顆 seagate 2T硬碟，已經有一半以上故障返修了&amp;hellip;.
+然後又因為一直沒有添購新的硬碟，只能用這些快過保/已過保的撐著
+所以最近不斷的在更換機器內的硬碟，而且還沒有熱插拔！
+也導致原本負責處理盤點資產的同事困擾，因為跟手邊的紀錄已經對不起來了
+然後就變成要對資產的時候，需要一台一台登入，然後去下不同的指令，取得想要的硬體資訊，超級麻煩的！
+">
+    </head>
+    <body class="
+    article-page
+    ">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "auto");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.documentElement.dataset.scheme = 'dark';
+        } else {
+            document.documentElement.dataset.scheme = 'light';
+        }
+    })();
+</script>
+<div class="container main-container flex on-phone--column compact"><aside class="sidebar left-sidebar sticky ">
+    <button class="hamburger hamburger--spin" type="button" id="toggle-menu" aria-label="Toggle Menu">
+        <span class="hamburger-box">
+            <span class="hamburger-inner"></span>
+        </span>
+    </button>
+
+    <header>
+        
+            
+            <figure class="site-avatar">
+                <a href="/">
+                
+                    
+                    
+                    
+                        
+                        <img src="/img/avatar.png" width="300"
+                            height="300" class="site-logo" loading="lazy" alt="Avatar">
+                    
+                
+                </a>
+                
+            </figure>
+            
+        
+        
+        <div class="site-meta">
+            <h1 class="site-name"><a href="/">My New Hugo Site</a></h1>
+            <h2 class="site-description"></h2>
+        </div>
+    </header><ol class="menu" id="main-menu">
+        
+        
+        
+        <li >
+            <a href='/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-home" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="5 12 3 12 12 3 21 12 19 12" />
+  <path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-7" />
+  <path d="M9 21v-6a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v6" />
+</svg>
+
+
+
+                
+                <span>Home</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/page/about/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-user" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="7" r="4" />
+  <path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2" />
+</svg>
+
+
+
+                
+                <span>About</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/page/archives/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-archive" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <rect x="3" y="4" width="18" height="4" rx="2" />
+  <path d="M5 8v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-10" />
+  <line x1="10" y1="12" x2="14" y2="12" />
+</svg>
+
+
+
+                
+                <span>Archives</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/page/search/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="10" cy="10" r="7" />
+  <line x1="21" y1="21" x2="15" y2="15" />
+</svg>
+
+
+
+                
+                <span>Search</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/page/links/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-link" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M10 14a3.5 3.5 0 0 0 5 0l4 -4a3.5 3.5 0 0 0 -5 -5l-.5 .5" />
+  <path d="M14 10a3.5 3.5 0 0 0 -5 0l-4 4a3.5 3.5 0 0 0 5 5l.5 -.5" />
+</svg>
+
+
+
+                
+                <span>Links</span>
+            </a>
+        </li>
+        
+
+        <div class="menu-bottom-section">
+            
+            
+                <li id="dark-mode-toggle">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="8" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="16" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                    <span>Dark Mode</span>
+                </li>
+            
+        </div>
+    </ol>
+</aside>
+
+    
+
+            <main class="main full-width">
+    <article class="main-article">
+    <header class="article-header">
+
+    <div class="article-details">
+    
+    <header class="article-category">
+        
+            <a href="/categories/%E7%AD%86%E8%A8%98/" >
+                筆記
+            </a>
+        
+    </header>
+    
+
+    <div class="article-title-wrapper">
+        <h2 class="article-title">
+            <a href="/post/inx-collect-detail-hardware-info/">[筆記] inxi 蒐集詳盡的硬體資訊 / inxi Collect Detail Hardware Info</a>
+        </h2>
+    
+        
+    </div>
+
+    
+    
+    
+    
+    <footer class="article-time">
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M11.795 21h-6.795a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
+  <circle cx="18" cy="18" r="4" />
+  <path d="M15 3v4" />
+  <path d="M7 3v4" />
+  <path d="M3 11h16" />
+  <path d="M18 16.496v1.504l1 1" />
+</svg>
+                <time class="article-time--published">Apr 23, 2019</time>
+            </div>
+        
+
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+                <time class="article-time--reading">
+                    2 minute read
+                </time>
+            </div>
+        
+    </footer>
+    
+
+    
+</div>
+
+</header>
+
+    <section class="article-content">
+    
+    
+    <p>最近因為一直碰到硬碟故障的問題，算起來那一批同時購買的5X顆 seagate 2T硬碟，已經有一半以上故障返修了&hellip;.</p>
+<p>然後又因為一直沒有添購新的硬碟，只能用這些快過保/已過保的撐著</p>
+<p>所以最近不斷的在更換機器內的硬碟，而且還沒有熱插拔！</p>
+<p>也導致原本負責處理盤點資產的同事困擾，因為跟手邊的紀錄已經對不起來了</p>
+<p>然後就變成要對資產的時候，需要一台一台登入，然後去下不同的指令，取得想要的硬體資訊，超級麻煩的！</p>
+<p>幾次之後，終於決定透過ansible來做這件事</p>
+<p>一開始的想法很簡單，就用 lshw/dmidecode這些指令去做</p>
+<p>可是因為手邊的機器有ubuntu 18.04/16.04/14.04 , Debian 9 , Proxmox (based on debian ) , CentOS , FreeNAS</p>
+<p>而有些系統預設沒有 lshw / dmidecode (對，FreeNAS 就是說你)</p>
+<p>所以變成要依照系統不同，去下不同的指令，雖然都是ansible在跑，但是看到playbook的內容就很煩啊！</p>
+<p>然後就不小心讓我翻到了 inxi 這個指令，根本就是救星啊！</p>
+<p>直接來看輸出的範例</p>
+<p><img src="http://i.imgur.com/OSx9cnz.png"
+	
+	
+	
+	loading="lazy"
+	
+		alt="sample of inxi output"
+	
+	
+></p>
+<p>有沒有，是不是很優！</p>
+<p>而且簡單易懂，還能抓到同事想看的資料，像是廠牌、型號、序號、記憶體類型(DDR2/3/4)</p>
+<p>所以馬上捨棄 lshw/dmidecode ，改用 inxi 來跑</p>
+<p>ansible role 的內容也很簡單</p>
+<p>就偵測完之後，把結果送出給設定好的收件人</p>
+<p>只是因為系統不同，大致上要分成 ubuntu/debian/centos 以及 freebsd 兩種</p>
+<p>所以同樣的task 要跑兩次，一個要帶sudo 一個不用帶</p>
+<p>然後BSD系列的機器，在inventory 裡面要帶入 ansible_ssh_user</p>
+<p>就這樣，沒有什麼太困難的</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-YAML" data-lang="YAML"><span style="display:flex;"><span><span style="color:#75715e">######### use inxi instead ##################</span>
+</span></span><span style="display:flex;"><span>- <span style="color:#f92672">name</span>: <span style="color:#ae81ff">copy inxi binary to remote Ubnutu/Debian</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">become</span>: <span style="color:#66d9ef">yes</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">become_method</span>: <span style="color:#ae81ff">sudo</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">copy</span>:
+</span></span><span style="display:flex;"><span>   <span style="color:#f92672">src</span>: <span style="color:#ae81ff">inxi</span>
+</span></span><span style="display:flex;"><span>   <span style="color:#f92672">dest</span>: <span style="color:#ae81ff">/usr/local/bin/inxi</span>
+</span></span><span style="display:flex;"><span>   <span style="color:#f92672">mode</span>: <span style="color:#ae81ff">a+rx,u+rwx</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">when</span>: <span style="color:#ae81ff">ansible_distribution == &#34;Ubuntu&#34; or ansible_distribution == &#34;Debian&#34; or ansible_distribution == &#34;CentOS&#34;</span>
+</span></span><span style="display:flex;"><span> 
+</span></span><span style="display:flex;"><span>- <span style="color:#f92672">name</span>: <span style="color:#ae81ff">copy inxi binary to remote FreeBSD</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">copy</span>:
+</span></span><span style="display:flex;"><span>   <span style="color:#f92672">src</span>: <span style="color:#ae81ff">inxi</span>
+</span></span><span style="display:flex;"><span>   <span style="color:#f92672">dest</span>: <span style="color:#ae81ff">/usr/local/bin/inxi</span>
+</span></span><span style="display:flex;"><span>   <span style="color:#f92672">mode</span>: <span style="color:#ae81ff">a+rx,u+rwx</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">when</span>: <span style="color:#ae81ff">ansible_distribution == &#34;FreeBSD&#34;</span>
+</span></span><span style="display:flex;"><span> 
+</span></span><span style="display:flex;"><span>- <span style="color:#f92672">name</span>: <span style="color:#ae81ff">run inxi to collect Ubuntu/Debian hardware info</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">become</span>: <span style="color:#66d9ef">yes</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">become_method</span>: <span style="color:#ae81ff">sudo</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">shell</span>: <span style="color:#e6db74">&#34;/usr/local/bin/inxi -c -Dxx -C -m -Z&#34;</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">register</span>: <span style="color:#ae81ff">du_hw_info</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">when</span>: <span style="color:#ae81ff">ansible_distribution == &#34;Ubuntu&#34; or ansible_distribution == &#34;Debian&#34; or ansible_distribution == &#34;CentOS&#34;</span>
+</span></span><span style="display:flex;"><span> 
+</span></span><span style="display:flex;"><span>- <span style="color:#f92672">name</span>: <span style="color:#ae81ff">run inxi to collect FreeBSD hardware info</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">shell</span>: <span style="color:#e6db74">&#34;/usr/local/bin/inxi -c -Dxx -C -m -Z&#34;</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">register</span>: <span style="color:#ae81ff">bsd_hw_info</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">when</span>: <span style="color:#ae81ff">ansible_distribution == &#34;FreeBSD&#34;</span>
+</span></span><span style="display:flex;"><span> 
+</span></span><span style="display:flex;"><span>- <span style="color:#f92672">name</span>: <span style="color:#ae81ff">set Ubuntu/Debian inventory file</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">template</span>:
+</span></span><span style="display:flex;"><span>   <span style="color:#f92672">src</span>: <span style="color:#ae81ff">etc/inventory.txt.j2</span>
+</span></span><span style="display:flex;"><span>   <span style="color:#f92672">dest</span>: <span style="color:#e6db74">&#34;/tmp/{{ ansible_hostname }}_inventory.txt&#34;</span>
+</span></span><span style="display:flex;"><span>   <span style="color:#f92672">mode</span>: <span style="color:#ae81ff">a+r,u+rw</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">when</span>: <span style="color:#ae81ff">ansible_distribution == &#34;Ubuntu&#34; or ansible_distribution == &#34;Debian&#34; or ansible_distribution == &#34;CentOS&#34;</span>
+</span></span><span style="display:flex;"><span> 
+</span></span><span style="display:flex;"><span>- <span style="color:#f92672">name</span>: <span style="color:#ae81ff">set FreeBSD inventory file</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">template</span>:
+</span></span><span style="display:flex;"><span>   <span style="color:#f92672">src</span>: <span style="color:#ae81ff">etc/freenas_inventory.txt.j2</span>
+</span></span><span style="display:flex;"><span>   <span style="color:#f92672">dest</span>: <span style="color:#e6db74">&#34;/tmp/{{ ansible_hostname }}_inventory.txt&#34;</span>
+</span></span><span style="display:flex;"><span>   <span style="color:#f92672">mode</span>: <span style="color:#ae81ff">a+r,u+rw</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">when</span>: <span style="color:#ae81ff">ansible_distribution == &#34;FreeBSD&#34;</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>- <span style="color:#f92672">name</span>: <span style="color:#ae81ff">send inventory file via mail</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">tags</span>: <span style="color:#ae81ff">mail</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">mail</span>:
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">host</span>: <span style="color:#ae81ff">192.168.11.173</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">port</span>: <span style="color:#ae81ff">25</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">secure</span>: <span style="color:#ae81ff">starttls</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">subject</span>: <span style="color:#e6db74">&#34;{{ ansible_hostname }} inventory file&#34;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">from</span>: <span style="color:#ae81ff">ansible</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">to</span>: <span style="color:#e6db74">&#34;{{ recipient }}&#34;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">#body: &#34;{{ mail_body.stdout_lines }}&#34;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">attach</span>: <span style="color:#e6db74">&#34;/tmp/{{ ansible_hostname }}_inventory.txt&#34;</span>
+</span></span></code></pre></div><p>inventory 內容</p>
+<pre tabindex="0"><code>hqs01.abc.com ansible_ssh_host=192.168.11.1                                                                                                         
+hqs210.abc.com 
+hqs230.abc.com 
+hqs231.abc.com 
+hqs234.abc.com 
+hqs03.abc.com
+hqs020.abc.com
+hqs019.abc.com
+hqs010.abc.com
+hqs05.abc.com
+hqs173.abc.com
+###BSD Hosts ###
+hqs099.abc.com ansible_ssh_host=192.168.11.99 ansible_ssh_port=22 ansible_ssh_user=root
+hqs202.abc.com ansible_ssh_host=192.168.11.202 ansible_ssh_port=22 ansible_ssh_user=root
+bbs089.abc.com ansible_ssh_host=192.168.0.89 ansible_ssh_user=root
+</code></pre><p>ansible 又發揮了一次，另外，感覺這個指令可以用來寫資產管理系統耶&hellip;威力強大</p>
+<p>而且又不用管作業系統是什麼，反正有執行檔，直接派過去 remote 端就好了！</p>
+<p>真是讓我相見恨晚啊！</p>
+</section>
+
+
+    <footer class="article-footer">
+    
+    <section class="article-tags">
+        
+            <a href="/tags/linux/">linux</a>
+        
+            <a href="/tags/bsd/">bsd</a>
+        
+            <a href="/tags/inventory/">inventory</a>
+        
+    </section>
+
+
+    </footer>
+
+
+    
+</article>
+
+    
+
+    
+
+<aside class="related-content--wrapper">
+    <h2 class="section-title">Related content</h2>
+    <div class="related-content">
+        <div class="flex article-list--tile">
+            
+                
+<article class="">
+    <a href="/post/transfer-cent62-using-rsync/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">[筆記] 用rsync 移轉 centos 6.2的老機器 Transfer Cent6.2 using rsync</h2>
+        </div>
+    </a>
+</article>
+
+            
+                
+<article class="">
+    <a href="/post/ansible-selectattr/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">[筆記] Ansible how to use &#39;list&#39; in yaml file </h2>
+        </div>
+    </a>
+</article>
+
+            
+                
+<article class="">
+    <a href="/post/nice-du-report-tool-durep/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">Nice Du Report Tool Durep</h2>
+        </div>
+    </a>
+</article>
+
+            
+        </div>
+    </div>
+</aside>
+
+     
+    
+        
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+        2023 My New Hugo Site
+    </section>
+    
+    <section class="powerby">
+        Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
+        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.16.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+    </section>
+</footer>
+
+
+    
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.min.css"crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css"crossorigin="anonymous"
+            >
+
+            </main>
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.6/dist/vibrant.min.js"integrity="sha256-awcR2jno4kI5X0zL8ex0vi2z&#43;KMkF24hUW8WePSA9HM="crossorigin="anonymous"
+                
+                >
+            </script><script type="text/javascript" src="/ts/main.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>

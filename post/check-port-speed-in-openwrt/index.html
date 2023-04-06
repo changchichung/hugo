@@ -1,0 +1,901 @@
+<!DOCTYPE html>
+<html lang="en-us" dir="ltr">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='最近在玩ansible &#43; openwrt &#43; wireguard
+ansible 腳本寫好之後，可以把config 佈署到 openwrt 上
+當然前提是最好用同樣的機器，不同的機器在config 上會有一些差異
+但是這些差異常常就會造成無法連線、無法使用的狀況
+BTW 我是用 ubiquiti 的 edgerouter X 來做
+都弄好之後，就想說來跑個iperf3 測試一下連線速度
+也好和之前做的 IPSEC 比較一下
+結果很奇怪的是，明明一樣的機器、一樣用ansible 跑出來的config
+但是有一台edgerouter X 的VPN 連接速度就是特別慢
+而且速度都剛好卡在 99.X Mb 左右
+就讓我很納悶了&amp;hellip;
+'>
+<meta name="keywords" content="openwrt"><title>[筆記] 在openwrt 中檢查網路埠的連接速度/ Check Port Speed in Openwrt</title>
+
+<link rel='canonical' href='https://h.cowbay.org/post/check-port-speed-in-openwrt/'>
+
+<link rel="stylesheet" href="/scss/style.min.8191399262444ab68b72a18c97392f5349be20a1615d77445be51e974c144cff.css"><meta property='og:title' content='[筆記] 在openwrt 中檢查網路埠的連接速度/ Check Port Speed in Openwrt'>
+<meta property='og:description' content='最近在玩ansible &#43; openwrt &#43; wireguard
+ansible 腳本寫好之後，可以把config 佈署到 openwrt 上
+當然前提是最好用同樣的機器，不同的機器在config 上會有一些差異
+但是這些差異常常就會造成無法連線、無法使用的狀況
+BTW 我是用 ubiquiti 的 edgerouter X 來做
+都弄好之後，就想說來跑個iperf3 測試一下連線速度
+也好和之前做的 IPSEC 比較一下
+結果很奇怪的是，明明一樣的機器、一樣用ansible 跑出來的config
+但是有一台edgerouter X 的VPN 連接速度就是特別慢
+而且速度都剛好卡在 99.X Mb 左右
+就讓我很納悶了&amp;hellip;
+'>
+<meta property='og:url' content='https://h.cowbay.org/post/check-port-speed-in-openwrt/'>
+<meta property='og:site_name' content='My New Hugo Site'>
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='openwrt' /><meta property='article:published_time' content='2020-07-15T10:35:01&#43;08:00'/><meta property='article:modified_time' content='2020-07-15T10:35:01&#43;08:00'/><meta property='og:image' content='https://h.cowbay.org/images/post-default-10.jpg' />
+<meta name="twitter:title" content="[筆記] 在openwrt 中檢查網路埠的連接速度/ Check Port Speed in Openwrt">
+<meta name="twitter:description" content="最近在玩ansible &#43; openwrt &#43; wireguard
+ansible 腳本寫好之後，可以把config 佈署到 openwrt 上
+當然前提是最好用同樣的機器，不同的機器在config 上會有一些差異
+但是這些差異常常就會造成無法連線、無法使用的狀況
+BTW 我是用 ubiquiti 的 edgerouter X 來做
+都弄好之後，就想說來跑個iperf3 測試一下連線速度
+也好和之前做的 IPSEC 比較一下
+結果很奇怪的是，明明一樣的機器、一樣用ansible 跑出來的config
+但是有一台edgerouter X 的VPN 連接速度就是特別慢
+而且速度都剛好卡在 99.X Mb 左右
+就讓我很納悶了&amp;hellip;
+"><meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:image" content='https://h.cowbay.org/images/post-default-10.jpg' />
+    </head>
+    <body class="
+    article-page
+    ">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "auto");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.documentElement.dataset.scheme = 'dark';
+        } else {
+            document.documentElement.dataset.scheme = 'light';
+        }
+    })();
+</script>
+<div class="container main-container flex on-phone--column compact"><aside class="sidebar left-sidebar sticky ">
+    <button class="hamburger hamburger--spin" type="button" id="toggle-menu" aria-label="Toggle Menu">
+        <span class="hamburger-box">
+            <span class="hamburger-inner"></span>
+        </span>
+    </button>
+
+    <header>
+        
+            
+            <figure class="site-avatar">
+                <a href="/">
+                
+                    
+                    
+                    
+                        
+                        <img src="/img/avatar.png" width="300"
+                            height="300" class="site-logo" loading="lazy" alt="Avatar">
+                    
+                
+                </a>
+                
+            </figure>
+            
+        
+        
+        <div class="site-meta">
+            <h1 class="site-name"><a href="/">My New Hugo Site</a></h1>
+            <h2 class="site-description"></h2>
+        </div>
+    </header><ol class="menu" id="main-menu">
+        
+        
+        
+        <li >
+            <a href='/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-home" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="5 12 3 12 12 3 21 12 19 12" />
+  <path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-7" />
+  <path d="M9 21v-6a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v6" />
+</svg>
+
+
+
+                
+                <span>Home</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/page/about/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-user" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="7" r="4" />
+  <path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2" />
+</svg>
+
+
+
+                
+                <span>About</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/page/archives/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-archive" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <rect x="3" y="4" width="18" height="4" rx="2" />
+  <path d="M5 8v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-10" />
+  <line x1="10" y1="12" x2="14" y2="12" />
+</svg>
+
+
+
+                
+                <span>Archives</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/page/search/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="10" cy="10" r="7" />
+  <line x1="21" y1="21" x2="15" y2="15" />
+</svg>
+
+
+
+                
+                <span>Search</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/page/links/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-link" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M10 14a3.5 3.5 0 0 0 5 0l4 -4a3.5 3.5 0 0 0 -5 -5l-.5 .5" />
+  <path d="M14 10a3.5 3.5 0 0 0 -5 0l-4 4a3.5 3.5 0 0 0 5 5l.5 -.5" />
+</svg>
+
+
+
+                
+                <span>Links</span>
+            </a>
+        </li>
+        
+
+        <div class="menu-bottom-section">
+            
+            
+                <li id="dark-mode-toggle">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="8" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="16" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                    <span>Dark Mode</span>
+                </li>
+            
+        </div>
+    </ol>
+</aside>
+
+    
+
+            <main class="main full-width">
+    <article class="has-image main-article">
+    <header class="article-header">
+        <div class="article-image">
+            <a href="/post/check-port-speed-in-openwrt/">
+                
+                    <img src="https://h.cowbay.org/images/post-default-10.jpg" loading="lazy" alt="Featured image of post [筆記] 在openwrt 中檢查網路埠的連接速度/ Check Port Speed in Openwrt" />
+                
+            </a>
+        </div>
+    
+
+    <div class="article-details">
+    
+    <header class="article-category">
+        
+            <a href="/categories/%E7%AD%86%E8%A8%98/" >
+                筆記
+            </a>
+        
+    </header>
+    
+
+    <div class="article-title-wrapper">
+        <h2 class="article-title">
+            <a href="/post/check-port-speed-in-openwrt/">[筆記] 在openwrt 中檢查網路埠的連接速度/ Check Port Speed in Openwrt</a>
+        </h2>
+    
+        
+    </div>
+
+    
+    
+    
+    
+    <footer class="article-time">
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M11.795 21h-6.795a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
+  <circle cx="18" cy="18" r="4" />
+  <path d="M15 3v4" />
+  <path d="M7 3v4" />
+  <path d="M3 11h16" />
+  <path d="M18 16.496v1.504l1 1" />
+</svg>
+                <time class="article-time--published">Jul 15, 2020</time>
+            </div>
+        
+
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+                <time class="article-time--reading">
+                    6 minute read
+                </time>
+            </div>
+        
+    </footer>
+    
+
+    
+</div>
+
+</header>
+
+    <section class="article-content">
+    
+    
+    <p>最近在玩ansible + openwrt + wireguard</p>
+<p>ansible 腳本寫好之後，可以把config 佈署到 openwrt 上</p>
+<p>當然前提是最好用同樣的機器，不同的機器在config 上會有一些差異</p>
+<p>但是這些差異常常就會造成無法連線、無法使用的狀況</p>
+<p>BTW 我是用 ubiquiti 的 edgerouter X 來做</p>
+<p>都弄好之後，就想說來跑個iperf3 測試一下連線速度</p>
+<p>也好和之前做的 IPSEC 比較一下</p>
+<p>結果很奇怪的是，明明一樣的機器、一樣用ansible 跑出來的config</p>
+<p>但是有一台edgerouter X 的VPN 連接速度就是特別慢</p>
+<p>而且速度都剛好卡在 99.X Mb 左右</p>
+<p>就讓我很納悶了&hellip;</p>
+<p>於是想說來檢查一下網路孔的狀態</p>
+<p>但是因為openwrt 精簡了很多指令，所以一些linux 上常用的指令都看不到實際的連線速度</p>
+<p>後來終於找到這一篇</p>
+<p><a class="link" href="https://forum.openwrt.org/t/change-interface-br-lan-from-100-mb-to-1-gigabit-help-me/21914"  target="_blank" rel="noopener"
+    >https://forum.openwrt.org/t/change-interface-br-lan-from-100-mb-to-1-gigabit-help-me/21914</a></p>
+<p>其中有提到這個指令</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>swconfig dev switch0 show
+</span></span></code></pre></div><p>所以在有問題的那台機器跑一次，結果就發現了port0 的連線速度只有100BaseT</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>root@OpenWrt-15:~# swconfig dev switch0 show
+</span></span><span style="display:flex;"><span>Global attributes:
+</span></span><span style="display:flex;"><span>	enable_vlan: <span style="color:#ae81ff">1</span>
+</span></span><span style="display:flex;"><span>	mib: Switch MIB counters
+</span></span><span style="display:flex;"><span>PPE_AC_BCNT0: <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>PPE_AC_PCNT0: <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>PPE_AC_BCNT63: <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>PPE_AC_PCNT63: <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>PPE_MTR_CNT0: <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>PPE_MTR_CNT63: <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>GDM1_TX_GBCNT: <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>GDM1_TX_GPCNT: <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>GDM1_TX_SKIPCNT: <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>GDM1_TX_COLCNT: <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>GDM1_RX_GBCNT1: <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>GDM1_RX_GPCNT1: <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>GDM1_RX_OERCNT: <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>GDM1_RX_FERCNT: <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>GDM1_RX_SERCNT: <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>GDM1_RX_LERCNT: <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>GDM1_RX_CERCNT: <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>GDM1_RX_FCCNT: <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>GDM2_TX_GBCNT: <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>GDM2_TX_GPCNT: <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>GDM2_TX_SKIPCNT: <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>GDM2_TX_COLCNT: <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>GDM2_RX_GBCNT: <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>GDM2_RX_GPCNT: <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>GDM2_RX_OERCNT: <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>GDM2_RX_FERCNT: <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>GDM2_RX_SERCNT: <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>GDM2_RX_LERCNT: <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>GDM2_RX_CERCNT: <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>GDM2_RX_FCCNT: <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>Port 0:
+</span></span><span style="display:flex;"><span>	mib: Port <span style="color:#ae81ff">0</span> MIB counters
+</span></span><span style="display:flex;"><span>TxDrop     : <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>TxCRC      : <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>TxUni      : <span style="color:#ae81ff">6861716</span>
+</span></span><span style="display:flex;"><span>TxMulti    : <span style="color:#ae81ff">8</span>
+</span></span><span style="display:flex;"><span>TxBroad    : <span style="color:#ae81ff">12</span>
+</span></span><span style="display:flex;"><span>TxCollision: <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>TxSingleCol: <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>TxMultiCol : <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>TxDefer    : <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>TxLateCol  : <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>TxExcCol   : <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>TxPause    : <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>Tx64Byte   : <span style="color:#ae81ff">4056</span>
+</span></span><span style="display:flex;"><span>Tx65Byte   : <span style="color:#ae81ff">11645</span>
+</span></span><span style="display:flex;"><span>Tx128Byte  : <span style="color:#ae81ff">13210</span>
+</span></span><span style="display:flex;"><span>Tx256Byte  : <span style="color:#ae81ff">249</span>
+</span></span><span style="display:flex;"><span>Tx512Byte  : <span style="color:#ae81ff">169</span>
+</span></span><span style="display:flex;"><span>Tx1024Byte : <span style="color:#ae81ff">6832407</span>
+</span></span><span style="display:flex;"><span>TxByte     : <span style="color:#ae81ff">10238376166</span>
+</span></span><span style="display:flex;"><span>RxDrop     : <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>RxFiltered : <span style="color:#ae81ff">49</span>
+</span></span><span style="display:flex;"><span>RxUni      : <span style="color:#ae81ff">963037</span>
+</span></span><span style="display:flex;"><span>RxMulti    : <span style="color:#ae81ff">1200795</span>
+</span></span><span style="display:flex;"><span>RxBroad    : <span style="color:#ae81ff">54114</span>
+</span></span><span style="display:flex;"><span>RxAlignErr : <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>RxCRC      : <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>RxUnderSize: <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>RxFragment : <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>RxOverSize : <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>RxJabber   : <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>RxPause    : <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>Rx64Byte   : <span style="color:#ae81ff">56679</span>
+</span></span><span style="display:flex;"><span>Rx65Byte   : <span style="color:#ae81ff">117104</span>
+</span></span><span style="display:flex;"><span>Rx128Byte  : <span style="color:#ae81ff">1359908</span>
+</span></span><span style="display:flex;"><span>Rx256Byte  : <span style="color:#ae81ff">181766</span>
+</span></span><span style="display:flex;"><span>Rx512Byte  : <span style="color:#ae81ff">198823</span>
+</span></span><span style="display:flex;"><span>Rx1024Byte : <span style="color:#ae81ff">303666</span>
+</span></span><span style="display:flex;"><span>RxByte     : <span style="color:#ae81ff">889985596</span>
+</span></span><span style="display:flex;"><span>RxCtrlDrop : <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>RxIngDrop  : <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>RxARLDrop  : <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>	pvid: <span style="color:#ae81ff">2</span>
+</span></span><span style="display:flex;"><span>	link: port:0 link:up speed:100baseT full-duplex 
+</span></span><span style="display:flex;"><span>Port 1:
+</span></span><span style="display:flex;"><span>	mib: Port <span style="color:#ae81ff">1</span> MIB counters
+</span></span><span style="display:flex;"><span>TxDrop     : <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>TxCRC      : <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>TxUni      : <span style="color:#ae81ff">948176</span>
+</span></span><span style="display:flex;"><span>TxMulti    : <span style="color:#ae81ff">170</span>
+</span></span><span style="display:flex;"><span>TxBroad    : <span style="color:#ae81ff">3</span>
+</span></span><span style="display:flex;"><span>TxCollision: <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>TxSingleCol: <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>TxMultiCol : <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>TxDefer    : <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>TxLateCol  : <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>TxExcCol   : <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>TxPause    : <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>Tx64Byte   : <span style="color:#ae81ff">1557</span>
+</span></span><span style="display:flex;"><span>Tx65Byte   : <span style="color:#ae81ff">930766</span>
+</span></span><span style="display:flex;"><span>Tx128Byte  : <span style="color:#ae81ff">1302</span>
+</span></span><span style="display:flex;"><span>Tx256Byte  : <span style="color:#ae81ff">528</span>
+</span></span><span style="display:flex;"><span>Tx512Byte  : <span style="color:#ae81ff">75</span>
+</span></span><span style="display:flex;"><span>Tx1024Byte : <span style="color:#ae81ff">14121</span>
+</span></span><span style="display:flex;"><span>TxByte     : <span style="color:#ae81ff">87870052</span>
+</span></span><span style="display:flex;"><span>RxDrop     : <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>RxFiltered : <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>RxUni      : <span style="color:#ae81ff">6849258</span>
+</span></span><span style="display:flex;"><span>RxMulti    : <span style="color:#ae81ff">187</span>
+</span></span><span style="display:flex;"><span>RxBroad    : <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>RxAlignErr : <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>RxCRC      : <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>RxUnderSize: <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>RxFragment : <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>RxOverSize : <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>RxJabber   : <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>RxPause    : <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>Rx64Byte   : <span style="color:#ae81ff">911</span>
+</span></span><span style="display:flex;"><span>Rx65Byte   : <span style="color:#ae81ff">14343</span>
+</span></span><span style="display:flex;"><span>Rx128Byte  : <span style="color:#ae81ff">298</span>
+</span></span><span style="display:flex;"><span>Rx256Byte  : <span style="color:#ae81ff">88</span>
+</span></span><span style="display:flex;"><span>Rx512Byte  : <span style="color:#ae81ff">56</span>
+</span></span><span style="display:flex;"><span>Rx1024Byte : <span style="color:#ae81ff">6833749</span>
+</span></span><span style="display:flex;"><span>RxByte     : <span style="color:#ae81ff">9828214886</span>
+</span></span><span style="display:flex;"><span>RxCtrlDrop : <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>RxIngDrop  : <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>RxARLDrop  : <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>	pvid: <span style="color:#ae81ff">1</span>
+</span></span><span style="display:flex;"><span>	link: port:1 link:up speed:1000baseT full-duplex 
+</span></span><span style="display:flex;"><span>Port 2:
+</span></span><span style="display:flex;"><span>	mib: Port <span style="color:#ae81ff">2</span> MIB counters
+</span></span><span style="display:flex;"><span>TxDrop     : <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>TxCRC      : <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>TxUni      : <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>TxMulti    : <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>TxBroad    : <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>TxCollision: <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>TxSingleCol: <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>TxMultiCol : <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>TxDefer    : <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>TxLateCol  : <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>TxExcCol   : <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>TxPause    : <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>Tx64Byte   : <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>Tx65Byte   : <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>Tx128Byte  : <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>Tx256Byte  : <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>Tx512Byte  : <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>Tx1024Byte : <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>TxByte     : <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>RxDrop     : <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>RxFiltered : <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>RxUni      : <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>RxMulti    : <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>RxBroad    : <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>RxAlignErr : <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>RxCRC      : <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>RxUnderSize: <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>RxFragment : <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>RxOverSize : <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>RxJabber   : <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>RxPause    : <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>Rx64Byte   : <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>Rx65Byte   : <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>Rx128Byte  : <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>Rx256Byte  : <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>Rx512Byte  : <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>Rx1024Byte : <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>RxByte     : <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>RxCtrlDrop : <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>RxIngDrop  : <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>RxARLDrop  : <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>	pvid: <span style="color:#ae81ff">1</span>
+</span></span><span style="display:flex;"><span>	link: port:2 link:down
+</span></span><span style="display:flex;"><span>Port 3:
+</span></span><span style="display:flex;"><span>	mib: Port <span style="color:#ae81ff">3</span> MIB counters
+</span></span><span style="display:flex;"><span>TxDrop     : <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>TxCRC      : <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>TxUni      : <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>TxMulti    : <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>TxBroad    : <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>TxCollision: <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>TxSingleCol: <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>TxMultiCol : <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>TxDefer    : <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>TxLateCol  : <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>TxExcCol   : <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>TxPause    : <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>Tx64Byte   : <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>Tx65Byte   : <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>Tx128Byte  : <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>Tx256Byte  : <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>Tx512Byte  : <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>Tx1024Byte : <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>TxByte     : <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>RxDrop     : <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>RxFiltered : <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>RxUni      : <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>RxMulti    : <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>RxBroad    : <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>RxAlignErr : <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>RxCRC      : <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>RxUnderSize: <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>RxFragment : <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>RxOverSize : <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>RxJabber   : <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>RxPause    : <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>Rx64Byte   : <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>Rx65Byte   : <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>Rx128Byte  : <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>Rx256Byte  : <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>Rx512Byte  : <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>Rx1024Byte : <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>RxByte     : <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>RxCtrlDrop : <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>RxIngDrop  : <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>RxARLDrop  : <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>	pvid: <span style="color:#ae81ff">1</span>
+</span></span><span style="display:flex;"><span>	link: port:3 link:down
+</span></span><span style="display:flex;"><span>Port 4:
+</span></span><span style="display:flex;"><span>	mib: Port <span style="color:#ae81ff">4</span> MIB counters
+</span></span><span style="display:flex;"><span>TxDrop     : <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>TxCRC      : <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>TxUni      : <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>TxMulti    : <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>TxBroad    : <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>TxCollision: <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>TxSingleCol: <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>TxMultiCol : <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>TxDefer    : <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>TxLateCol  : <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>TxExcCol   : <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>TxPause    : <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>Tx64Byte   : <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>Tx65Byte   : <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>Tx128Byte  : <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>Tx256Byte  : <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>Tx512Byte  : <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>Tx1024Byte : <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>TxByte     : <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>RxDrop     : <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>RxFiltered : <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>RxUni      : <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>RxMulti    : <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>RxBroad    : <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>RxAlignErr : <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>RxCRC      : <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>RxUnderSize: <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>RxFragment : <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>RxOverSize : <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>RxJabber   : <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>RxPause    : <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>Rx64Byte   : <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>Rx65Byte   : <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>Rx128Byte  : <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>Rx256Byte  : <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>Rx512Byte  : <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>Rx1024Byte : <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>RxByte     : <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>RxCtrlDrop : <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>RxIngDrop  : <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>RxARLDrop  : <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>	pvid: <span style="color:#ae81ff">1</span>
+</span></span><span style="display:flex;"><span>	link: port:4 link:down
+</span></span><span style="display:flex;"><span>Port 5:
+</span></span><span style="display:flex;"><span>	mib: Port <span style="color:#ae81ff">5</span> MIB counters
+</span></span><span style="display:flex;"><span>TxDrop     : <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>TxCRC      : <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>TxUni      : <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>TxMulti    : <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>TxBroad    : <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>TxCollision: <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>TxSingleCol: <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>TxMultiCol : <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>TxDefer    : <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>TxLateCol  : <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>TxExcCol   : <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>TxPause    : <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>Tx64Byte   : <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>Tx65Byte   : <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>Tx128Byte  : <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>Tx256Byte  : <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>Tx512Byte  : <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>Tx1024Byte : <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>TxByte     : <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>RxDrop     : <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>RxFiltered : <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>RxUni      : <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>RxMulti    : <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>RxBroad    : <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>RxAlignErr : <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>RxCRC      : <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>RxUnderSize: <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>RxFragment : <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>RxOverSize : <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>RxJabber   : <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>RxPause    : <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>Rx64Byte   : <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>Rx65Byte   : <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>Rx128Byte  : <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>Rx256Byte  : <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>Rx512Byte  : <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>Rx1024Byte : <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>RxByte     : <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>RxCtrlDrop : <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>RxIngDrop  : <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>RxARLDrop  : <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>	pvid: <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>	link: port:5 link:down
+</span></span><span style="display:flex;"><span>Port 6:
+</span></span><span style="display:flex;"><span>	mib: Port <span style="color:#ae81ff">6</span> MIB counters
+</span></span><span style="display:flex;"><span>TxDrop     : <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>TxCRC      : <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>TxUni      : <span style="color:#ae81ff">7812303</span>
+</span></span><span style="display:flex;"><span>TxMulti    : <span style="color:#ae81ff">1200937</span>
+</span></span><span style="display:flex;"><span>TxBroad    : <span style="color:#ae81ff">54112</span>
+</span></span><span style="display:flex;"><span>TxCollision: <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>TxSingleCol: <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>TxMultiCol : <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>TxDefer    : <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>TxLateCol  : <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>TxExcCol   : <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>TxPause    : <span style="color:#ae81ff">13632</span>
+</span></span><span style="display:flex;"><span>Tx64Byte   : <span style="color:#ae81ff">13632</span>
+</span></span><span style="display:flex;"><span>Tx65Byte   : <span style="color:#ae81ff">188400</span>
+</span></span><span style="display:flex;"><span>Tx128Byte  : <span style="color:#ae81ff">1360750</span>
+</span></span><span style="display:flex;"><span>Tx256Byte  : <span style="color:#ae81ff">181926</span>
+</span></span><span style="display:flex;"><span>Tx512Byte  : <span style="color:#ae81ff">198875</span>
+</span></span><span style="display:flex;"><span>Tx1024Byte : <span style="color:#ae81ff">7137402</span>
+</span></span><span style="display:flex;"><span>TxByte     : <span style="color:#ae81ff">10755312044</span>
+</span></span><span style="display:flex;"><span>RxDrop     : <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>RxFiltered : <span style="color:#ae81ff">51</span>
+</span></span><span style="display:flex;"><span>RxUni      : <span style="color:#ae81ff">7809918</span>
+</span></span><span style="display:flex;"><span>RxMulti    : <span style="color:#ae81ff">201</span>
+</span></span><span style="display:flex;"><span>RxBroad    : <span style="color:#ae81ff">30</span>
+</span></span><span style="display:flex;"><span>RxAlignErr : <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>RxCRC      : <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>RxUnderSize: <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>RxFragment : <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>RxOverSize : <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>RxJabber   : <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>RxPause    : <span style="color:#ae81ff">89</span>
+</span></span><span style="display:flex;"><span>Rx64Byte   : <span style="color:#ae81ff">5720</span>
+</span></span><span style="display:flex;"><span>Rx65Byte   : <span style="color:#ae81ff">942425</span>
+</span></span><span style="display:flex;"><span>Rx128Byte  : <span style="color:#ae81ff">14535</span>
+</span></span><span style="display:flex;"><span>Rx256Byte  : <span style="color:#ae81ff">778</span>
+</span></span><span style="display:flex;"><span>Rx512Byte  : <span style="color:#ae81ff">249</span>
+</span></span><span style="display:flex;"><span>Rx1024Byte : <span style="color:#ae81ff">6846531</span>
+</span></span><span style="display:flex;"><span>RxByte     : <span style="color:#ae81ff">10357481140</span>
+</span></span><span style="display:flex;"><span>RxCtrlDrop : <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>RxIngDrop  : <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>RxARLDrop  : <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>	pvid: <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>	link: port:6 link:up speed:1000baseT full-duplex 
+</span></span><span style="display:flex;"><span>Port 7:
+</span></span><span style="display:flex;"><span>	mib: Port <span style="color:#ae81ff">7</span> MIB counters
+</span></span><span style="display:flex;"><span>TxDrop     : <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>TxCRC      : <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>TxUni      : <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>TxMulti    : <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>TxBroad    : <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>TxCollision: <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>TxSingleCol: <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>TxMultiCol : <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>TxDefer    : <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>TxLateCol  : <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>TxExcCol   : <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>TxPause    : <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>Tx64Byte   : <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>Tx65Byte   : <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>Tx128Byte  : <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>Tx256Byte  : <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>Tx512Byte  : <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>Tx1024Byte : <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>TxByte     : <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>RxDrop     : <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>RxFiltered : <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>RxUni      : <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>RxMulti    : <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>RxBroad    : <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>RxAlignErr : <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>RxCRC      : <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>RxUnderSize: <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>RxFragment : <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>RxOverSize : <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>RxJabber   : <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>RxPause    : <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>Rx64Byte   : <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>Rx65Byte   : <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>Rx128Byte  : <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>Rx256Byte  : <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>Rx512Byte  : <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>Rx1024Byte : <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>RxByte     : <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>RxCtrlDrop : <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>RxIngDrop  : <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>RxARLDrop  : <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>	pvid: <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>	link: port:7 link:down
+</span></span><span style="display:flex;"><span>VLAN 1:
+</span></span><span style="display:flex;"><span>	vid: <span style="color:#ae81ff">1</span>
+</span></span><span style="display:flex;"><span>	ports: <span style="color:#ae81ff">1</span> <span style="color:#ae81ff">2</span> <span style="color:#ae81ff">3</span> <span style="color:#ae81ff">4</span> 6t 
+</span></span><span style="display:flex;"><span>VLAN 2:
+</span></span><span style="display:flex;"><span>	vid: <span style="color:#ae81ff">2</span>
+</span></span><span style="display:flex;"><span>	ports: <span style="color:#ae81ff">0</span> 6t 
+</span></span></code></pre></div><p>WTF !?</p>
+<p>既然另外幾台都沒有問題，那麼應該就是這台機器的網路孔、或者網路線有問題了！</p>
+<p>那就換換看網路線吧！</p>
+<p>果然從原本的 CAT 5E 換成 CAT 6 之後，連線速率就變成 1000 Mb了</p>
+<p>但是CAT 5E 應該要能支援到1000Mb 才對啊！</p>
+<p>所以就是這條 CAT 5E 要不就是偷工減料，要不就是年紀到了，衰退了？？</p>
+<p>以後還是不要用  CAT 5E 的線了&hellip;</p>
+<p>這邊太多的古董，總是藏著一些奇奇怪怪的臭蟲 &hellip;.</p>
+<p>同場加映一下 wireguard 連線的速率</p>
+<p>大概都能跑到200 Mb 左右</p>
+<p>比起原本strongswan 打的 IPSEC 只有 30 Mb 左右 ，那是進步太多太多了！</p>
+<p>strongswan 的設定又囉唆，該是讓他退場的時候了！</p>
+<p><img src="https://i.imgur.com/QwQLH2V.png"
+	
+	
+	
+	loading="lazy"
+	
+	
+></p>
+</section>
+
+
+    <footer class="article-footer">
+    
+    <section class="article-tags">
+        
+            <a href="/tags/openwrt/">openwrt</a>
+        
+    </section>
+
+
+    </footer>
+
+
+    
+</article>
+
+    
+
+    
+
+     
+    
+        
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+        2023 My New Hugo Site
+    </section>
+    
+    <section class="powerby">
+        Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
+        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.16.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+    </section>
+</footer>
+
+
+    
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.min.css"crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css"crossorigin="anonymous"
+            >
+
+            </main>
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.6/dist/vibrant.min.js"integrity="sha256-awcR2jno4kI5X0zL8ex0vi2z&#43;KMkF24hUW8WePSA9HM="crossorigin="anonymous"
+                
+                >
+            </script><script type="text/javascript" src="/ts/main.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>

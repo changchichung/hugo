@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html lang="en-us" dir="ltr">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='前幾天接的一個case
+因為費用的關係，所以沒有考慮用傳統定義上的伺服器(DELL R640)
+改採用比較高階一點的洋垃圾，規格大概是 Intel E5-2680V2 x2 &#43; 64G RAM &#43; 128G SSD x2 (OS) &#43; 960G SSD x4 (raid 10 , zfs)
+storage 選擇QNAP NAS TS-932X &#43; 960G SSD x 4 (raid 10 , NFS) &#43; QNAP 10G Switch QSW-1280C-8C
+既然storage這邊選用了10G的機種，伺服器上當然也要增加10G網卡
+一樣，成本考量，就不用INTEL 了，買了這張 ASUS 10G 網卡
+'>
+<title>Install Asus 10G NIC XG-C100C in Proxmox</title>
+
+<link rel='canonical' href='https://h.cowbay.org/post/install-asus-10g-nic-in-proxmox/'>
+
+<link rel="stylesheet" href="/scss/style.min.8191399262444ab68b72a18c97392f5349be20a1615d77445be51e974c144cff.css"><meta property='og:title' content='Install Asus 10G NIC XG-C100C in Proxmox'>
+<meta property='og:description' content='前幾天接的一個case
+因為費用的關係，所以沒有考慮用傳統定義上的伺服器(DELL R640)
+改採用比較高階一點的洋垃圾，規格大概是 Intel E5-2680V2 x2 &#43; 64G RAM &#43; 128G SSD x2 (OS) &#43; 960G SSD x4 (raid 10 , zfs)
+storage 選擇QNAP NAS TS-932X &#43; 960G SSD x 4 (raid 10 , NFS) &#43; QNAP 10G Switch QSW-1280C-8C
+既然storage這邊選用了10G的機種，伺服器上當然也要增加10G網卡
+一樣，成本考量，就不用INTEL 了，買了這張 ASUS 10G 網卡
+'>
+<meta property='og:url' content='https://h.cowbay.org/post/install-asus-10g-nic-in-proxmox/'>
+<meta property='og:site_name' content='My New Hugo Site'>
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='proxmox' /><meta property='article:published_time' content='2019-06-17T13:20:57&#43;08:00'/><meta property='article:modified_time' content='2019-06-17T13:20:57&#43;08:00'/>
+<meta name="twitter:title" content="Install Asus 10G NIC XG-C100C in Proxmox">
+<meta name="twitter:description" content="前幾天接的一個case
+因為費用的關係，所以沒有考慮用傳統定義上的伺服器(DELL R640)
+改採用比較高階一點的洋垃圾，規格大概是 Intel E5-2680V2 x2 &#43; 64G RAM &#43; 128G SSD x2 (OS) &#43; 960G SSD x4 (raid 10 , zfs)
+storage 選擇QNAP NAS TS-932X &#43; 960G SSD x 4 (raid 10 , NFS) &#43; QNAP 10G Switch QSW-1280C-8C
+既然storage這邊選用了10G的機種，伺服器上當然也要增加10G網卡
+一樣，成本考量，就不用INTEL 了，買了這張 ASUS 10G 網卡
+">
+    </head>
+    <body class="
+    article-page
+    ">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "auto");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.documentElement.dataset.scheme = 'dark';
+        } else {
+            document.documentElement.dataset.scheme = 'light';
+        }
+    })();
+</script>
+<div class="container main-container flex on-phone--column compact"><aside class="sidebar left-sidebar sticky ">
+    <button class="hamburger hamburger--spin" type="button" id="toggle-menu" aria-label="Toggle Menu">
+        <span class="hamburger-box">
+            <span class="hamburger-inner"></span>
+        </span>
+    </button>
+
+    <header>
+        
+            
+            <figure class="site-avatar">
+                <a href="/">
+                
+                    
+                    
+                    
+                        
+                        <img src="/img/avatar.png" width="300"
+                            height="300" class="site-logo" loading="lazy" alt="Avatar">
+                    
+                
+                </a>
+                
+            </figure>
+            
+        
+        
+        <div class="site-meta">
+            <h1 class="site-name"><a href="/">My New Hugo Site</a></h1>
+            <h2 class="site-description"></h2>
+        </div>
+    </header><ol class="menu" id="main-menu">
+        
+        
+        
+        <li >
+            <a href='/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-home" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="5 12 3 12 12 3 21 12 19 12" />
+  <path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-7" />
+  <path d="M9 21v-6a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v6" />
+</svg>
+
+
+
+                
+                <span>Home</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/page/about/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-user" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="7" r="4" />
+  <path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2" />
+</svg>
+
+
+
+                
+                <span>About</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/page/archives/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-archive" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <rect x="3" y="4" width="18" height="4" rx="2" />
+  <path d="M5 8v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-10" />
+  <line x1="10" y1="12" x2="14" y2="12" />
+</svg>
+
+
+
+                
+                <span>Archives</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/page/search/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="10" cy="10" r="7" />
+  <line x1="21" y1="21" x2="15" y2="15" />
+</svg>
+
+
+
+                
+                <span>Search</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/page/links/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-link" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M10 14a3.5 3.5 0 0 0 5 0l4 -4a3.5 3.5 0 0 0 -5 -5l-.5 .5" />
+  <path d="M14 10a3.5 3.5 0 0 0 -5 0l-4 4a3.5 3.5 0 0 0 5 5l.5 -.5" />
+</svg>
+
+
+
+                
+                <span>Links</span>
+            </a>
+        </li>
+        
+
+        <div class="menu-bottom-section">
+            
+            
+                <li id="dark-mode-toggle">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="8" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="16" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                    <span>Dark Mode</span>
+                </li>
+            
+        </div>
+    </ol>
+</aside>
+
+    
+
+            <main class="main full-width">
+    <article class="main-article">
+    <header class="article-header">
+
+    <div class="article-details">
+    
+    <header class="article-category">
+        
+            <a href="/categories/proxmox/" >
+                Proxmox
+            </a>
+        
+    </header>
+    
+
+    <div class="article-title-wrapper">
+        <h2 class="article-title">
+            <a href="/post/install-asus-10g-nic-in-proxmox/">Install Asus 10G NIC XG-C100C in Proxmox</a>
+        </h2>
+    
+        
+    </div>
+
+    
+    
+    
+    
+    <footer class="article-time">
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M11.795 21h-6.795a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
+  <circle cx="18" cy="18" r="4" />
+  <path d="M15 3v4" />
+  <path d="M7 3v4" />
+  <path d="M3 11h16" />
+  <path d="M18 16.496v1.504l1 1" />
+</svg>
+                <time class="article-time--published">Jun 17, 2019</time>
+            </div>
+        
+
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+                <time class="article-time--reading">
+                    2 minute read
+                </time>
+            </div>
+        
+    </footer>
+    
+
+    
+</div>
+
+</header>
+
+    <section class="article-content">
+    
+    
+    <p>前幾天接的一個case</p>
+<p>因為費用的關係，所以沒有考慮用傳統定義上的伺服器(DELL R640)</p>
+<p>改採用比較高階一點的洋垃圾，規格大概是 Intel E5-2680V2 x2 + 64G RAM + 128G SSD x2 (OS) + 960G SSD x4 (raid 10 , zfs)</p>
+<p>storage 選擇QNAP NAS  TS-932X + 960G SSD x 4 (raid 10 , NFS) + QNAP 10G Switch QSW-1280C-8C</p>
+<p>既然storage這邊選用了10G的機種，伺服器上當然也要增加10G網卡</p>
+<p>一樣，成本考量，就不用INTEL 了，買了這張 ASUS 10G 網卡</p>
+<p><a class="link" href="https://24h.pchome.com.tw/prod/DRAF01-A90088CKR"  target="_blank" rel="noopener"
+    >https://24h.pchome.com.tw/prod/DRAF01-A90088CKR</a></p>
+<p>結果&hellip;. debian9 預設抓不到這張卡啊！</p>
+<p>本來想說要退貨了，想想還是先google 好了，還真的有人碰到一樣的問題</p>
+<p>底下就大概說一下怎麼解決</p>
+<p>###安裝相關套件###</p>
+<p>登入proxmox 主機後，執行以下指令安裝套件</p>
+<pre tabindex="0"><code>apt install linux-headers build-essential git make gcc
+</code></pre><p>然後馬上就卡關了 XD</p>
+<pre tabindex="0"><code>root@pve:~# apt install linux-headers
+Reading package lists... Done
+Building dependency tree       
+Reading state information... Done
+Package linux-headers is a virtual package provided by:
+  pve-headers-4.15.3-1-pve 4.15.3-1
+  pve-headers-4.15.18-9-pve 4.15.18-30
+  pve-headers-4.15.18-8-pve 4.15.18-28
+  pve-headers-4.15.18-7-pve 4.15.18-27
+  pve-headers-4.15.18-6-pve 4.15.18-25
+  pve-headers-4.15.18-5-pve 4.15.18-24
+  pve-headers-4.15.18-4-pve 4.15.18-23
+  pve-headers-4.15.18-3-pve 4.15.18-22
+  pve-headers-4.15.18-2-pve 4.15.18-21
+  pve-headers-4.15.18-15-pve 4.15.18-40
+  pve-headers-4.15.18-14-pve 4.15.18-39
+  pve-headers-4.15.18-13-pve 4.15.18-37
+  pve-headers-4.15.18-12-pve 4.15.18-36
+  pve-headers-4.15.18-11-pve 4.15.18-34
+  pve-headers-4.15.18-10-pve 4.15.18-32
+  pve-headers-4.15.18-1-pve 4.15.18-19
+  pve-headers-4.15.17-3-pve 4.15.17-14
+  pve-headers-4.15.17-2-pve 4.15.17-10
+  pve-headers-4.15.17-1-pve 4.15.17-9
+  pve-headers-4.15.15-1-pve 4.15.15-6
+  pve-headers-4.15.10-1-pve 4.15.10-4
+  pve-headers-4.13.8-3-pve 4.13.8-30
+  pve-headers-4.13.8-2-pve 4.13.8-28
+  pve-headers-4.13.8-1-pve 4.13.8-27
+  pve-headers-4.13.4-1-pve 4.13.4-26
+  pve-headers-4.13.3-1-pve 4.13.3-2
+  pve-headers-4.13.16-4-pve 4.13.16-51
+  pve-headers-4.13.16-3-pve 4.13.16-50
+  pve-headers-4.13.16-2-pve 4.13.16-48
+  pve-headers-4.13.16-1-pve 4.13.16-46
+  pve-headers-4.13.13-6-pve 4.13.13-42
+  pve-headers-4.13.13-5-pve 4.13.13-38
+  pve-headers-4.13.13-4-pve 4.13.13-35
+  pve-headers-4.13.13-3-pve 4.13.13-34
+  pve-headers-4.13.13-2-pve 4.13.13-33
+  pve-headers-4.13.13-1-pve 4.13.13-31
+  pve-headers-4.10.8-1-pve 4.10.8-7
+  pve-headers-4.10.5-1-pve 4.10.5-5
+  pve-headers-4.10.17-5-pve 4.10.17-25
+  pve-headers-4.10.17-4-pve 4.10.17-24
+  pve-headers-4.10.17-3-pve 4.10.17-23
+  pve-headers-4.10.17-2-pve 4.10.17-20
+  pve-headers-4.10.17-1-pve 4.10.17-18
+  pve-headers-4.10.15-1-pve 4.10.15-15
+  pve-headers-4.10.11-1-pve 4.10.11-9
+  pve-headers-4.10.1-2-pve 4.10.1-2
+You should explicitly select one to install.
+
+E: Package &#39;linux-headers&#39; has no installation candidate
+root@pve:~# 
+</code></pre><h3 id="改用以下套件名稱安裝">改用以下套件名稱安裝###</h3>
+<pre tabindex="0"><code>apt install pve-headers-4.15.18-15-pve build-essential git make gcc
+</code></pre><p>第一個套件會隨著pve版本不同有所變化，所以要看當下執行時，系統提供的訊息來決定</p>
+<p>我是用清單內最新的版本</p>
+<p>接著把驅動程式 clone 回來</p>
+<pre tabindex="0"><code>git clone https://github.com/Aquantia/AQtion.git
+</code></pre><p>參考 README</p>
+<p><a class="link" href="https://github.com/Aquantia/AQtion/blob/master/README.txt"  target="_blank" rel="noopener"
+    >https://github.com/Aquantia/AQtion/blob/master/README.txt</a></p>
+<p>進入目錄後開始編譯</p>
+<pre tabindex="0"><code>make
+</code></pre><p>編譯完，應該就能看到網卡了，不過我是還有重開機</p>
+<p>順便貼一下10G網路的速度，感覺還真的&hellip;..不怎麼樣 &hellip;.</p>
+<p><img src="https://i.imgur.com/yM8HsSi.png"
+	
+	
+	
+	loading="lazy"
+	
+	
+></p>
+<p>不過在做 backup/restore 的時候，感覺是比之前其他沒有10G環境要快</p>
+<p>反正這樣子買下來的硬體設備也不算太貴(比一台新的R640還便宜)</p>
+<p>就先這樣子跑吧，至於洋垃圾的穩定度，就觀察看看吧..</p>
+</section>
+
+
+    <footer class="article-footer">
+    
+    <section class="article-tags">
+        
+            <a href="/tags/proxmox/">proxmox</a>
+        
+    </section>
+
+
+    </footer>
+
+
+    
+</article>
+
+    
+
+    
+
+     
+    
+        
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+        2023 My New Hugo Site
+    </section>
+    
+    <section class="powerby">
+        Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
+        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.16.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+    </section>
+</footer>
+
+
+    
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.min.css"crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css"crossorigin="anonymous"
+            >
+
+            </main>
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.6/dist/vibrant.min.js"integrity="sha256-awcR2jno4kI5X0zL8ex0vi2z&#43;KMkF24hUW8WePSA9HM="crossorigin="anonymous"
+                
+                >
+            </script><script type="text/javascript" src="/ts/main.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>

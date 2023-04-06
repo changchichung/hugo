@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html lang="en-us" dir="ltr">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='最近在逐步的把舊有的VPN Router 汰換掉，改用wireguard 來作 full mesh site-to-site VPN
+不過這是另外的故事了&amp;hellip;
+在把wireguard VPN 都搞定之後，才發現原來 openwrt 的 uhttpd 要加上 letsencrypt 的免費憑證有點難搞
+網路上大部分都介紹用 acme.sh ，我是有測試出來啦
+但是跟網路上的方法不太一樣了，新增了滿多步驟的，覺得很麻煩
+想到向來愛用的 leproxy ，既然是 golang 開發的，又是open source
+就拿來compile 給openwrt router 用用看
+想不到還真的可以， golang 真是棒！
+不過也還是要順手改一些openwrt 東西才行
+還是簡單作個筆記好了
+'>
+<meta name="keywords" content="openwrt"><title>Init Script in Openwrt to Start Leproxy/在openwrt 新增自動啟動leproxy的script</title>
+
+<link rel='canonical' href='https://h.cowbay.org/post/init-script-in-openwrt-to-start-leproxy/'>
+
+<link rel="stylesheet" href="/scss/style.min.8191399262444ab68b72a18c97392f5349be20a1615d77445be51e974c144cff.css"><meta property='og:title' content='Init Script in Openwrt to Start Leproxy/在openwrt 新增自動啟動leproxy的script'>
+<meta property='og:description' content='最近在逐步的把舊有的VPN Router 汰換掉，改用wireguard 來作 full mesh site-to-site VPN
+不過這是另外的故事了&amp;hellip;
+在把wireguard VPN 都搞定之後，才發現原來 openwrt 的 uhttpd 要加上 letsencrypt 的免費憑證有點難搞
+網路上大部分都介紹用 acme.sh ，我是有測試出來啦
+但是跟網路上的方法不太一樣了，新增了滿多步驟的，覺得很麻煩
+想到向來愛用的 leproxy ，既然是 golang 開發的，又是open source
+就拿來compile 給openwrt router 用用看
+想不到還真的可以， golang 真是棒！
+不過也還是要順手改一些openwrt 東西才行
+還是簡單作個筆記好了
+'>
+<meta property='og:url' content='https://h.cowbay.org/post/init-script-in-openwrt-to-start-leproxy/'>
+<meta property='og:site_name' content='My New Hugo Site'>
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='openwrt' /><meta property='article:published_time' content='2021-09-29T14:38:10&#43;08:00'/><meta property='article:modified_time' content='2021-09-29T14:38:10&#43;08:00'/><meta property='og:image' content='https://h.cowbay.org/images/post-default-8.jpg' />
+<meta name="twitter:title" content="Init Script in Openwrt to Start Leproxy/在openwrt 新增自動啟動leproxy的script">
+<meta name="twitter:description" content="最近在逐步的把舊有的VPN Router 汰換掉，改用wireguard 來作 full mesh site-to-site VPN
+不過這是另外的故事了&amp;hellip;
+在把wireguard VPN 都搞定之後，才發現原來 openwrt 的 uhttpd 要加上 letsencrypt 的免費憑證有點難搞
+網路上大部分都介紹用 acme.sh ，我是有測試出來啦
+但是跟網路上的方法不太一樣了，新增了滿多步驟的，覺得很麻煩
+想到向來愛用的 leproxy ，既然是 golang 開發的，又是open source
+就拿來compile 給openwrt router 用用看
+想不到還真的可以， golang 真是棒！
+不過也還是要順手改一些openwrt 東西才行
+還是簡單作個筆記好了
+"><meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:image" content='https://h.cowbay.org/images/post-default-8.jpg' />
+    </head>
+    <body class="
+    article-page
+    ">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "auto");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.documentElement.dataset.scheme = 'dark';
+        } else {
+            document.documentElement.dataset.scheme = 'light';
+        }
+    })();
+</script>
+<div class="container main-container flex on-phone--column compact"><aside class="sidebar left-sidebar sticky ">
+    <button class="hamburger hamburger--spin" type="button" id="toggle-menu" aria-label="Toggle Menu">
+        <span class="hamburger-box">
+            <span class="hamburger-inner"></span>
+        </span>
+    </button>
+
+    <header>
+        
+            
+            <figure class="site-avatar">
+                <a href="/">
+                
+                    
+                    
+                    
+                        
+                        <img src="/img/avatar.png" width="300"
+                            height="300" class="site-logo" loading="lazy" alt="Avatar">
+                    
+                
+                </a>
+                
+            </figure>
+            
+        
+        
+        <div class="site-meta">
+            <h1 class="site-name"><a href="/">My New Hugo Site</a></h1>
+            <h2 class="site-description"></h2>
+        </div>
+    </header><ol class="menu" id="main-menu">
+        
+        
+        
+        <li >
+            <a href='/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-home" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="5 12 3 12 12 3 21 12 19 12" />
+  <path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-7" />
+  <path d="M9 21v-6a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v6" />
+</svg>
+
+
+
+                
+                <span>Home</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/page/about/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-user" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="7" r="4" />
+  <path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2" />
+</svg>
+
+
+
+                
+                <span>About</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/page/archives/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-archive" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <rect x="3" y="4" width="18" height="4" rx="2" />
+  <path d="M5 8v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-10" />
+  <line x1="10" y1="12" x2="14" y2="12" />
+</svg>
+
+
+
+                
+                <span>Archives</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/page/search/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="10" cy="10" r="7" />
+  <line x1="21" y1="21" x2="15" y2="15" />
+</svg>
+
+
+
+                
+                <span>Search</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/page/links/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-link" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M10 14a3.5 3.5 0 0 0 5 0l4 -4a3.5 3.5 0 0 0 -5 -5l-.5 .5" />
+  <path d="M14 10a3.5 3.5 0 0 0 -5 0l-4 4a3.5 3.5 0 0 0 5 5l.5 -.5" />
+</svg>
+
+
+
+                
+                <span>Links</span>
+            </a>
+        </li>
+        
+
+        <div class="menu-bottom-section">
+            
+            
+                <li id="dark-mode-toggle">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="8" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="16" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                    <span>Dark Mode</span>
+                </li>
+            
+        </div>
+    </ol>
+</aside>
+
+    
+
+            <main class="main full-width">
+    <article class="has-image main-article">
+    <header class="article-header">
+        <div class="article-image">
+            <a href="/post/init-script-in-openwrt-to-start-leproxy/">
+                
+                    <img src="https://h.cowbay.org/images/post-default-8.jpg" loading="lazy" alt="Featured image of post Init Script in Openwrt to Start Leproxy/在openwrt 新增自動啟動leproxy的script" />
+                
+            </a>
+        </div>
+    
+
+    <div class="article-details">
+    
+    <header class="article-category">
+        
+            <a href="/categories/%E7%AD%86%E8%A8%98/" >
+                筆記
+            </a>
+        
+    </header>
+    
+
+    <div class="article-title-wrapper">
+        <h2 class="article-title">
+            <a href="/post/init-script-in-openwrt-to-start-leproxy/">Init Script in Openwrt to Start Leproxy/在openwrt 新增自動啟動leproxy的script</a>
+        </h2>
+    
+        
+    </div>
+
+    
+    
+    
+    
+    <footer class="article-time">
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M11.795 21h-6.795a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
+  <circle cx="18" cy="18" r="4" />
+  <path d="M15 3v4" />
+  <path d="M7 3v4" />
+  <path d="M3 11h16" />
+  <path d="M18 16.496v1.504l1 1" />
+</svg>
+                <time class="article-time--published">Sep 29, 2021</time>
+            </div>
+        
+
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+                <time class="article-time--reading">
+                    2 minute read
+                </time>
+            </div>
+        
+    </footer>
+    
+
+    
+</div>
+
+</header>
+
+    <section class="article-content">
+    
+    
+    <p>最近在逐步的把舊有的VPN Router 汰換掉，改用wireguard 來作 full mesh site-to-site VPN</p>
+<p>不過這是另外的故事了&hellip;</p>
+<p>在把wireguard VPN 都搞定之後，才發現原來 openwrt 的 uhttpd 要加上 letsencrypt 的免費憑證有點難搞</p>
+<p>網路上大部分都介紹用 acme.sh ，我是有測試出來啦</p>
+<p>但是跟網路上的方法不太一樣了，新增了滿多步驟的，覺得很麻煩</p>
+<p>想到向來愛用的 leproxy ，既然是 golang 開發的，又是open source</p>
+<p>就拿來compile 給openwrt router 用用看</p>
+<p>想不到還真的可以， golang 真是棒！</p>
+<p>不過也還是要順手改一些openwrt 東西才行</p>
+<p>還是簡單作個筆記好了</p>
+<h4 id="compile-leproxy-for-arm64">compile leproxy for arm64</h4>
+<p>當然要先確認好自己的環境有沒有裝了golang 可以用來編譯，這部分就不多提了。</p>
+<h5 id="下載並編譯-leproxy">下載並編譯 leproxy</h5>
+<pre tabindex="0"><code>git clone https://github.com/artyom/leproxy
+cd leproxy
+GOOS=linux GOARCH=arm64 go build .
+mv leproxy leproxy.arm64
+</code></pre><h5 id="copy-leproxyarm64-to-router">copy leproxy.arm64 to router</h5>
+<pre tabindex="0"><code>scp leproxy.arm64 root@192.168.0.254:/root/leproxy.arm64
+</code></pre><h4 id="接著-ssh-登入-router-作相關設定">接著 ssh 登入 router 作相關設定</h4>
+<p>ssh <a class="link" href="mailto:root@192.168.0.254" >root@192.168.0.254</a></p>
+<h5 id="建立etcleproxymappingyml">建立/etc/leproxy/mapping.yml</h5>
+<pre tabindex="0"><code>mkdir -p /etc/leproxy
+vim /etc/leproxy/mapping.yml
+</code></pre><p>內容大概長這樣，一次可以不止一行
+然後要注意 hqvpnrouter.abc.com 這個域名要先存在 A 記錄並指向這臺 router</p>
+<pre tabindex="0"><code>hqvpnrouter.abc.com: 192.168.0.254:81
+</code></pre><p>前面是這臺機器的hostname , leproxy 會用這個hostname 去申請免費的憑證
+後面是要把hqvpnrouter.abc.com 的要求轉到哪裡？這邊就是轉到本機(192.168.0.254)的 81 port</p>
+<h5 id="修改-uhttpd-config">修改 uhttpd config</h5>
+<p>因為leproxy 會佔用 80 ,443 兩個port
+所以要把 uhttpd 改去別的port 工作
+順便把 https 的設定拿掉，讓leproxy 去煩惱</p>
+<pre tabindex="0"><code># HTTP listen addresses, multiple allowed
+	list listen_http	0.0.0.0:81
+	list listen_http	[::]:81
+
+	# HTTPS listen addresses, multiple allowed
+	#list listen_https	0.0.0.0:443
+	#list listen_https	[::]:443
+
+	# Redirect HTTP requests to HTTPS if possible
+	option redirect_https	0
+</code></pre><p>然後先重啟 uhttpd</p>
+<pre tabindex="0"><code>/etc/init.d/uhttpd restart
+</code></pre><p>看看 uhttpd 是不是已經改到 port 81</p>
+<pre tabindex="0"><code>[200~root@HQ_VPN_ROUTER:~# netstat -antlp
+netstat: showing only processes with your user ID
+Active Internet connections (servers and established)
+Proto Recv-Q Send-Q Local Address           Foreign Address         State       PID/Program name    
+tcp        0      0 0.0.0.0:81              0.0.0.0:*               LISTEN      1491/uhttpd
+tcp        0      0 10.2.3.2:53             0.0.0.0:*               LISTEN      3540/dnsmasq
+</code></pre><p>好，這時候就可以用以下指令來測試leproxy 是不是可以正常運作</p>
+<p>cacheDir 是會被用來存放leproxy 取得的免費憑證，必須要先存在系統中
+或者是要存放在 /tmp , /root 也都可以</p>
+<pre tabindex="0"><code>/root/leproxy.arm64 -map /etc/leproxy/mapping.yml -email chchang@abc.com -cacheDir /etc/acme/
+</code></pre><h5 id="修改-firewall-config">修改 firewall config</h5>
+<p>加入底下這段</p>
+<pre tabindex="0"><code>config redirect
+	option dest_port &#39;443&#39;
+	option src &#39;wan&#39;
+	option name &#39;https for leproxy&#39;
+	option src_dport &#39;443&#39;
+	option target &#39;DNAT&#39;
+	option dest_ip &#39;192.168.0.254&#39;
+	option dest &#39;lan&#39;
+	list proto &#39;tcp&#39;
+</code></pre><p>重啟 firewall</p>
+<p>這時候應該可以用 <a class="link" href="https://vpnrouter.abc.com"  target="_blank" rel="noopener"
+    >https://vpnrouter.abc.com</a> 的方式來開啟這臺router 的管理界面</p>
+<h4 id="建立-init-script">建立 init script</h4>
+<p>在 /etc/init.d 中新增一個檔案叫 leproxy</p>
+<p>內容如下</p>
+<pre tabindex="0"><code>#!/bin/sh /etc/rc.common
+# Example script
+# Copyright (C) 2007 OpenWrt.org
+
+START=99
+
+start() {        
+        echo &#34;leproxy starting&#34;
+    	/root/leproxy.arm64 -map /etc/leproxy/mapping.yml -email chchang@abc.com -cacheDir /etc/acme/ &gt; /dev/null 2&gt;&amp;1 &amp;
+        
+}
+stop () {
+	echo &#34;leproxy stopping&#34;
+	killall leproxy.arm64
+	}
+</code></pre><h5 id="改一下file-permission">改一下file permission</h5>
+<pre tabindex="0"><code>chmod u+rwx /etc/init.d/leproxy
+</code></pre><h5 id="設定開機自動啟動">設定開機自動啟動</h5>
+<pre tabindex="0"><code>/etc/init.d/leproxy enable
+</code></pre><h5 id="啟動leproxy">啟動leproxy</h5>
+<pre tabindex="0"><code>/etc/init.d/leproxy restart
+</code></pre><p>開啟 <a class="link" href="https://vpnrouter.abc.com"  target="_blank" rel="noopener"
+    >https://vpnrouter.abc.com</a> 再做一次確認</p>
+</section>
+
+
+    <footer class="article-footer">
+    
+    <section class="article-tags">
+        
+            <a href="/tags/openwrt/">openwrt</a>
+        
+    </section>
+
+
+    </footer>
+
+
+    
+</article>
+
+    
+
+    
+
+<aside class="related-content--wrapper">
+    <h2 class="section-title">Related content</h2>
+    <div class="related-content">
+        <div class="flex article-list--tile">
+            
+                
+<article class="has-image">
+    <a href="/post/check-port-speed-in-openwrt/">
+        
+        
+            <div class="article-image">
+                
+                    <img src="https://h.cowbay.org/images/post-default-10.jpg" loading="lazy" data-key="" data-hash="https://h.cowbay.org/images/post-default-10.jpg"/>
+                
+            </div>
+        
+
+        <div class="article-details">
+            <h2 class="article-title">[筆記] 在openwrt 中檢查網路埠的連接速度/ Check Port Speed in Openwrt</h2>
+        </div>
+    </a>
+</article>
+
+            
+        </div>
+    </div>
+</aside>
+
+     
+    
+        
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+        2023 My New Hugo Site
+    </section>
+    
+    <section class="powerby">
+        Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
+        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.16.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+    </section>
+</footer>
+
+
+    
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.min.css"crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css"crossorigin="anonymous"
+            >
+
+            </main>
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.6/dist/vibrant.min.js"integrity="sha256-awcR2jno4kI5X0zL8ex0vi2z&#43;KMkF24hUW8WePSA9HM="crossorigin="anonymous"
+                
+                >
+            </script><script type="text/javascript" src="/ts/main.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>

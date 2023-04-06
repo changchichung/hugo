@@ -1,0 +1,1148 @@
+<!DOCTYPE html>
+<html lang="en-us" dir="ltr">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='公司的一台老伺服器空間不足了，要執行指令都會中斷，所以想要擴充空間。
+看起來不難搞，事實上&amp;hellip;..
+'>
+<title>[筆記] 用rsync 移轉 centos 6.2的老機器 Transfer Cent6.2 using rsync</title>
+
+<link rel='canonical' href='https://h.cowbay.org/p/%E7%AD%86%E8%A8%98-%E7%94%A8rsync-%E7%A7%BB%E8%BD%89-centos-6.2%E7%9A%84%E8%80%81%E6%A9%9F%E5%99%A8-transfer-cent6.2-using-rsync/'>
+
+<link rel="stylesheet" href="/scss/style.min.8191399262444ab68b72a18c97392f5349be20a1615d77445be51e974c144cff.css"><meta property='og:title' content='[筆記] 用rsync 移轉 centos 6.2的老機器 Transfer Cent6.2 using rsync'>
+<meta property='og:description' content='公司的一台老伺服器空間不足了，要執行指令都會中斷，所以想要擴充空間。
+看起來不難搞，事實上&amp;hellip;..
+'>
+<meta property='og:url' content='https://h.cowbay.org/p/%E7%AD%86%E8%A8%98-%E7%94%A8rsync-%E7%A7%BB%E8%BD%89-centos-6.2%E7%9A%84%E8%80%81%E6%A9%9F%E5%99%A8-transfer-cent6.2-using-rsync/'>
+<meta property='og:site_name' content='MCの部落'>
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='centos' /><meta property='article:tag' content='linux' /><meta property='article:published_time' content='2019-03-27T17:44:49&#43;08:00'/><meta property='article:modified_time' content='2019-03-27T17:44:49&#43;08:00'/>
+<meta name="twitter:title" content="[筆記] 用rsync 移轉 centos 6.2的老機器 Transfer Cent6.2 using rsync">
+<meta name="twitter:description" content="公司的一台老伺服器空間不足了，要執行指令都會中斷，所以想要擴充空間。
+看起來不難搞，事實上&amp;hellip;..
+">
+<script type="application/javascript">
+var doNotTrack = false;
+if (!doNotTrack) {
+	(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+	(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+	m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+	})(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+	ga('create', 'UA-128770427-1', 'auto');
+	
+	ga('send', 'pageview');
+}
+</script>
+    </head>
+    <body class="
+    article-page
+    ">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "auto");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.documentElement.dataset.scheme = 'dark';
+        } else {
+            document.documentElement.dataset.scheme = 'light';
+        }
+    })();
+</script>
+<div class="container main-container flex on-phone--column extended"><aside class="sidebar left-sidebar sticky ">
+    <button class="hamburger hamburger--spin" type="button" id="toggle-menu" aria-label="切換選單">
+        <span class="hamburger-box">
+            <span class="hamburger-inner"></span>
+        </span>
+    </button>
+
+    <header>
+        
+            
+            <figure class="site-avatar">
+                <a href="/">
+                
+                    
+                    
+                    
+                        
+                        <img src="/img/avatar_hu85bfcf0e08404ecf606702eb99c7ed68_43560_300x0_resize_box_3.png" width="300"
+                            height="300" class="site-logo" loading="lazy" alt="Avatar">
+                    
+                
+                </a>
+                
+                    <span class="emoji">🍥</span>
+                
+            </figure>
+            
+        
+        
+        <div class="site-meta">
+            <h1 class="site-name"><a href="/">MCの部落</a></h1>
+            <h2 class="site-description">讀過兩年書，塵世中一個迷途小書僮</h2>
+        </div>
+    </header><ol class="social-menu">
+            
+                <li>
+                    <a 
+                        href='https://www.facebook.com'
+                        target="_blank"
+                        title="facebook"
+                        rel="me"
+                    >
+                        
+                        
+                            <?xml version="1.0" encoding="iso-8859-1"?>
+<!-- Uploaded to: SVG Repo, www.svgrepo.com, Generator: SVG Repo Mixer Tools -->
+<svg height="800px" width="800px" version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" 
+	 viewBox="0 0 512 512" xml:space="preserve">
+<path style="fill:#385C8E;" d="M134.941,272.691h56.123v231.051c0,4.562,3.696,8.258,8.258,8.258h95.159
+	c4.562,0,8.258-3.696,8.258-8.258V273.78h64.519c4.195,0,7.725-3.148,8.204-7.315l9.799-85.061c0.269-2.34-0.472-4.684-2.038-6.44
+	c-1.567-1.757-3.81-2.763-6.164-2.763h-74.316V118.88c0-16.073,8.654-24.224,25.726-24.224c2.433,0,48.59,0,48.59,0
+	c4.562,0,8.258-3.698,8.258-8.258V8.319c0-4.562-3.696-8.258-8.258-8.258h-66.965C309.622,0.038,308.573,0,307.027,0
+	c-11.619,0-52.006,2.281-83.909,31.63c-35.348,32.524-30.434,71.465-29.26,78.217v62.352h-58.918c-4.562,0-8.258,3.696-8.258,8.258
+	v83.975C126.683,268.993,130.379,272.691,134.941,272.691z"/>
+</svg>
+                        
+                    </a>
+                </li>
+            
+                <li>
+                    <a 
+                        href='https://github.com/CaiJimmy/hugo-theme-stack'
+                        target="_blank"
+                        title="GitHub"
+                        rel="me"
+                    >
+                        
+                        
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-github" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M9 19c-4.3 1.4 -4.3 -2.5 -6 -3m12 5v-3.5c0 -1 .1 -1.4 -.5 -2c2.8 -.3 5.5 -1.4 5.5 -6a4.6 4.6 0 0 0 -1.3 -3.2a4.2 4.2 0 0 0 -.1 -3.2s-1.1 -.3 -3.5 1.3a12.3 12.3 0 0 0 -6.2 0c-2.4 -1.6 -3.5 -1.3 -3.5 -1.3a4.2 4.2 0 0 0 -.1 3.2a4.6 4.6 0 0 0 -1.3 3.2c0 4.6 2.7 5.7 5.5 6c-.6 .6 -.6 1.2 -.5 2v3.5" />
+</svg>
+
+
+
+                        
+                    </a>
+                </li>
+            
+                <li>
+                    <a 
+                        href='https://twitter.com'
+                        target="_blank"
+                        title="Twitter"
+                        rel="me"
+                    >
+                        
+                        
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-twitter" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M22 4.01c-1 .49 -1.98 .689 -3 .99c-1.121 -1.265 -2.783 -1.335 -4.38 -.737s-2.643 2.06 -2.62 3.737v1c-3.245 .083 -6.135 -1.395 -8 -4c0 0 -4.182 7.433 4 11c-1.872 1.247 -3.739 2.088 -6 2c3.308 1.803 6.913 2.423 10.034 1.517c3.58 -1.04 6.522 -3.723 7.651 -7.742a13.84 13.84 0 0 0 .497 -3.753c-.002 -.249 1.51 -2.772 1.818 -4.013z" />
+</svg>
+
+
+
+                        
+                    </a>
+                </li>
+            
+        </ol><ol class="menu" id="main-menu">
+        
+        
+        
+        <li >
+            <a href='/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-home" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="5 12 3 12 12 3 21 12 19 12" />
+  <path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-7" />
+  <path d="M9 21v-6a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v6" />
+</svg>
+
+
+
+                
+                <span>Home</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/about/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-user" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="7" r="4" />
+  <path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2" />
+</svg>
+
+
+
+                
+                <span>About</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/archives/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-archive" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <rect x="3" y="4" width="18" height="4" rx="2" />
+  <path d="M5 8v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-10" />
+  <line x1="10" y1="12" x2="14" y2="12" />
+</svg>
+
+
+
+                
+                <span>Archives</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/search/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="10" cy="10" r="7" />
+  <line x1="21" y1="21" x2="15" y2="15" />
+</svg>
+
+
+
+                
+                <span>Search</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/links/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-link" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M10 14a3.5 3.5 0 0 0 5 0l4 -4a3.5 3.5 0 0 0 -5 -5l-.5 .5" />
+  <path d="M14 10a3.5 3.5 0 0 0 -5 0l-4 4a3.5 3.5 0 0 0 5 5l.5 -.5" />
+</svg>
+
+
+
+                
+                <span>Links</span>
+            </a>
+        </li>
+        
+
+        <div class="menu-bottom-section">
+                <li id="i18n-switch">  
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-language" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M4 5h7" />
+  <path d="M9 3v2c0 4.418 -2.239 8 -5 8" />
+  <path d="M5 9c-.003 2.144 2.952 3.908 6.7 4" />
+  <path d="M12 20l4 -9l4 9" />
+  <path d="M19.1 18h-6.2" />
+</svg>
+
+
+
+                    <select name="language" onchange="window.location.href = this.selectedOptions[0].value">
+                        
+                            <option value="https://h.cowbay.org/" selected>中文</option>
+                        
+                            <option value="https://h.cowbay.org/en/" >English</option>
+                        
+                    </select>
+                </li>
+            
+            
+            
+                <li id="dark-mode-toggle">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="8" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="16" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                    <span>夜晚模式</span>
+                </li>
+            
+        </div>
+    </ol>
+</aside>
+
+    <aside class="sidebar right-sidebar sticky">
+        
+            
+                
+    <section class="widget archives">
+        <div class="widget-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <line x1="5" y1="9" x2="19" y2="9" />
+  <line x1="5" y1="15" x2="19" y2="15" />
+  <line x1="11" y1="4" x2="7" y2="20" />
+  <line x1="17" y1="4" x2="13" y2="20" />
+</svg>
+
+
+
+        </div>
+        <h2 class="widget-title section-title">目錄</h2>
+        
+        <div class="widget--toc">
+            <nav id="TableOfContents">
+  <ol>
+    <li>
+      <ol>
+        <li><a href="#加裝兩顆硬碟後原系統無法使用">加裝兩顆硬碟後，原系統無法使用</a></li>
+      </ol>
+    </li>
+  </ol>
+
+  <ol>
+    <li>
+      <ol>
+        <li><a href="#clonezilla-來源是raid時無法調整目標磁區的大小">clonezilla 來源是raid時，無法調整目標磁區的大小</a></li>
+        <li><a href="#raid擴充成功但不是預期的容量">raid擴充「成功」，但不是預期的容量</a></li>
+        <li><a href="#convert-raid1-to-raid5">convert raid1 to raid5</a></li>
+        <li><a href="#migrate-system-using-rsync">migrate system using rsync</a></li>
+        <li><a href="#地雷產品">地雷產品</a></li>
+        <li><a href="#測試raid1轉raid5擴充空間">測試raid1轉raid5擴充空間</a></li>
+      </ol>
+    </li>
+  </ol>
+</nav>
+        </div>
+    </section>
+
+            
+        
+    </aside>
+
+
+            <main class="main full-width">
+    <article class="main-article">
+    <header class="article-header">
+
+    <div class="article-details">
+    
+    <header class="article-category">
+        
+            <a href="/categories/%E7%AD%86%E8%A8%98/" >
+                筆記
+            </a>
+        
+    </header>
+    
+
+    <div class="article-title-wrapper">
+        <h2 class="article-title">
+            <a href="/p/%E7%AD%86%E8%A8%98-%E7%94%A8rsync-%E7%A7%BB%E8%BD%89-centos-6.2%E7%9A%84%E8%80%81%E6%A9%9F%E5%99%A8-transfer-cent6.2-using-rsync/">[筆記] 用rsync 移轉 centos 6.2的老機器 Transfer Cent6.2 using rsync</a>
+        </h2>
+    
+        
+    </div>
+
+    
+    
+    
+    
+    <footer class="article-time">
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M11.795 21h-6.795a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
+  <circle cx="18" cy="18" r="4" />
+  <path d="M15 3v4" />
+  <path d="M7 3v4" />
+  <path d="M3 11h16" />
+  <path d="M18 16.496v1.504l1 1" />
+</svg>
+                <time class="article-time--published">2019-03-03</time>
+            </div>
+        
+
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+                <time class="article-time--reading">
+                    閱讀時間: 9 分鐘
+                </time>
+            </div>
+        
+    </footer>
+    
+
+    
+</div>
+
+</header>
+
+    <section class="article-content">
+    
+    
+    <p>公司的一台老伺服器空間不足了，要執行指令都會中斷，所以想要擴充空間。</p>
+<p>看起來不難搞，事實上&hellip;..</p>
+<p>因為前人的功績，所以這台當初的磁碟分割有點「特別」！</p>
+<p>實體硬碟是兩顆500G SATA</p>
+<p>然後各切三個 partition (sda1/sda2/sda3 and sdb1/sdb2/sdb3)</p>
+<p>sda2/sdb2 用250M 來組 raid1 (/dev/md0) 給 /boot 用</p>
+<p>sda1/sdb1 各用40G 組raid1 (/dev/md1) 做成LVM 的VG ，然後再切出四個大小不同的分割</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">* / (sysvg-root)
+</span></span><span class="line"><span class="cl">* /usr (sysvg-usr)
+</span></span><span class="line"><span class="cl">* /var (sysvg-var)
+</span></span><span class="line"><span class="cl">* /tmp (sysvg-tmp)
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>What the Fuck !?!? 然後最好笑的是，40G的空間，還留了2G，可以讓後面的倒楣鬼(對，就是我)</p>
+<p>在碰到空間不足的問題時，還可以「擴充」</p>
+<p>然後剩下的sda3/sdb3 大概有四百多G空間，一樣是組raid1 然後分割給這些目錄用</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">* /data (datavg-datatest) (對的，沒有錯 真的叫 datavg-datatest，媽的你test個鬼啊！還在test的東西直接上線使用？)
+</span></span><span class="line"><span class="cl">* /web (datavg-web)
+</span></span><span class="line"><span class="cl">* /www (datavg-www)
+</span></span><span class="line"><span class="cl">* /home (datavg-home)
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>幹！誰可以告訴我 www/web 的差異在哪裡？為什麼要特別切兩個分割給這兩個目錄用？</p>
+<p>快下班了，明天再來寫&hellip;</p>
+<p>繼續補坑..</p>
+<p>先說結論，最後成功的作法如下</p>
+<ul>
+<li>加裝一顆512G SSD 到機器上</li>
+<li>安裝作業系統(centos 6.2) 到 512G SSD，裝完後用SSD開機，進入系統後，先補完一些套件(lvm2,rsync等等)</li>
+<li>在系統內直接偵測原先的raid (mdadm &ndash;assemble &ndash;scan)</li>
+<li>執行 vgchange -ay 啟動 lvm，原來的lv 會出現在 /dev/mapper/xxxxxx</li>
+<li>先備份 /etc , /usr  (usr 應該可以不用備份)</li>
+<li>mount /dev/mapper/xxxxxx /mnt，然後把資料抄到SSD的相對路徑裡面 sysvg-usr&ndash;&gt;usr sysvg-var&ndash;&gt;var datavg-datatest&ndash;&gt;data (幹，再罵一次，test個什麼鬼！)</li>
+<li>都抄完之後，把剛剛備份的/etc_backup 裡面的fstab 複製回 /etc ，這樣才能正常開機</li>
+<li>重新開機，祈禱可以開起來</li>
+<li>進入系統後，測試相關程式</li>
+</ul>
+<p>這次的過程，踩了很多坑&hellip;</p>
+<p>導致中間有一段時間一直在鑽牛角尖，想要把問題解掉，加上沒有適合的硬體，就連新買的 1TB SSD 也是地雷</p>
+<p>所以花了三天才算成功</p>
+<p>簡單紀錄一下碰到了哪些問題，以及對應的解決方式(如果有得解的話)..</p>
+<h3 id="加裝兩顆硬碟後原系統無法使用">加裝兩顆硬碟後，原系統無法使用</h3>
+<p>這個問題非常奇怪，因為空間不足嘛，所以很直接就想說加硬碟進去擴充空間好了。</p>
+<p>結果加了兩顆500G SATA硬碟之後，原有的系統雖然可以開機，但是 SSH 沒有啟動</p>
+<p>想說就登入檢查一下看看是什麼問題導致SSH起不來，然後呢，這邊就碰到第一個地雷了</p>
+<h1 id="沒有人有root-密碼">沒有人有root 密碼！！！！</h1>
+<p>雖然有兩個帳號可以登入，但是都是一般user ，不能做 sudo</p>
+<p>可以做sudo的帳號，沒有人知道密碼(因為都是用key登入)</p>
+<p>那用root 登入吧，結果手邊紀錄的密碼都是錯的</p>
+<p>好吧，那進rescue mode 改密碼總可以吧？事情如果那麼簡單就好了！</p>
+<p>進rescue mode 之後，要執行 passwd ，就會出現</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl"> /lib/ld-linux.so.2: bad ELF interpreter: No such file or directory
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>很奇怪吧，為什麼加硬碟進去，就會碰到這個問題？</p>
+<p>這兩顆新增的硬碟之前是用來測試 zfs 的，所以上面有切了 zfs 的分割</p>
+<p>就因為這樣所以會碰到這種詭異的狀況嗎？ 不知道，不確定，不想面對&hellip;</p>
+<p>好，針對 bad ELF interpreter 的問題，網路上的解法都是重新安裝套件</p>
+<p>BUT ..yes , there is always a &ldquo;BUT&rdquo;</p>
+<p>yum install glibc.i686 一樣出現上面的錯誤，所以無法安裝&hellip;.</p>
+<p>很好，卡關&hellip;換下一招！</p>
+<p>P.S 其實在這邊犯了個錯誤，既然新增硬碟進去出了問題</p>
+<p>那應該移除這兩顆新增的硬碟就可以先恢復原來的狀態(可開機運作，只是要執行程式會空間不足)</p>
+<!-- raw HTML omitted -->
+<h3 id="clonezilla-來源是raid時無法調整目標磁區的大小">clonezilla 來源是raid時，無法調整目標磁區的大小</h3>
+<p>因為上面失敗了，所以現在每次調整時，我都會用 clonezilla 先做一份磁碟的備份</p>
+<p>但是因為clonezilla 在處理來源是raid 磁區時，是用dd 慢慢寫入</p>
+<p>備份時間很久，因為原本的raid 已經切了99%的空間出去給LVM</p>
+<p>所以clonezilla 看到的使用量就是99% ，也因此每次備份幾乎就是要用dd 寫完500G的資料</p>
+<p>有興趣可以玩看看，在傳統硬碟上這樣做要花多少時間&hellip;</p>
+<p>然後我每次都要複製兩顆出來&hellip;</p>
+<p>在使用clonezilla 的過程中，突然想到clonezilla 可以動態調整目標磁區大小</p>
+<p>前提是目標磁碟空間比來源空間大</p>
+<p>這個功能要進入 advanced mode 才會看到</p>
+<p>興沖沖的改用這個選項複製&hellip;..結果還是一樣的大小&hellip;</p>
+<p>其實這個結果不算意外啦，算是一個小嘗試，如果有支援就算賺到</p>
+<p>沒有支援也就算了..</p>
+<!-- raw HTML omitted -->
+<h3 id="raid擴充成功但不是預期的容量">raid擴充「成功」，但不是預期的容量</h3>
+<p>磁碟對拷完，改用對拷的磁碟開機</p>
+<p>然後再加入兩顆 500G 的SATA硬碟 (怪的是，這次加兩顆硬碟，就不會造成系統SSH無法啟動)</p>
+<p>經過一番手腳 (簡單說就是 mdadm 搭配 <code>--add</code> , <code>--remove</code> , <code>--grow</code> , <code>--raid-devices</code> 這幾個參數下去跑)</p>
+<p>終於成功把新的硬碟給加入原有的RAID了</p>
+<p>但是一檢查容量， WTF !! 為什麼還是跟原本一樣？</p>
+<p>這邊就要說到 raid 的原理了，直接跳過，說結論</p>
+<p>如果是 raid1(mirror) ，至少兩顆硬碟這部份沒有問題</p>
+<p>但是不管你再加多少顆硬碟進去這個raid，他的容量「不會改變」「不會改變」「不會改變」</p>
+<p>依照某個外國人的解釋，就是下面這樣</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">RAID 1 is pure mirroring.  No matter how many drives you add to RAID 1, the size never increases.  What you increase is how many drives can fail and how good your read performance is.
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>所以，在原地擴充現有的mirror 空間不可行！</p>
+<p>下一招，擴充不可行，那我改raid type 可以吧？？</p>
+<!-- raw HTML omitted -->
+<h3 id="convert-raid1-to-raid5">convert raid1 to raid5</h3>
+<p>既然raid1 直接加硬碟不可行，那我能不能加入硬碟之後，把raid1 轉成 raid5 呢？</p>
+<p>理論上是可以的</p>
+<p>BUT &hellip;(沒錯，還是這個BUT)</p>
+<p>我參考底下這篇，過程其實很順利</p>
+<p><a class="link" href="https://stevesubuntutweaks.blogspot.com/2015/06/converting-raid1-array-to-raid5-using.html"  target="_blank" rel="noopener"
+    >https://stevesubuntutweaks.blogspot.com/2015/06/converting-raid1-array-to-raid5-using.html</a></p>
+<p>但是只要我動到放boot 那組RAID，重開機之後，就完全沒有畫面&hellip;..</p>
+<p>不會載入 grub 來開機，所以我完全不知道發生了什麼事，也沒辦法進grub 改 root 位置</p>
+<p>用rescue mode 進去想修grub ，都出現 unknown file system</p>
+<p>那不要動不就好了嗎？那這樣就要掛著一顆原本的舊硬碟來開機啊！什麼蠢方法啊！</p>
+<p>所以，失敗！&hellip;.</p>
+<p>不過我覺得這個方式應該是比較可行的才對，或許會再找虛擬機來測試看看</p>
+<!-- raw HTML omitted -->
+<h3 id="migrate-system-using-rsync">migrate system using rsync</h3>
+<p>正所謂事不過三，前面都失敗三次了(已經花了兩天多的時間)</p>
+<p>不能再這樣搞下去了</p>
+<p>這次改用之前就用過的「正統」解決方式</p>
+<ul>
+<li>卸除原本主機上的所有硬碟，並新增一顆512G 的SSD</li>
+<li>在新增的512G SSD上，安裝一樣的作業系統(CentOS 6.2)</li>
+</ul>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">  這邊也有地雷...不知道為什麼，CentOS 6.2 的ISO，我用easy2boot 作到隨身碟上
+</span></span><span class="line"><span class="cl">  安裝過程出現CDROM not FOUND的錯誤。好，那我用光碟片開機總可以吧
+</span></span><span class="line"><span class="cl">  BUT (又是你啊，BUT兄 )
+</span></span><span class="line"><span class="cl">  在安裝時一樣出現CDROM not FOUND , WTF !!
+</span></span><span class="line"><span class="cl">  最後是透過用網路安裝的方式
+</span></span><span class="line"><span class="cl">  指定URL到 http://vault.centos.org/6.2/os/x86_64 來進行安裝
+</span></span><span class="line"><span class="cl">  而且一開始因為6.2裝不起來，所以我改用centos 6.10 的ISO作到隨身碟進行安裝
+</span></span><span class="line"><span class="cl">  這樣子安裝就可以，可是最後從原本硬碟把資料抄回來後，會不能開機
+</span></span><span class="line"><span class="cl">  會有 /bin/awk too many links 類似這樣的錯誤訊息
+</span></span><span class="line"><span class="cl">  總之，還是要想辦法裝回一樣的作業系統
+</span></span></code></pre></td></tr></table>
+</div>
+</div><ul>
+<li>系統安裝完成，關機，接上原本主機的一顆硬碟，準備把資料抄回來</li>
+</ul>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">  如果會怕，可以用ubuntu 18.04 live DVD 開機，然後先安裝 mdadm
+</span></span><span class="line"><span class="cl">  接著執行 mdadm --assemble --scan 偵測原本的RAID
+</span></span><span class="line"><span class="cl">  這時候雖然會抓到RAID，但是因為上面是LVM 所以沒辦法直接掛進來
+</span></span><span class="line"><span class="cl">  需要再執行一次 vgchange -ay
+</span></span><span class="line"><span class="cl">  原本的lvm 磁區，就會出現在 /dev/mapper 裡面
+</span></span><span class="line"><span class="cl">  再執行 mount /dev/mapper/sysvg-usr /mnt 把目錄掛進來
+</span></span></code></pre></td></tr></table>
+</div>
+</div><ul>
+<li>分次掛載原本的目錄，然後sync 回SSD</li>
+</ul>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">  我是直接在系統內操作，沒有透過liveDVD
+</span></span><span class="line"><span class="cl">  先備份 /etc , /usr 
+</span></span><span class="line"><span class="cl">  然後就看原本LVM切了幾個，每一個都mount 進來，然後把資料用rsync 抄回對應的路徑底下就好
+</span></span><span class="line"><span class="cl">  抄完之後，把備份出來的 /etc.bak/fstab 複製回 /etc
+</span></span><span class="line"><span class="cl">  這樣才能正常開機
+</span></span><span class="line"><span class="cl">  
+</span></span></code></pre></td></tr></table>
+</div>
+</div><ul>
+<li>重開機</li>
+</ul>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">  正常的話，這時候重開機應該是可以進入系統
+</span></span><span class="line"><span class="cl">  接著就是請同事確認環境、指令是否可以執行
+</span></span><span class="line"><span class="cl">  然後修改一些像是目錄權限, uid,gid 等等的問題
+</span></span><span class="line"><span class="cl">  基本上系統這樣就轉完了
+</span></span></code></pre></td></tr></table>
+</div>
+</div><!-- raw HTML omitted -->
+<h3 id="地雷產品">地雷產品</h3>
+<p>在這過程中，因為本來想直接做線上升級到1TB的空間，所以買了兩個 TCELL TT550 960G SSD 來用</p>
+<p><img src="https://i.imgur.com/94hPMJG.png"
+	
+	
+	
+	loading="lazy"
+	
+		alt="TCELL TT550 960G SSD"
+	
+	
+></p>
+<p>結果因為線上升級失敗，改用rsync來做，所以就把這兩顆SSD用 mdadm 組成raid1 來做系統</p>
+<p>安裝過程沒什麼問題，但是在從舊硬碟抄資料回來的時候，發現速度很慢，而且會有卡住的情況</p>
+<p><a class="link" href="https://www.youtube.com/watch?v=NOIyRFit64k"  target="_blank" rel="noopener"
+    >https://www.youtube.com/watch?v=NOIyRFit64k</a></p>
+<p>從影片中可以看到，一開始複製檔案時，速度會往下掉，然後又慢慢爬上來，中間還會卡住</p>
+<p>另一台用的是創見 S370 512G SSD 一顆 (MLC) ，這台就不會有這種問題</p>
+<p>但是用Crystal Disk Mark 去測試這顆SSD ，速度又是正常 (4xx/3xx)</p>
+<p>不知道是不是因為做RAID的關係，或者是linux 的影響？</p>
+<p>總之最後這兩顆SSD 就被我退貨了&hellip;</p>
+<p>話說我跟TCELL似乎犯衝啊&hellip;</p>
+<p>上次買的4K EVO 64G隨身碟，也是速度很慢，跑了一次RMA換新的回來才正常</p>
+<p>這次的960G SSD ($2999) 又有這種問題</p>
+<p>看來下次要好好「評估」了..</p>
+<!-- raw HTML omitted -->
+<h3 id="測試raid1轉raid5擴充空間">測試raid1轉raid5擴充空間</h3>
+<p>前面有提到，如果沒有LVM的話，我應該可以很輕易的加入兩顆硬碟到原有的raid1，然後就直接擴充容量</p>
+<p>不過操作失敗了，但是我一直覺得這個應該很容易解決才對</p>
+<p>所以我開了一台VM來做測試</p>
+<p>OS: Ubuntu 18.04 Server x64
+HDD: 16G vmdisk x4</p>
+<p>一開始安裝時，就在安裝程式內設定一組raid1 (/dev/vda, /dev/vdb)，然後把系統灌在這個raid device上</p>
+<p>安裝完成後，先進入系統確認一下現在的狀態</p>
+<p><img src="https://i.imgur.com/KDix5IJ.png"
+	
+	
+	
+	loading="lazy"
+	
+	
+></p>
+<p>可以看到有一個raid1 的磁區，由 /dev/vda1 , /dev/vdb1 組成，raid-devices:2 Array Size: 16765952 (15.99 GiB)</p>
+<p>然後還有兩個磁碟沒有用到 (/dev/vdc , /dev/vdd)</p>
+<p>接著為了進行模擬測試，先拍個快照，然後改用 ubuntu 18.04 Desktop 的ISO開機</p>
+<p>進入系統後，要先開啟 terminal 來安裝 mdadm</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">apt install mdadm -y
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p><img src="https://i.imgur.com/0tnEdW5.png"
+	
+	
+	
+	loading="lazy"
+	
+		alt="install mdadm in ubuntu 18.04 liveDVD"
+	
+	
+></p>
+<p>然後把剛剛看到的兩顆還沒用到的磁碟切分割，加入RAID內</p>
+<p>或者可以直接用sfdisk 從原有的磁碟抄partition table過來</p>
+<p>我直接用 sfdisk 抄比較快，底下的指令是抄 vda 的partition table 到 vdc和 vdd</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">sfdisk -d /dev/vda | sfdisk /dev/vdc
+</span></span><span class="line"><span class="cl">sfdisk -d /dev/vda | sfdisk /dev/vdd
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p><img src="https://i.imgur.com/mlikld4.png"
+	
+	
+	
+	loading="lazy"
+	
+		alt="sfdisk copt partition table"
+	
+	
+></p>
+<p>然後檢查一下是不是正確</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">fdisk -l /dev/vdc
+</span></span><span class="line"><span class="cl">fdisk -l /dev/vdd
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p><img src="https://i.imgur.com/5qQNLbu.png"
+	
+	
+	
+	loading="lazy"
+	
+		alt="check result after sfdisk"
+	
+	
+></p>
+<p>再來就偵測原來的RAID，然後加入兩個剛剛做出來的分割到raid群組內</p>
+<p>接著就直接把raid1轉成raid5，然後把raid-devices:2 改成 4，看一下狀態</p>
+<p>可以看到，在把raid-devices 提升到4顆之後，原有的raid 就會開始進行reshape (不是rebuild唷)</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">mdadm --assemble --scan 
+</span></span><span class="line"><span class="cl">mdadm --add /dev/md0 /dev/vdc1 /dev/vdd1
+</span></span><span class="line"><span class="cl">mdadm --grow /dev/md0 --level=5
+</span></span><span class="line"><span class="cl">mdadm --grow /dev/md0 --raid-devices=4
+</span></span><span class="line"><span class="cl">cat /proc/mdstat
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p><img src="https://i.imgur.com/dxwQC0v.png"
+	
+	
+	
+	loading="lazy"
+	
+		alt="convert raid1 to raid5 procedure"
+	
+	
+></p>
+<p>耐心等待raid reshape 跑完，要一點時間，我只用16G的磁碟來測試也要跑個七八分鐘左右</p>
+<p>不敢想像如果是幾TB的空間要跑多久&hellip;</p>
+<p>等上面的程序跑完後，再看一下raid狀態，就會看到原有的RAID空間變大了，磁碟變多了，心情變好了，考試也都考100分了！</p>
+<p><img src="https://i.imgur.com/7E2qL8Q.png"
+	
+	
+	
+	loading="lazy"
+	
+		alt="check raid status after reshape"
+	
+	
+></p>
+<p>本來想說已經完成了，興沖沖的把raid 掛進來，看一下空間，卻還是16G ?????</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">mount /dev/md0p1 /mnt
+</span></span><span class="line"><span class="cl">df -h
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p><img src="https://i.imgur.com/ILjDN1g.png"
+	
+	
+	
+	loading="lazy"
+	
+		alt="raid space still 16G"
+	
+	
+></p>
+<p>其實這邊我一直沒搞懂，文章都說你就跑 e2fsck 檢查一次，然後跑 resize2fs 放大就結束了</p>
+<p>問題是，我這樣做沒用&hellip;</p>
+<p><img src="https://i.imgur.com/ij2AGw7.png"
+	
+	
+	
+	loading="lazy"
+	
+		alt="raid not expand after e2fsck and resize2fs"
+	
+	
+></p>
+<p>最後我是直接請出 gparted 來做</p>
+<p>叫出 gparted 之後，可以直接看到剛剛增加的空間沒有被放到原有的raid</p>
+<p>那就直接 resize吧</p>
+<p><img src="https://i.imgur.com/qLQMRAe.png"
+	
+	
+	
+	loading="lazy"
+	
+		alt="unallocated space in gparted"
+	
+	
+></p>
+<p>gparted resize 太簡單了&hellip;直接用拉的就好了</p>
+<p><img src="https://i.imgur.com/KAs3gwu.png"
+	
+	
+	
+	loading="lazy"
+	
+		alt="resize partition in gparted"
+	
+	
+></p>
+<p>好，都做完了，重開機見真章！看看到底有沒有成功？</p>
+<p><img src="https://i.imgur.com/uGzxA9t.png"
+	
+	
+	
+	loading="lazy"
+	
+		alt="check result after reboot"
+	
+	
+></p>
+<p>空間順利放大了，打完收工！</p>
+<p>我想以後如果又碰到一樣的狀況，大概就會用最後這個方式處理吧！</p>
+</section>
+
+
+    <footer class="article-footer">
+    
+    <section class="article-tags">
+        
+            <a href="/tags/centos/">centos</a>
+        
+            <a href="/tags/linux/">linux</a>
+        
+    </section>
+
+
+    
+    <section class="article-copyright">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <path d="M14.5 9a3.5 4 0 1 0 0 6" />
+</svg>
+
+
+
+        <span>Licensed under CC BY-NC-SA 4.0</span>
+    </section>
+    </footer>
+
+
+    
+</article>
+
+    
+
+    
+
+<aside class="related-content--wrapper">
+    <h2 class="section-title">相關文章</h2>
+    <div class="related-content">
+        <div class="flex article-list--tile">
+            
+                
+<article class="">
+    <a href="/p/%E7%AD%86%E8%A8%98-%E7%94%A8pxe-%E5%AE%89%E8%A3%9D%E7%B3%BB%E7%B5%B1%E5%AE%8C%E6%88%90%E5%BE%8C%E9%80%81%E5%87%BA%E9%83%B5%E4%BB%B6%E9%80%9A%E7%9F%A5-/-send-mail-notification-after-pxe-install/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">[筆記] 用pxe 安裝系統，完成後送出郵件通知 / send mail notification after pxe install</h2>
+        </div>
+    </a>
+</article>
+
+            
+                
+<article class="">
+    <a href="/p/linux%E5%BA%95%E4%B8%8B%E9%81%A0%E7%AB%AF%E9%81%99%E6%8E%A7%E7%AE%A1%E7%90%86%E7%9A%84%E5%A5%BD%E7%94%A8%E7%B3%BB%E7%B5%B1-meshcentral-/-remote-management-control-system-meshcentral/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">linux底下遠端遙控&amp;管理的好用系統 Meshcentral / Remote Management &amp; control system Meshcentral</h2>
+        </div>
+    </a>
+</article>
+
+            
+                
+<article class="">
+    <a href="/p/%E7%AD%86%E8%A8%98-inxi-%E8%92%90%E9%9B%86%E8%A9%B3%E7%9B%A1%E7%9A%84%E7%A1%AC%E9%AB%94%E8%B3%87%E8%A8%8A-/-inxi-collect-detail-hardware-info/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">[筆記] inxi 蒐集詳盡的硬體資訊 / inxi Collect Detail Hardware Info</h2>
+        </div>
+    </a>
+</article>
+
+            
+                
+<article class="">
+    <a href="/p/%E7%AD%86%E8%A8%98-ansible-how-to-use-list-in-yaml-file/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">[筆記] Ansible how to use &#39;list&#39; in yaml file </h2>
+        </div>
+    </a>
+</article>
+
+            
+                
+<article class="">
+    <a href="/p/nice-du-report-tool-durep/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">Nice Du Report Tool Durep</h2>
+        </div>
+    </a>
+</article>
+
+            
+        </div>
+    </div>
+</aside>
+
+     
+    
+        
+    <div class="disqus-container">
+    <div id="disqus_thread"></div>
+<script type="application/javascript">
+    window.disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "h-cowbay-org" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+</div>
+
+<style>
+    .disqus-container {
+        background-color: var(--card-background);
+        border-radius: var(--card-border-radius);
+        box-shadow: var(--shadow-l1);
+        padding: var(--card-padding);
+    }
+</style>
+
+<script>
+    window.addEventListener('onColorSchemeChange', (e) => {
+        if (typeof DISQUS == 'object') {
+            DISQUS.reset({
+                reload: true
+            });
+        }
+    })
+</script>
+
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+            2020 - 
+        
+        2023 MCの部落
+    </section>
+    
+    <section class="powerby">
+        
+            鮮衣怒馬少年時 不負韶華行且知 <br/>
+        使用 <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> 建立 <br />
+        主題 <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.16.0">Stack</a></b> 由 <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a> 設計
+    </section>
+</footer>
+
+
+    
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.min.css"crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css"crossorigin="anonymous"
+            >
+
+            </main>
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.6/dist/vibrant.min.js"integrity="sha256-awcR2jno4kI5X0zL8ex0vi2z&#43;KMkF24hUW8WePSA9HM="crossorigin="anonymous"
+                
+                >
+            </script><script type="text/javascript" src="/ts/main.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>

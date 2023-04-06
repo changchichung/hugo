@@ -1,0 +1,630 @@
+<!DOCTYPE html>
+<html lang="en-us" dir="ltr">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='最近在弄一台機器，想要把ubuntu 18.04 安裝在software raid上
+因為新開的機器大部分都是在proxmox上，所以很少碰實體機器了
+結果在安裝過程中，做raid碰到一些問題，來紀錄一下
+'>
+<title>Ubuntu 1804 Install Root on Raid</title>
+
+<link rel='canonical' href='https://h.cowbay.org/post/ubuntu-1804-install-root-on-raid/'>
+
+<link rel="stylesheet" href="/scss/style.min.8191399262444ab68b72a18c97392f5349be20a1615d77445be51e974c144cff.css"><meta property='og:title' content='Ubuntu 1804 Install Root on Raid'>
+<meta property='og:description' content='最近在弄一台機器，想要把ubuntu 18.04 安裝在software raid上
+因為新開的機器大部分都是在proxmox上，所以很少碰實體機器了
+結果在安裝過程中，做raid碰到一些問題，來紀錄一下
+'>
+<meta property='og:url' content='https://h.cowbay.org/post/ubuntu-1804-install-root-on-raid/'>
+<meta property='og:site_name' content='My New Hugo Site'>
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='ubuntu' /><meta property='article:tag' content='raid' /><meta property='article:published_time' content='2019-01-16T09:58:50&#43;08:00'/><meta property='article:modified_time' content='2019-01-16T09:58:50&#43;08:00'/>
+<meta name="twitter:title" content="Ubuntu 1804 Install Root on Raid">
+<meta name="twitter:description" content="最近在弄一台機器，想要把ubuntu 18.04 安裝在software raid上
+因為新開的機器大部分都是在proxmox上，所以很少碰實體機器了
+結果在安裝過程中，做raid碰到一些問題，來紀錄一下
+">
+    </head>
+    <body class="
+    article-page
+    ">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "auto");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.documentElement.dataset.scheme = 'dark';
+        } else {
+            document.documentElement.dataset.scheme = 'light';
+        }
+    })();
+</script>
+<div class="container main-container flex on-phone--column compact"><aside class="sidebar left-sidebar sticky ">
+    <button class="hamburger hamburger--spin" type="button" id="toggle-menu" aria-label="Toggle Menu">
+        <span class="hamburger-box">
+            <span class="hamburger-inner"></span>
+        </span>
+    </button>
+
+    <header>
+        
+            
+            <figure class="site-avatar">
+                <a href="/">
+                
+                    
+                    
+                    
+                        
+                        <img src="/img/avatar.png" width="300"
+                            height="300" class="site-logo" loading="lazy" alt="Avatar">
+                    
+                
+                </a>
+                
+            </figure>
+            
+        
+        
+        <div class="site-meta">
+            <h1 class="site-name"><a href="/">My New Hugo Site</a></h1>
+            <h2 class="site-description"></h2>
+        </div>
+    </header><ol class="menu" id="main-menu">
+        
+        
+        
+        <li >
+            <a href='/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-home" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="5 12 3 12 12 3 21 12 19 12" />
+  <path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-7" />
+  <path d="M9 21v-6a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v6" />
+</svg>
+
+
+
+                
+                <span>Home</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/page/about/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-user" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="7" r="4" />
+  <path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2" />
+</svg>
+
+
+
+                
+                <span>About</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/page/archives/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-archive" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <rect x="3" y="4" width="18" height="4" rx="2" />
+  <path d="M5 8v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-10" />
+  <line x1="10" y1="12" x2="14" y2="12" />
+</svg>
+
+
+
+                
+                <span>Archives</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/page/search/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="10" cy="10" r="7" />
+  <line x1="21" y1="21" x2="15" y2="15" />
+</svg>
+
+
+
+                
+                <span>Search</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/page/links/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-link" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M10 14a3.5 3.5 0 0 0 5 0l4 -4a3.5 3.5 0 0 0 -5 -5l-.5 .5" />
+  <path d="M14 10a3.5 3.5 0 0 0 -5 0l-4 4a3.5 3.5 0 0 0 5 5l.5 -.5" />
+</svg>
+
+
+
+                
+                <span>Links</span>
+            </a>
+        </li>
+        
+
+        <div class="menu-bottom-section">
+            
+            
+                <li id="dark-mode-toggle">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="8" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="16" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                    <span>Dark Mode</span>
+                </li>
+            
+        </div>
+    </ol>
+</aside>
+
+    
+
+            <main class="main full-width">
+    <article class="main-article">
+    <header class="article-header">
+
+    <div class="article-details">
+    
+    <header class="article-category">
+        
+            <a href="/categories/%E7%AD%86%E8%A8%98/" >
+                筆記
+            </a>
+        
+    </header>
+    
+
+    <div class="article-title-wrapper">
+        <h2 class="article-title">
+            <a href="/post/ubuntu-1804-install-root-on-raid/">Ubuntu 1804 Install Root on Raid</a>
+        </h2>
+    
+        
+    </div>
+
+    
+    
+    
+    
+    <footer class="article-time">
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M11.795 21h-6.795a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
+  <circle cx="18" cy="18" r="4" />
+  <path d="M15 3v4" />
+  <path d="M7 3v4" />
+  <path d="M3 11h16" />
+  <path d="M18 16.496v1.504l1 1" />
+</svg>
+                <time class="article-time--published">Jan 16, 2019</time>
+            </div>
+        
+
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+                <time class="article-time--reading">
+                    1 minute read
+                </time>
+            </div>
+        
+    </footer>
+    
+
+    
+</div>
+
+</header>
+
+    <section class="article-content">
+    
+    
+    <p>最近在弄一台機器，想要把ubuntu 18.04 安裝在software raid上</p>
+<p>因為新開的機器大部分都是在proxmox上，所以很少碰實體機器了</p>
+<p>結果在安裝過程中，做raid碰到一些問題，來紀錄一下</p>
+<p>要先說明 Ubuntu 提供的ISO類型，這會牽涉到後續裝raid</p>
+<p>底下這是ubuntu 網頁上的ISO列表</p>
+<p><img src="https://i.imgur.com/32JIHL0.png"
+	
+	
+	
+	loading="lazy"
+	
+		alt="ubuntu iso list"
+	
+	
+></p>
+<p>大致上分為 Desktop/live-server 兩種</p>
+<p>因為我要裝的是server，所以我一開始當然是選live-server</p>
+<p>但是用這個ISO開機，要設定software raid時，會出現警告訊息</p>
+<p>提示不可以把所有的分割區都指定給 RAID/LVM ，這樣會沒有地方可以放 /boot</p>
+<p>錯誤如圖</p>
+<p><img src="https://i.imgur.com/uhSpn6w.png"
+	
+	
+	
+	loading="lazy"
+	
+		alt="create root on raid error"
+	
+	
+></p>
+<p>所以我很「鄉愿」的，那就切一個/boot 給它用，算是暫時解決這問題 XD</p>
+<p>但是這樣的作法，總有一天會出事</p>
+<p>因為如果這個 /boot 掛了，雖然底下的系統有做mirror</p>
+<p>但還是不能開機，那這樣做raid根本沒有意義啊！</p>
+<p>所以研究了兩天，發現一個很重要的事情</p>
+<p>我根本就抓錯ISO了啊！！！！！！！</p>
+<p>會這樣想是因為中間有其他task在裝debian9</p>
+<p>一開始也是抓live-dvd版本</p>
+<p>但是這個版本沒有辦法自訂要安裝哪些套件，所以預設安裝完會包含windows manager、office、字型等等</p>
+<p>加起來總共5.x G &hellip;.</p>
+<p>然後我還要手動移除這些套件，這不是脫褲子放屁嗎？</p>
+<p>翻了一下google，發現是因為ISO的關係，要去下載netinst的ISO</p>
+<p>才能在安裝過程中自訂套件</p>
+<p>從這邊延伸到ubuntu的問題</p>
+<p>會不會是我也抓錯ISO了呢？</p>
+<p>再次google相關訊息，果然ubuntu也有類似的netboot ISO</p>
+<p><img src="https://i.imgur.com/G2ImxhQ.png"
+	
+	
+	
+	loading="lazy"
+	
+		alt="ubuntu mini iso"
+	
+	
+></p>
+<p>檔案很小，只有60M左右，趕快下載來安裝！</p>
+<p>這次果然可以在安裝過程中，順利設定software raid，並且掛載在 / 根目錄底下進行安裝</p>
+<h2 id="but--對永遠少不了這個but">BUT &hellip;. 對，永遠少不了這個BUT</h2>
+<p>安裝過程會卡住&hellip;</p>
+<p><img src="https://i.imgur.com/FpWsjsO.png"
+	
+	
+	
+	loading="lazy"
+	
+		alt="ubuntu install with mini iso hangs"
+	
+	
+></p>
+<p>卡在這邊幾個小時了，都不會動</p>
+<p>我在猜可能是mirror site 有問題，所以抓套件抓不到就卡住了？</p>
+<p>一直卡著也不是辦法，於是又去ubuntu官網看了一下，發現有另外一個server的 ISO</p>
+<p>這個叫 &ldquo;Alternative Ubuntu Server installer&rdquo;</p>
+<p>在官網的這個位置</p>
+<p><a class="link" href="https://www.ubuntu.com/download/alternative-downloads"  target="_blank" rel="noopener"
+    >https://www.ubuntu.com/download/alternative-downloads</a></p>
+<p><img src="https://i.imgur.com/n0E1ea3.png"
+	
+	
+	
+	loading="lazy"
+	
+		alt="Alternative Ubuntu Server Installer"
+	
+	
+></p>
+<p>進入後，會有個列表，找到 server amd64 的ISO，這個才是正確的</p>
+<p>和第一次不同的是，這個沒有&quot;live&quot; ，很重要！</p>
+<p><img src="https://i.imgur.com/c4GTujY.png"
+	
+	
+	
+	loading="lazy"
+	
+		alt="Ubuntu alternative-downloads"
+	
+	
+></p>
+<p>用這個ISO開機，就可以正常的做出software raid，並且指定安裝作業系統，也不會有卡住的狀況</p>
+<p>做出來的系統磁區大概是這樣
+<img src="https://i.imgur.com/dyWIH7E.png"
+	
+	
+	
+	loading="lazy"
+	
+		alt="ubuntu root on software raid"
+	
+	
+></p>
+<p>這台VM的硬碟是透過10G網卡連到一個四塊Sandisk 240G SSD 組成的raid0空間</p>
+<p>順便看一下速度
+<img src="https://i.imgur.com/V9WwIOC.png"
+	
+	
+	
+	loading="lazy"
+	
+		alt="10g nfs storage performance"
+	
+	
+></p>
+<p>10G就是快！就是爽！</p>
+<p>爽完之後，還是要確認一下&hellip; 首先先執行 sudo dpkg-reconfigure grub-pc</p>
+<p>看看是不是兩顆硬碟都有裝 grub ，這樣萬一有一顆硬碟故障，另一顆才能啟動</p>
+<p><img src="https://i.imgur.com/7xAcCbz.png"
+	
+	
+	
+	loading="lazy"
+	
+		alt="dpkg-reconfigure grub-pc"
+	
+	
+></p>
+<p>看來因為是在安裝過程中，就指定了要把系統裝在raid上，所以ubuntu很聰明的，也自動把grub裝在兩顆硬碟上了</p>
+<p>來試試看拔掉一顆硬碟還能不能正常運作</p>
+<p>直接在proxmox 管理界面中，detach 一顆硬碟</p>
+<p><img src="https://i.imgur.com/lLFcdk0.png"
+	
+	
+	
+	loading="lazy"
+	
+		alt="detach one of mirror raid"
+	
+	
+></p>
+<p>果然報錯誤了</p>
+<p><img src="https://i.imgur.com/1SFdVA0.png"
+	
+	
+	
+	loading="lazy"
+	
+		alt="mirror raid failed"
+	
+	
+></p>
+<p>重開機看看，也沒有問題，可以順利開機！</p>
+<p>開機過程有看到raid 只剩下一顆在運作的訊息</p>
+<p><img src="https://i.imgur.com/oZNIN4D.png"
+	
+	
+	
+	loading="lazy"
+	
+		alt="mirror raid work with one disk only"
+	
+	
+></p>
+<p>再來把硬碟加回去</p>
+<p>然後用mdadm 指令加入分割區，raid就會開始rebuid了</p>
+<p><img src="https://i.imgur.com/3nu2Ij8.png"
+	
+	
+	
+	loading="lazy"
+	
+		alt="mdadm rebuild raid"
+	
+	
+></p>
+<p>所以，如果有打算要做software raid來安裝ubuntu 作業系統的，一開始就要選對ISO</p>
+<p>才不會白忙那麼多時間啊！</p>
+</section>
+
+
+    <footer class="article-footer">
+    
+    <section class="article-tags">
+        
+            <a href="/tags/ubuntu/">ubuntu</a>
+        
+            <a href="/tags/raid/">raid</a>
+        
+    </section>
+
+
+    </footer>
+
+
+    
+</article>
+
+    
+
+    
+
+<aside class="related-content--wrapper">
+    <h2 class="section-title">Related content</h2>
+    <div class="related-content">
+        <div class="flex article-list--tile">
+            
+                
+<article class="">
+    <a href="/post/weird-client-server-connection/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">[筆記] 詭異的client&amp;server間連線的問題，或許跟KVM有關係？</h2>
+        </div>
+    </a>
+</article>
+
+            
+        </div>
+    </div>
+</aside>
+
+     
+    
+        
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+        2023 My New Hugo Site
+    </section>
+    
+    <section class="powerby">
+        Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
+        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.16.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+    </section>
+</footer>
+
+
+    
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.min.css"crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css"crossorigin="anonymous"
+            >
+
+            </main>
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.6/dist/vibrant.min.js"integrity="sha256-awcR2jno4kI5X0zL8ex0vi2z&#43;KMkF24hUW8WePSA9HM="crossorigin="anonymous"
+                
+                >
+            </script><script type="text/javascript" src="/ts/main.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>

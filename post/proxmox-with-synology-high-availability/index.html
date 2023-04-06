@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="en-us" dir="ltr">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='前幾天修復了因為intel cpu bug 導致無法使用的 synology DS415&#43;
+詳情請看 https://h.cowbay.org/post/first-try-synology-ha/
+今天趁尾牙前夕，手邊沒啥要緊事
+就來玩玩看promox 加上 synology high availability 再加上 NFS share 的環境
+'>
+<meta name="keywords" content="synology, proxmox, high availability"><title>[筆記] 測試 proxmox 存取由 synology HA cluster 分享的NFS 目錄 / Proxmox With Synology High Availability</title>
+
+<link rel='canonical' href='https://h.cowbay.org/post/proxmox-with-synology-high-availability/'>
+
+<link rel="stylesheet" href="/scss/style.min.8191399262444ab68b72a18c97392f5349be20a1615d77445be51e974c144cff.css"><meta property='og:title' content='[筆記] 測試 proxmox 存取由 synology HA cluster 分享的NFS 目錄 / Proxmox With Synology High Availability'>
+<meta property='og:description' content='前幾天修復了因為intel cpu bug 導致無法使用的 synology DS415&#43;
+詳情請看 https://h.cowbay.org/post/first-try-synology-ha/
+今天趁尾牙前夕，手邊沒啥要緊事
+就來玩玩看promox 加上 synology high availability 再加上 NFS share 的環境
+'>
+<meta property='og:url' content='https://h.cowbay.org/post/proxmox-with-synology-high-availability/'>
+<meta property='og:site_name' content='My New Hugo Site'>
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='synology' /><meta property='article:tag' content='proxmox' /><meta property='article:tag' content='high Availability' /><meta property='article:published_time' content='2020-01-17T12:20:33&#43;08:00'/><meta property='article:modified_time' content='2020-01-17T12:20:33&#43;08:00'/><meta property='og:image' content='https://h.cowbay.org/images/post-default-18.jpg' />
+<meta name="twitter:title" content="[筆記] 測試 proxmox 存取由 synology HA cluster 分享的NFS 目錄 / Proxmox With Synology High Availability">
+<meta name="twitter:description" content="前幾天修復了因為intel cpu bug 導致無法使用的 synology DS415&#43;
+詳情請看 https://h.cowbay.org/post/first-try-synology-ha/
+今天趁尾牙前夕，手邊沒啥要緊事
+就來玩玩看promox 加上 synology high availability 再加上 NFS share 的環境
+"><meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:image" content='https://h.cowbay.org/images/post-default-18.jpg' />
+    </head>
+    <body class="
+    article-page
+    ">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "auto");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.documentElement.dataset.scheme = 'dark';
+        } else {
+            document.documentElement.dataset.scheme = 'light';
+        }
+    })();
+</script>
+<div class="container main-container flex on-phone--column compact"><aside class="sidebar left-sidebar sticky ">
+    <button class="hamburger hamburger--spin" type="button" id="toggle-menu" aria-label="Toggle Menu">
+        <span class="hamburger-box">
+            <span class="hamburger-inner"></span>
+        </span>
+    </button>
+
+    <header>
+        
+            
+            <figure class="site-avatar">
+                <a href="/">
+                
+                    
+                    
+                    
+                        
+                        <img src="/img/avatar.png" width="300"
+                            height="300" class="site-logo" loading="lazy" alt="Avatar">
+                    
+                
+                </a>
+                
+            </figure>
+            
+        
+        
+        <div class="site-meta">
+            <h1 class="site-name"><a href="/">My New Hugo Site</a></h1>
+            <h2 class="site-description"></h2>
+        </div>
+    </header><ol class="menu" id="main-menu">
+        
+        
+        
+        <li >
+            <a href='/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-home" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="5 12 3 12 12 3 21 12 19 12" />
+  <path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-7" />
+  <path d="M9 21v-6a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v6" />
+</svg>
+
+
+
+                
+                <span>Home</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/page/about/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-user" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="7" r="4" />
+  <path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2" />
+</svg>
+
+
+
+                
+                <span>About</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/page/archives/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-archive" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <rect x="3" y="4" width="18" height="4" rx="2" />
+  <path d="M5 8v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-10" />
+  <line x1="10" y1="12" x2="14" y2="12" />
+</svg>
+
+
+
+                
+                <span>Archives</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/page/search/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="10" cy="10" r="7" />
+  <line x1="21" y1="21" x2="15" y2="15" />
+</svg>
+
+
+
+                
+                <span>Search</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/page/links/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-link" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M10 14a3.5 3.5 0 0 0 5 0l4 -4a3.5 3.5 0 0 0 -5 -5l-.5 .5" />
+  <path d="M14 10a3.5 3.5 0 0 0 -5 0l-4 4a3.5 3.5 0 0 0 5 5l.5 -.5" />
+</svg>
+
+
+
+                
+                <span>Links</span>
+            </a>
+        </li>
+        
+
+        <div class="menu-bottom-section">
+            
+            
+                <li id="dark-mode-toggle">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="8" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="16" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                    <span>Dark Mode</span>
+                </li>
+            
+        </div>
+    </ol>
+</aside>
+
+    
+
+            <main class="main full-width">
+    <article class="has-image main-article">
+    <header class="article-header">
+        <div class="article-image">
+            <a href="/post/proxmox-with-synology-high-availability/">
+                
+                    <img src="https://h.cowbay.org/images/post-default-18.jpg" loading="lazy" alt="Featured image of post [筆記] 測試 proxmox 存取由 synology HA cluster 分享的NFS 目錄 / Proxmox With Synology High Availability" />
+                
+            </a>
+        </div>
+    
+
+    <div class="article-details">
+    
+    <header class="article-category">
+        
+            <a href="/categories/%E7%AD%86%E8%A8%98/" >
+                筆記
+            </a>
+        
+    </header>
+    
+
+    <div class="article-title-wrapper">
+        <h2 class="article-title">
+            <a href="/post/proxmox-with-synology-high-availability/">[筆記] 測試 proxmox 存取由 synology HA cluster 分享的NFS 目錄 / Proxmox With Synology High Availability</a>
+        </h2>
+    
+        
+    </div>
+
+    
+    
+    
+    
+    <footer class="article-time">
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M11.795 21h-6.795a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
+  <circle cx="18" cy="18" r="4" />
+  <path d="M15 3v4" />
+  <path d="M7 3v4" />
+  <path d="M3 11h16" />
+  <path d="M18 16.496v1.504l1 1" />
+</svg>
+                <time class="article-time--published">Jan 17, 2020</time>
+            </div>
+        
+
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+                <time class="article-time--reading">
+                    1 minute read
+                </time>
+            </div>
+        
+    </footer>
+    
+
+    
+</div>
+
+</header>
+
+    <section class="article-content">
+    
+    
+    <p>前幾天修復了因為intel cpu bug 導致無法使用的 synology DS415+</p>
+<p>詳情請看 <a class="link" href="https://h.cowbay.org/post/first-try-synology-ha/"  target="_blank" rel="noopener"
+    >https://h.cowbay.org/post/first-try-synology-ha/</a></p>
+<p>今天趁尾牙前夕，手邊沒啥要緊事</p>
+<p>就來玩玩看promox 加上 synology high availability 再加上 NFS share 的環境</p>
+<p>先上架構圖</p>
+<p><img src="https://i.imgur.com/k7IDZ4Y.png"
+	
+	
+	
+	loading="lazy"
+	
+	
+></p>
+<p>架構很簡單，NAS設定一組NFS share， proxmox mount 進來，然後開一台VM在NFS 上</p>
+<p>主要來談談proxmox 在碰到synology high availability 切換狀態、遇上腦裂(brain split)時候的狀況</p>
+<p>觸發 brain split (說真的，我覺得腦裂很難聽 &hellip;)的情況，在上面連結那篇文章裡面有提到，就不多說了</p>
+<p>來講講後續的狀況</p>
+<p>發生 brain split 時，可以預期管理者會登入管理界面去修復</p>
+<p>關於修復brain split 可以看看群暉的這篇文章</p>
+<p><a class="link" href="https://www.synology.com/zh-tw/knowledgebase/DSM/help/HighAvailability/split_brain"  target="_blank" rel="noopener"
+    >https://www.synology.com/zh-tw/knowledgebase/DSM/help/HighAvailability/split_brain</a></p>
+<p>而我選擇的是 [將兩台伺服器一同保留於叢集中]</p>
+<p>在進行修復的過程中，會發現VM這邊會變成 read only</p>
+<p>聽起來很合理，畢竟在修復時，所有服務幾乎都是停擺</p>
+<p>但是呢，等到修復完成後，VM還是read only ，這就有點奇怪了</p>
+<p>有跟群暉客服反應過這個狀況</p>
+<p>所以在修復完成之後，在proxmox server 這邊直接對NFS 存取做測試</p>
+<p>去下載一個template 是 OK 的，在console 裡面直接在NFS touch file 也是可以的</p>
+<p>所以Synology high availability 是有正常發揮作用</p>
+<p>而promox 這邊，在synology恢復之後，也可以正常存取NFS ，所以也沒有問題</p>
+<p><del>那問題就是在VM裡面了，當發生了某些狀況，讓系統進入read only ，就必須透過reboot 才能解決</del></p>
+<p><del>或者是看看這個指令用fsck去檢查filesystem 看看有沒有幫助</del></p>
+<pre tabindex="0"><code>sudo fsck -Af -M
+</code></pre><p>UPDATE:</p>
+<p>在proxmox 論壇上提出了這個問題，有回覆說要用 NFS Version 4.1</p>
+<p>經過測試，在掛載NFS share folder 時，如果有指定 NFS Version 4.1</p>
+<p>那在HA Cluster 恢復之後，VM也就跟著恢復正常</p>
+<p>不必再重開機了！</p>
+<p>所以這問題算是解決了！</p>
+</section>
+
+
+    <footer class="article-footer">
+    
+    <section class="article-tags">
+        
+            <a href="/tags/synology/">synology</a>
+        
+            <a href="/tags/proxmox/">proxmox</a>
+        
+            <a href="/tags/high-availability/">high Availability</a>
+        
+    </section>
+
+
+    </footer>
+
+
+    
+</article>
+
+    
+
+    
+
+<aside class="related-content--wrapper">
+    <h2 class="section-title">Related content</h2>
+    <div class="related-content">
+        <div class="flex article-list--tile">
+            
+                
+<article class="has-image">
+    <a href="/post/first-try-synology-ha/">
+        
+        
+            <div class="article-image">
+                
+                    <img src="https://h.cowbay.org/images/post-default-13.jpg" loading="lazy" data-key="" data-hash="https://h.cowbay.org/images/post-default-13.jpg"/>
+                
+            </div>
+        
+
+        <div class="article-details">
+            <h2 class="article-title">[筆記] 第一次玩 Synology High Availability / first try synology high availability</h2>
+        </div>
+    </a>
+</article>
+
+            
+                
+<article class="has-image">
+    <a href="/post/rescue-synology-nas-with-ubuntu-livecd/">
+        
+        
+            <div class="article-image">
+                
+                    <img src="https://h.cowbay.org/images/post-default-11.jpg" loading="lazy" data-key="" data-hash="https://h.cowbay.org/images/post-default-11.jpg"/>
+                
+            </div>
+        
+
+        <div class="article-details">
+            <h2 class="article-title">[筆記] 用ubuntu livecd 救援群暉 synology NAS內的資料 / rescue synology nas with ubuntu livecd</h2>
+        </div>
+    </a>
+</article>
+
+            
+                
+<article class="has-image">
+    <a href="/post/what-a-piss-in-synology-document/">
+        
+        
+            <div class="article-image">
+                
+                    <img src="https://h.cowbay.org/images/post-default-16.jpg" loading="lazy" data-key="" data-hash="https://h.cowbay.org/images/post-default-16.jpg"/>
+                
+            </div>
+        
+
+        <div class="article-details">
+            <h2 class="article-title">[碎念] Synology 群暉的文件不知道在工三小 / what a piss in synology document</h2>
+        </div>
+    </a>
+</article>
+
+            
+                
+<article class="">
+    <a href="/post/install-asus-10g-nic-in-proxmox/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">Install Asus 10G NIC XG-C100C in Proxmox</h2>
+        </div>
+    </a>
+</article>
+
+            
+                
+<article class="">
+    <a href="/post/synology-ds415-repair-cost/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">[雜念] 群暉 Synology NAS DS 415&#43; 誇張的維修費用</h2>
+        </div>
+    </a>
+</article>
+
+            
+        </div>
+    </div>
+</aside>
+
+     
+    
+        
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+        2023 My New Hugo Site
+    </section>
+    
+    <section class="powerby">
+        Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
+        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.16.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+    </section>
+</footer>
+
+
+    
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.min.css"crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css"crossorigin="anonymous"
+            >
+
+            </main>
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.6/dist/vibrant.min.js"integrity="sha256-awcR2jno4kI5X0zL8ex0vi2z&#43;KMkF24hUW8WePSA9HM="crossorigin="anonymous"
+                
+                >
+            </script><script type="text/javascript" src="/ts/main.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>

@@ -1,0 +1,996 @@
+<!DOCTYPE html>
+<html lang="en-us" dir="ltr">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='想做一個 10G 的 LAB 環境出來已經很久了。
+只是礙於10G RJ45的卡太貴了，然後光纖的種類又太複雜
+如果直接在淘寶購買，很怕會買錯(什麼LC/FC LC/LC 多模單模 單芯雙芯 SFP/SFP&#43; 又是什麼光模塊的一大堆規格)
+所以一直沒有付諸行動。
+硬體的工作很久沒碰了，剛好在蝦皮看到有個賣家在賣 mellanox 的X2網卡，以在台灣的價格來說，算很便宜的 (550)
+聊了一下，跟他請教了關於線材、光纖模塊的問題，回答也都很快很到位
+就直接下訂了兩張網卡、兩個光纖模塊、一條LC/LC 光纖線
+就是到貨有點久，等了兩個禮拜左右，一直到昨天東西才寄到
+今天就花了點時間測試一下
+'>
+<title>[筆記] 用 proxmox &amp; Mellanox SFP 網卡土炮 10G LAB </title>
+
+<link rel='canonical' href='https://h.cowbay.org/p/%E7%AD%86%E8%A8%98-%E7%94%A8-proxmox-mellanox-sfp-%E7%B6%B2%E5%8D%A1%E5%9C%9F%E7%82%AE-10g-lab/'>
+
+<link rel="stylesheet" href="/scss/style.min.8191399262444ab68b72a18c97392f5349be20a1615d77445be51e974c144cff.css"><meta property='og:title' content='[筆記] 用 proxmox &amp; Mellanox SFP 網卡土炮 10G LAB '>
+<meta property='og:description' content='想做一個 10G 的 LAB 環境出來已經很久了。
+只是礙於10G RJ45的卡太貴了，然後光纖的種類又太複雜
+如果直接在淘寶購買，很怕會買錯(什麼LC/FC LC/LC 多模單模 單芯雙芯 SFP/SFP&#43; 又是什麼光模塊的一大堆規格)
+所以一直沒有付諸行動。
+硬體的工作很久沒碰了，剛好在蝦皮看到有個賣家在賣 mellanox 的X2網卡，以在台灣的價格來說，算很便宜的 (550)
+聊了一下，跟他請教了關於線材、光纖模塊的問題，回答也都很快很到位
+就直接下訂了兩張網卡、兩個光纖模塊、一條LC/LC 光纖線
+就是到貨有點久，等了兩個禮拜左右，一直到昨天東西才寄到
+今天就花了點時間測試一下
+'>
+<meta property='og:url' content='https://h.cowbay.org/p/%E7%AD%86%E8%A8%98-%E7%94%A8-proxmox-mellanox-sfp-%E7%B6%B2%E5%8D%A1%E5%9C%9F%E7%82%AE-10g-lab/'>
+<meta property='og:site_name' content='MCの部落'>
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='10G' /><meta property='article:tag' content='筆記' /><meta property='article:tag' content='mellanox' /><meta property='article:published_time' content='2018-11-30T16:05:14&#43;08:00'/><meta property='article:modified_time' content='2018-11-30T16:05:14&#43;08:00'/>
+<meta name="twitter:title" content="[筆記] 用 proxmox &amp; Mellanox SFP 網卡土炮 10G LAB ">
+<meta name="twitter:description" content="想做一個 10G 的 LAB 環境出來已經很久了。
+只是礙於10G RJ45的卡太貴了，然後光纖的種類又太複雜
+如果直接在淘寶購買，很怕會買錯(什麼LC/FC LC/LC 多模單模 單芯雙芯 SFP/SFP&#43; 又是什麼光模塊的一大堆規格)
+所以一直沒有付諸行動。
+硬體的工作很久沒碰了，剛好在蝦皮看到有個賣家在賣 mellanox 的X2網卡，以在台灣的價格來說，算很便宜的 (550)
+聊了一下，跟他請教了關於線材、光纖模塊的問題，回答也都很快很到位
+就直接下訂了兩張網卡、兩個光纖模塊、一條LC/LC 光纖線
+就是到貨有點久，等了兩個禮拜左右，一直到昨天東西才寄到
+今天就花了點時間測試一下
+">
+<script type="application/javascript">
+var doNotTrack = false;
+if (!doNotTrack) {
+	(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+	(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+	m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+	})(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+	ga('create', 'UA-128770427-1', 'auto');
+	
+	ga('send', 'pageview');
+}
+</script>
+    </head>
+    <body class="
+    article-page
+    ">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "auto");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.documentElement.dataset.scheme = 'dark';
+        } else {
+            document.documentElement.dataset.scheme = 'light';
+        }
+    })();
+</script>
+<div class="container main-container flex on-phone--column extended"><aside class="sidebar left-sidebar sticky ">
+    <button class="hamburger hamburger--spin" type="button" id="toggle-menu" aria-label="切換選單">
+        <span class="hamburger-box">
+            <span class="hamburger-inner"></span>
+        </span>
+    </button>
+
+    <header>
+        
+            
+            <figure class="site-avatar">
+                <a href="/">
+                
+                    
+                    
+                    
+                        
+                        <img src="/img/avatar_hu85bfcf0e08404ecf606702eb99c7ed68_43560_300x0_resize_box_3.png" width="300"
+                            height="300" class="site-logo" loading="lazy" alt="Avatar">
+                    
+                
+                </a>
+                
+                    <span class="emoji">🍥</span>
+                
+            </figure>
+            
+        
+        
+        <div class="site-meta">
+            <h1 class="site-name"><a href="/">MCの部落</a></h1>
+            <h2 class="site-description">讀過兩年書，塵世中一個迷途小書僮</h2>
+        </div>
+    </header><ol class="social-menu">
+            
+                <li>
+                    <a 
+                        href='https://www.facebook.com'
+                        target="_blank"
+                        title="facebook"
+                        rel="me"
+                    >
+                        
+                        
+                            <?xml version="1.0" encoding="iso-8859-1"?>
+<!-- Uploaded to: SVG Repo, www.svgrepo.com, Generator: SVG Repo Mixer Tools -->
+<svg height="800px" width="800px" version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" 
+	 viewBox="0 0 512 512" xml:space="preserve">
+<path style="fill:#385C8E;" d="M134.941,272.691h56.123v231.051c0,4.562,3.696,8.258,8.258,8.258h95.159
+	c4.562,0,8.258-3.696,8.258-8.258V273.78h64.519c4.195,0,7.725-3.148,8.204-7.315l9.799-85.061c0.269-2.34-0.472-4.684-2.038-6.44
+	c-1.567-1.757-3.81-2.763-6.164-2.763h-74.316V118.88c0-16.073,8.654-24.224,25.726-24.224c2.433,0,48.59,0,48.59,0
+	c4.562,0,8.258-3.698,8.258-8.258V8.319c0-4.562-3.696-8.258-8.258-8.258h-66.965C309.622,0.038,308.573,0,307.027,0
+	c-11.619,0-52.006,2.281-83.909,31.63c-35.348,32.524-30.434,71.465-29.26,78.217v62.352h-58.918c-4.562,0-8.258,3.696-8.258,8.258
+	v83.975C126.683,268.993,130.379,272.691,134.941,272.691z"/>
+</svg>
+                        
+                    </a>
+                </li>
+            
+                <li>
+                    <a 
+                        href='https://github.com/CaiJimmy/hugo-theme-stack'
+                        target="_blank"
+                        title="GitHub"
+                        rel="me"
+                    >
+                        
+                        
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-github" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M9 19c-4.3 1.4 -4.3 -2.5 -6 -3m12 5v-3.5c0 -1 .1 -1.4 -.5 -2c2.8 -.3 5.5 -1.4 5.5 -6a4.6 4.6 0 0 0 -1.3 -3.2a4.2 4.2 0 0 0 -.1 -3.2s-1.1 -.3 -3.5 1.3a12.3 12.3 0 0 0 -6.2 0c-2.4 -1.6 -3.5 -1.3 -3.5 -1.3a4.2 4.2 0 0 0 -.1 3.2a4.6 4.6 0 0 0 -1.3 3.2c0 4.6 2.7 5.7 5.5 6c-.6 .6 -.6 1.2 -.5 2v3.5" />
+</svg>
+
+
+
+                        
+                    </a>
+                </li>
+            
+                <li>
+                    <a 
+                        href='https://twitter.com'
+                        target="_blank"
+                        title="Twitter"
+                        rel="me"
+                    >
+                        
+                        
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-twitter" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M22 4.01c-1 .49 -1.98 .689 -3 .99c-1.121 -1.265 -2.783 -1.335 -4.38 -.737s-2.643 2.06 -2.62 3.737v1c-3.245 .083 -6.135 -1.395 -8 -4c0 0 -4.182 7.433 4 11c-1.872 1.247 -3.739 2.088 -6 2c3.308 1.803 6.913 2.423 10.034 1.517c3.58 -1.04 6.522 -3.723 7.651 -7.742a13.84 13.84 0 0 0 .497 -3.753c-.002 -.249 1.51 -2.772 1.818 -4.013z" />
+</svg>
+
+
+
+                        
+                    </a>
+                </li>
+            
+        </ol><ol class="menu" id="main-menu">
+        
+        
+        
+        <li >
+            <a href='/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-home" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="5 12 3 12 12 3 21 12 19 12" />
+  <path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-7" />
+  <path d="M9 21v-6a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v6" />
+</svg>
+
+
+
+                
+                <span>Home</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/about/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-user" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="7" r="4" />
+  <path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2" />
+</svg>
+
+
+
+                
+                <span>About</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/archives/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-archive" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <rect x="3" y="4" width="18" height="4" rx="2" />
+  <path d="M5 8v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-10" />
+  <line x1="10" y1="12" x2="14" y2="12" />
+</svg>
+
+
+
+                
+                <span>Archives</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/search/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="10" cy="10" r="7" />
+  <line x1="21" y1="21" x2="15" y2="15" />
+</svg>
+
+
+
+                
+                <span>Search</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/links/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-link" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M10 14a3.5 3.5 0 0 0 5 0l4 -4a3.5 3.5 0 0 0 -5 -5l-.5 .5" />
+  <path d="M14 10a3.5 3.5 0 0 0 -5 0l-4 4a3.5 3.5 0 0 0 5 5l.5 -.5" />
+</svg>
+
+
+
+                
+                <span>Links</span>
+            </a>
+        </li>
+        
+
+        <div class="menu-bottom-section">
+                <li id="i18n-switch">  
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-language" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M4 5h7" />
+  <path d="M9 3v2c0 4.418 -2.239 8 -5 8" />
+  <path d="M5 9c-.003 2.144 2.952 3.908 6.7 4" />
+  <path d="M12 20l4 -9l4 9" />
+  <path d="M19.1 18h-6.2" />
+</svg>
+
+
+
+                    <select name="language" onchange="window.location.href = this.selectedOptions[0].value">
+                        
+                            <option value="https://h.cowbay.org/" selected>中文</option>
+                        
+                            <option value="https://h.cowbay.org/en/" >English</option>
+                        
+                    </select>
+                </li>
+            
+            
+            
+                <li id="dark-mode-toggle">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="8" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="16" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                    <span>夜晚模式</span>
+                </li>
+            
+        </div>
+    </ol>
+</aside>
+
+    <aside class="sidebar right-sidebar sticky">
+        
+            
+                
+    <section class="widget archives">
+        <div class="widget-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <line x1="5" y1="9" x2="19" y2="9" />
+  <line x1="5" y1="15" x2="19" y2="15" />
+  <line x1="11" y1="4" x2="7" y2="20" />
+  <line x1="17" y1="4" x2="13" y2="20" />
+</svg>
+
+
+
+        </div>
+        <h2 class="widget-title section-title">目錄</h2>
+        
+        <div class="widget--toc">
+            <nav id="TableOfContents">
+  <ol>
+    <li>
+      <ol>
+        <li><a href="#strongfont-colorred必須作-vmbridge-才能指定這個網卡給vm用-fontstrong"><!-- raw HTML omitted --><!-- raw HTML omitted -->必須作 vmbridge 才能指定這個網卡給VM用 <!-- raw HTML omitted --><!-- raw HTML omitted --></a></li>
+        <li><a href="#strongfont-colorreddisk-cache-type-要改fontstrong"><!-- raw HTML omitted --><!-- raw HTML omitted -->Disk Cache type 要改<!-- raw HTML omitted --><!-- raw HTML omitted --></a></li>
+        <li><a href="#strongfont-colorred必須手動設定路由fontstrong"><!-- raw HTML omitted --><!-- raw HTML omitted -->必須手動設定路由<!-- raw HTML omitted --><!-- raw HTML omitted --></a>
+          <ol>
+            <li><a href="#update">Update</a></li>
+          </ol>
+        </li>
+        <li><a href="#strongiperf-測試速度strong"><!-- raw HTML omitted -->iperf 測試速度<!-- raw HTML omitted --></a></li>
+        <li><a href="#strong實際開vm來測試看看strong"><!-- raw HTML omitted -->實際開VM來測試看看<!-- raw HTML omitted --></a>
+          <ol>
+            <li></li>
+          </ol>
+        </li>
+      </ol>
+    </li>
+  </ol>
+</nav>
+        </div>
+    </section>
+
+            
+        
+    </aside>
+
+
+            <main class="main full-width">
+    <article class="main-article">
+    <header class="article-header">
+
+    <div class="article-details">
+    
+    <header class="article-category">
+        
+            <a href="/categories/%E7%AD%86%E8%A8%98/" >
+                筆記
+            </a>
+        
+    </header>
+    
+
+    <div class="article-title-wrapper">
+        <h2 class="article-title">
+            <a href="/p/%E7%AD%86%E8%A8%98-%E7%94%A8-proxmox-mellanox-sfp-%E7%B6%B2%E5%8D%A1%E5%9C%9F%E7%82%AE-10g-lab/">[筆記] 用 proxmox &amp; Mellanox SFP 網卡土炮 10G LAB </a>
+        </h2>
+    
+        
+    </div>
+
+    
+    
+    
+    
+    <footer class="article-time">
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M11.795 21h-6.795a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
+  <circle cx="18" cy="18" r="4" />
+  <path d="M15 3v4" />
+  <path d="M7 3v4" />
+  <path d="M3 11h16" />
+  <path d="M18 16.496v1.504l1 1" />
+</svg>
+                <time class="article-time--published">2018-11-11</time>
+            </div>
+        
+
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+                <time class="article-time--reading">
+                    閱讀時間: 5 分鐘
+                </time>
+            </div>
+        
+    </footer>
+    
+
+    
+</div>
+
+</header>
+
+    <section class="article-content">
+    
+    
+    <p>想做一個 10G 的 LAB 環境出來已經很久了。</p>
+<p>只是礙於10G RJ45的卡太貴了，然後光纖的種類又太複雜</p>
+<p>如果直接在淘寶購買，很怕會買錯(什麼LC/FC LC/LC 多模單模 單芯雙芯 SFP/SFP+ 又是什麼光模塊的一大堆規格)</p>
+<p>所以一直沒有付諸行動。</p>
+<p>硬體的工作很久沒碰了，剛好在蝦皮看到有個賣家在賣 mellanox 的X2網卡，以在台灣的價格來說，算很便宜的 (550)</p>
+<p>聊了一下，跟他請教了關於線材、光纖模塊的問題，回答也都很快很到位</p>
+<p>就直接下訂了兩張網卡、兩個光纖模塊、一條LC/LC 光纖線</p>
+<p>就是到貨有點久，等了兩個禮拜左右，一直到昨天東西才寄到</p>
+<p>今天就花了點時間測試一下</p>
+<p>先上個圖！</p>
+<p><img src="https://i.imgur.com/34MNFkW.png"
+	
+	
+	
+	loading="lazy"
+	
+		alt="10G LAB"
+	
+	
+></p>
+<p>簡單說，就是有兩台機器，分別安裝 proxmox (一台是新裝的，另一台是本來就在線上的LAB用機器)以及光纖網卡</p>
+<p>Mellanox 這張 X2 的卡， proxmox 5.1 / 5.2 可以直接抓到，所以不必另外安裝驅動程式</p>
+<p>硬體安裝很順利，不過軟體的設定就碰到點麻煩了，所以才想說作個筆記..</p>
+<h3 id="strongfont-colorred必須作-vmbridge-才能指定這個網卡給vm用-fontstrong"><!-- raw HTML omitted --><!-- raw HTML omitted -->必須作 vmbridge 才能指定這個網卡給VM用 <!-- raw HTML omitted --><!-- raw HTML omitted --></h3>
+<p>安裝好網卡，開機，透過proxmox的WEB界面設定好網卡的資料後，原本以為可以直接使用了</p>
+<p>但是proxmox 會提示需要重新開機才能變更設定</p>
+<p>可是重新開機後，我兩台怎麼都ping不到對方</p>
+<p>在這之前，我已經用兩台 ubuntu 18.04 client 測試過了，只要設定好IP就可以直接通</p>
+<p>所以在這邊碰到這個問題，我滿訝異的</p>
+<p>可是看網卡的燈號，明明就有亮起來，應該是正常的呀</p>
+<p>原來，在proxmox 中，新增了網卡，並不是直接就可以拿來用</p>
+<p>要先設定好 bridge ，然後才能起新的VM、指定新設定的 vmbridge 給這個新起的機器使用</p>
+<h3 id="strongfont-colorreddisk-cache-type-要改fontstrong"><!-- raw HTML omitted --><!-- raw HTML omitted -->Disk Cache type 要改<!-- raw HTML omitted --><!-- raw HTML omitted --></h3>
+<p>設定了新的 vmbridge 之後，就可以在新VM的設定畫面中，指定網卡走這個界面出去</p>
+<p>可是這樣做出來的VM ，一直無法開機</p>
+<p>錯誤訊息如下</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">kvm: -drive file=/zp/images/100/vm-100-disk-1.qcow2,if=none,id=drive-virtio0,format=qcow2,cache=none,aio=native,detect-zeroes=on: file system may not support O_DIRECT
+</span></span><span class="line"><span class="cl">kvm: -drive file=/zp/images/100/vm-100-disk-1.qcow2,if=none,id=drive-virtio0,format=qcow2,cache=none,aio=native,detect-zeroes=on: Could not open &#39;/zp/images/100/vm-100-disk-1.qcow2&#39;: Invalid argument
+</span></span><span class="line"><span class="cl">TASK ERROR: start failed: command &#39;/usr/bin/kvm -id 100 -name 123123 -chardev &#39;socket,id=qmp,path=/var/run/qemu-server/100.qmp,server,nowait&#39; -mon &#39;chardev=qmp,mode=control&#39; -pidfile /var/run/qemu-server/100.pid -daemonize -smbios &#39;type=1,uuid=da27a9ea-fd55-4542-b2a7-8d5b09bf7611&#39; -smp &#39;2,sockets=1,cores=2,maxcpus=2&#39; -nodefaults -boot &#39;menu=on,strict=on,reboot-timeout=1000,splash=/usr/share/qemu-server/bootsplash.jpg&#39; -vga std -vnc unix:/var/run/qemu-server/100.vnc,x509,password -cpu kvm64,+lahf_lm,+sep,+kvm_pv_unhalt,+kvm_pv_eoi,enforce -m 2048 -device &#39;pci-bridge,id=pci.2,chassis_nr=2,bus=pci.0,addr=0x1f&#39; -device &#39;pci-bridge,id=pci.1,chassis_nr=1,bus=pci.0,addr=0x1e&#39; -device &#39;piix3-usb-uhci,id=uhci,bus=pci.0,addr=0x1.0x2&#39; -device &#39;usb-tablet,id=tablet,bus=uhci.0,port=1&#39; -device &#39;virtio-balloon-pci,id=balloon0,bus=pci.0,addr=0x3&#39; -iscsi &#39;initiator-name=iqn.1993-08.org.debian:01:b972d1ad783&#39; -drive &#39;file=/zp/template/iso/ubuntu-18.04.1-live-server-amd64.iso,if=none,id=drive-ide2,media=cdrom,aio=threads&#39; -device &#39;ide-cd,bus=ide.1,unit=0,drive=drive-ide2,id=ide2,bootindex=200&#39; -drive &#39;file=/zp/images/100/vm-100-disk-1.qcow2,if=none,id=drive-virtio0,format=qcow2,cache=none,aio=native,detect-zeroes=on&#39; -device &#39;virtio-blk-pci,drive=drive-virtio0,id=virtio0,bus=pci.0,addr=0xa,bootindex=100&#39; -netdev &#39;type=tap,id=net0,ifname=tap100i0,script=/var/lib/qemu-server/pve-bridge,downscript=/var/lib/qemu-server/pve-bridgedown,vhost=on&#39; -device &#39;virtio-net-pci,mac=A2:EA:45:EE:17:25,netdev=net0,bus=pci.0,addr=0x12,id=net0,bootindex=300&#39;&#39; failed: exit code 1
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>當然先去拜google，果然就看到了提示，需要把 磁碟的 Cache 從預設的 Default(No Cache) 改成 write through</p>
+<p><img src="https://i.imgur.com/cmClmGd.png"
+	
+	
+	
+	loading="lazy"
+	
+		alt="proxmox dish cache mode"
+	
+	
+></p>
+<p>為什麼？我也不知道..不知道是不是因為我把磁碟種類選成用 Virtio Block 的關係</p>
+<p>總之呢，改完之後就可以了 &hellip;</p>
+<h3 id="strongfont-colorred必須手動設定路由fontstrong"><!-- raw HTML omitted --><!-- raw HTML omitted -->必須手動設定路由<!-- raw HTML omitted --><!-- raw HTML omitted --></h3>
+<h4 id="update">Update</h4>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">這邊可能是我有誤解，應該不需要先在pve 本機設定 10G網卡的 IP
+</span></span><span class="line"><span class="cl">直接進web console 去設定 vmbr1 就好了
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>設定好新的VM，開機、設定IP、重開機之後，會發現還是ping 不到另一台機器..(翻桌！)</p>
+<p>只好又去拜google ，就看到了底下這篇</p>
+<p><a class="link" href="https://forum.proxmox.com/threads/how-to-add-second-nic.40905/"  target="_blank" rel="noopener"
+    >https://forum.proxmox.com/threads/how-to-add-second-nic.40905/</a></p>
+<p>大概點出了方向，必須要手動增加路由(感覺有點蠢)</p>
+<p>像我的光纖網卡走的是 192.168.50.0/24 ，就要去把原有的192.168.50.0/24的路由給砍掉，然後再新增(是不是很蠢？)</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">root@ssd:/etc/network# ip route del 192.168.50.0/24
+</span></span><span class="line"><span class="cl">root@ssd:/etc/network# ip route add 192.168.50.0/24 dev vmbr1
+</span></span><span class="line"><span class="cl">root@ssd:/etc/network# ip route
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">default via 192.168.11.253 dev vmbr0 onlink 
+</span></span><span class="line"><span class="cl">192.168.11.0/24 dev vmbr0 proto kernel scope link src 192.168.11.215 
+</span></span><span class="line"><span class="cl">192.168.50.0/24 dev vmbr1 scope link 
+</span></span><span class="line"><span class="cl">root@ssd:/etc/network# 
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>OK ping 一下對面看能不能過</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">root@ssd:/etc/network# ping 192.168.50.10
+</span></span><span class="line"><span class="cl">PING 192.168.50.10 (192.168.50.10) 56(84) bytes of data.
+</span></span><span class="line"><span class="cl">64 bytes from 192.168.50.10: icmp_seq=1 ttl=64 time=0.083 ms
+</span></span><span class="line"><span class="cl">64 bytes from 192.168.50.10: icmp_seq=2 ttl=64 time=0.067 ms
+</span></span><span class="line"><span class="cl">64 bytes from 192.168.50.10: icmp_seq=3 ttl=64 time=0.080 ms
+</span></span><span class="line"><span class="cl">64 bytes from 192.168.50.10: icmp_seq=4 ttl=64 time=0.126 ms
+</span></span><span class="line"><span class="cl">^C
+</span></span><span class="line"><span class="cl">--- 192.168.50.10 ping statistics ---
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>GOOD ！很好！通了一邊，另外一邊就照辦，兩邊都通了，就可以開始來測試速度了</p>
+<p>p.s 這個路由不知道需不需要每次都手動增加，或者是有哪個config可以在開機時載入</p>
+<p>沒記錯的話，應該是在 /etc/network/if-up.d/ 新增一個 route 檔案</p>
+<p>不過這部份我不是很確定就是了</p>
+<p>所以自己寫了一個 script 來用..</p>
+<h3 id="strongiperf-測試速度strong"><!-- raw HTML omitted -->iperf 測試速度<!-- raw HTML omitted --></h3>
+<p>在linux 上，我習慣用 iperf 來測試兩台主機的連接速度</p>
+<p>兩邊都用 apt install iperf 裝好套件</p>
+<p>然後找一台作為 server ，執行</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">iperf -s
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>然後到另一台，去執行</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span><span class="lnt">9
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">2018-11-30 15:36:58 [minion@ubuntu ~]$ iperf -d -t 600 -P 10 -c 192.168.50.200
+</span></span><span class="line"><span class="cl">WARNING: option -d is not valid for server mode
+</span></span><span class="line"><span class="cl">------------------------------------------------------------
+</span></span><span class="line"><span class="cl">Client connecting to 192.168.50.200, TCP port 5001
+</span></span><span class="line"><span class="cl">TCP window size: 85.0 KByte (default)
+</span></span><span class="line"><span class="cl">------------------------------------------------------------
+</span></span><span class="line"><span class="cl">[  3] local 192.168.50.199 port 40980 connected with 192.168.50.200 port 5001
+</span></span><span class="line"><span class="cl">[ ID] Interval       Transfer     Bandwidth
+</span></span><span class="line"><span class="cl">[  3]  0.0-600.0 sec   641 GBytes  9.18 Gbits/sec
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>哈哈哈，有目有！測試速度來到了 9.18 Gbits 啊！ 就是一個爽啊！</p>
+<p>記得那個 server IP 是你 VM 裡面設定的 IP，不是 proxmox 上面的</p>
+<p>同場加映走 1Gb 網路的測試結果</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span><span class="lnt">9
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">2018-11-30 16:39:37 [minion@ubuntu ~]$ iperf -d -t 600 -P 10 -c 192.168.11.171
+</span></span><span class="line"><span class="cl">WARNING: option -d is not valid for server mode
+</span></span><span class="line"><span class="cl">------------------------------------------------------------
+</span></span><span class="line"><span class="cl">Client connecting to 192.168.11.171, TCP port 5001
+</span></span><span class="line"><span class="cl">TCP window size: 85.0 KByte (default)
+</span></span><span class="line"><span class="cl">------------------------------------------------------------
+</span></span><span class="line"><span class="cl">[  3] local 192.168.11.55 port 38582 connected with 192.168.11.171 port 5001
+</span></span><span class="line"><span class="cl">[ ID] Interval       Transfer     Bandwidth
+</span></span><span class="line"><span class="cl">[  3]  0.0-600.0 sec  65.8 GBytes   941 Mbits/sec
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>192.168.11.171 跟 192.168.50.200 是同一台機器，只是一個是10G網卡，一個是onboard的 1Gb 網卡</p>
+<p>速度果然是提高了十倍呀，果然就是一個爽啊！！</p>
+<h3 id="strong實際開vm來測試看看strong"><!-- raw HTML omitted -->實際開VM來測試看看<!-- raw HTML omitted --></h3>
+<p><del>上面的測試，是兩台PVE HOST之間的連線測試</del></p>
+<p>接下來，要實際測試在PVE中，建立新的VM，一台安裝FreeNAS 作為storage，另一台則是一般的client</p>
+<p>步驟簡單來說，就是在ssd 這台PVE 建立一個新的VM，然後安裝FREENAS，並且提供NFS/iscsi 給另一台PVE Host作為storage來源</p>
+<p>新增storage選NFS，填入必要資訊後，在這台主機上，建立一個新的VM，磁碟選擇剛剛連接的NFS</p>
+<h5 id="strong要特別注意freenas的nfs-share的參數要改strong"><!-- raw HTML omitted -->要特別注意，freenas的NFS Share的參數要改<!-- raw HTML omitted -->#####</h5>
+<p>在 mapuser/mapgroup這邊要改成 root/wheel 不然會有無法寫入的問題</p>
+<p><img src="https://i.imgur.com/Yn7qYdK.png"
+	
+	
+	
+	loading="lazy"
+	
+		alt="FREENAS NFS Sharing"
+	
+	
+></p>
+<p>安裝完之後，實際跑一下 dd 看看速度多少</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">Last login: Mon Dec  3 03:10:54 2018
+</span></span><span class="line"><span class="cl">2018-12-03 03:15:03 [administrator@ubuntu ~]$ dd if=/dev/zero of=testfile bs=10240 count=1000000
+</span></span><span class="line"><span class="cl">1000000+0 records in
+</span></span><span class="line"><span class="cl">1000000+0 records out
+</span></span><span class="line"><span class="cl">10240000000 bytes (10 GB, 9.5 GiB) copied, 9.63458 s, 1.1 GB/s
+</span></span></code></pre></td></tr></table>
+</div>
+</div><div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">2018-12-03 03:17:28 [administrator@ubuntu ~]$ dd if=/dev/zero of=testfile bs=20480 count=1000000
+</span></span><span class="line"><span class="cl">1000000+0 records in
+</span></span><span class="line"><span class="cl">1000000+0 records out
+</span></span><span class="line"><span class="cl">20480000000 bytes (20 GB, 19 GiB) copied, 16.0786 s, 1.3 GB/s
+</span></span></code></pre></td></tr></table>
+</div>
+</div><div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">2018-12-03 03:17:50 [administrator@ubuntu ~]$ dd if=/dev/zero of=testfile bs=4096 count=1000000
+</span></span><span class="line"><span class="cl">1000000+0 records in
+</span></span><span class="line"><span class="cl">1000000+0 records out
+</span></span><span class="line"><span class="cl">4096000000 bytes (4.1 GB, 3.8 GiB) copied, 4.80629 s, 852 MB/s
+</span></span><span class="line"><span class="cl">2018-12-03 03:25:23 [administrator@ubuntu ~]$ 
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>可以看到不但大檔案速度都很快，就連小檔案(4096)居然也有852MB</p>
+<p>我底層也不過就是四顆 SATA3 sandisk 240G SSD 而已啊</p>
+<p>如果都換成PCI-E SSD ，嘿嘿&hellip;(流口水</p>
+<hr>
+<p>不過呢，這個也只是自己建的LAB玩玩看而已</p>
+<p>真的要放到 production 環境去，我也還沒啥把握 (畢竟都是中古、二手、退役的產品拼湊起來的)</p>
+<p>而且沒有10G Switch ，所以只能點對點連接</p>
+<p>說不定等到對岸的 10G Switch 開始大降價 (我覺得 8 port SFP+ / NTD $2000 左右我應該就會出手了)</p>
+<p>再來把10G 的環境弄完整一點！</p>
+</section>
+
+
+    <footer class="article-footer">
+    
+    <section class="article-tags">
+        
+            <a href="/tags/10g/">10G</a>
+        
+            <a href="/tags/%E7%AD%86%E8%A8%98/">筆記</a>
+        
+            <a href="/tags/mellanox/">mellanox</a>
+        
+    </section>
+
+
+    
+    <section class="article-copyright">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <path d="M14.5 9a3.5 4 0 1 0 0 6" />
+</svg>
+
+
+
+        <span>Licensed under CC BY-NC-SA 4.0</span>
+    </section>
+    </footer>
+
+
+    
+</article>
+
+    
+
+    
+
+<aside class="related-content--wrapper">
+    <h2 class="section-title">相關文章</h2>
+    <div class="related-content">
+        <div class="flex article-list--tile">
+            
+                
+<article class="has-image">
+    <a href="/p/%E7%AD%86%E8%A8%98-%E8%A8%AD%E5%AE%9Aubuntu-18.04-%E7%9A%84networkmanager-config-%E4%B8%8D%E8%A6%81%E6%9B%B4%E6%94%B9-/etc/resolv.conf/">
+        
+        
+            <div class="article-image">
+                
+                    <img src="https://h.cowbay.org/images/post-default-17.jpg" loading="lazy" data-key="" data-hash="https://h.cowbay.org/images/post-default-17.jpg"/>
+                
+            </div>
+        
+
+        <div class="article-details">
+            <h2 class="article-title">[筆記] 設定ubuntu 18.04 的NetworkManager config 不要更改 /etc/resolv.conf</h2>
+        </div>
+    </a>
+</article>
+
+            
+                
+<article class="">
+    <a href="/p/%E7%AD%86%E8%A8%98-%E7%82%BA%E4%BA%86metabase-%E4%BF%AE%E6%94%B9-firefox-%E9%96%8B%E5%95%9F%E7%B6%B2%E9%A0%81%E6%99%82%E4%BD%BF%E7%94%A8%E7%9A%84%E9%A0%90%E8%A8%AD%E8%AA%9E%E8%A8%80-change-the-preferred-language-in-firefox-for-metabase/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">[筆記] 為了metabase 修改 firefox 開啟網頁時使用的預設語言 change the preferred language in firefox for metabase</h2>
+        </div>
+    </a>
+</article>
+
+            
+                
+<article class="">
+    <a href="/p/postgresql-%E7%9B%B4%E6%8E%A5%E5%BE%9E%E5%B7%B2%E7%B6%93%E5%AD%98%E5%9C%A8%E7%9A%84%E4%BD%BF%E7%94%A8%E8%80%85%E8%A4%87%E8%A3%BD%E6%AC%8A%E9%99%90%E5%88%B0%E5%8F%A6%E4%B8%80%E5%80%8B%E4%BD%BF%E7%94%A8%E8%80%85/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">PostgreSQL 直接從已經存在的使用者複製權限到另一個使用者</h2>
+        </div>
+    </a>
+</article>
+
+            
+                
+<article class="">
+    <a href="/p/%E7%AD%86%E8%A8%98-%E8%A9%AD%E7%95%B0%E7%9A%84clientserver%E9%96%93%E9%80%A3%E7%B7%9A%E7%9A%84%E5%95%8F%E9%A1%8C%E6%88%96%E8%A8%B1%E8%B7%9Fkvm%E6%9C%89%E9%97%9C%E4%BF%82/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">[筆記] 詭異的client&amp;server間連線的問題，或許跟KVM有關係？</h2>
+        </div>
+    </a>
+</article>
+
+            
+                
+<article class="">
+    <a href="/p/%E7%AD%86%E8%A8%98-%E5%95%9F%E7%94%A8%E7%BE%A4%E6%9A%89nas-synology-nas%E7%9A%84ssh-server-%E9%80%8F%E9%81%8Epublickey-%E8%AA%8D%E8%AD%89%E5%85%8D%E5%AF%86%E7%A2%BC%E7%99%BB%E5%85%A5/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">筆記- 啟用群暉NAS (Synology NAS)的SSH Server  透過Publickey 認證免密碼登入</h2>
+        </div>
+    </a>
+</article>
+
+            
+        </div>
+    </div>
+</aside>
+
+     
+    
+        
+    <div class="disqus-container">
+    <div id="disqus_thread"></div>
+<script type="application/javascript">
+    window.disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "h-cowbay-org" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+</div>
+
+<style>
+    .disqus-container {
+        background-color: var(--card-background);
+        border-radius: var(--card-border-radius);
+        box-shadow: var(--shadow-l1);
+        padding: var(--card-padding);
+    }
+</style>
+
+<script>
+    window.addEventListener('onColorSchemeChange', (e) => {
+        if (typeof DISQUS == 'object') {
+            DISQUS.reset({
+                reload: true
+            });
+        }
+    })
+</script>
+
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+            2020 - 
+        
+        2023 MCの部落
+    </section>
+    
+    <section class="powerby">
+        
+            鮮衣怒馬少年時 不負韶華行且知 <br/>
+        使用 <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> 建立 <br />
+        主題 <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.16.0">Stack</a></b> 由 <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a> 設計
+    </section>
+</footer>
+
+
+    
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.min.css"crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css"crossorigin="anonymous"
+            >
+
+            </main>
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.6/dist/vibrant.min.js"integrity="sha256-awcR2jno4kI5X0zL8ex0vi2z&#43;KMkF24hUW8WePSA9HM="crossorigin="anonymous"
+                
+                >
+            </script><script type="text/javascript" src="/ts/main.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>

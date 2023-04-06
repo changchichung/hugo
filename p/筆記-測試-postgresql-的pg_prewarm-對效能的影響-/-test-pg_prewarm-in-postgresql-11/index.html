@@ -1,0 +1,1390 @@
+<!DOCTYPE html>
+<html lang="en-us" dir="ltr">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='老闆提到想要把新系統的 postgresql 資料庫都撈到記憶體裡面
+但是否決了我提出的ramdisk 作法(因為當機的話，資料就沒了)
+在找資料的時候，發現了這個postgresql 的 pg_prewarm extension
+好像有點意思？就來測試看看吧！
+只是目前還不知道該怎麼解讀測試的數據就是了&amp;hellip;
+幹！林北真的不是 DBA 啦 =.=
+'>
+<meta name="keywords" content="postgresql, pg_prewarm"><title>[筆記] 測試 postgresql 的pg_prewarm 對效能的影響 / test pg_prewarm in postgresql 11</title>
+
+<link rel='canonical' href='https://h.cowbay.org/p/%E7%AD%86%E8%A8%98-%E6%B8%AC%E8%A9%A6-postgresql-%E7%9A%84pg_prewarm-%E5%B0%8D%E6%95%88%E8%83%BD%E7%9A%84%E5%BD%B1%E9%9F%BF-/-test-pg_prewarm-in-postgresql-11/'>
+
+<link rel="stylesheet" href="/scss/style.min.8191399262444ab68b72a18c97392f5349be20a1615d77445be51e974c144cff.css"><meta property='og:title' content='[筆記] 測試 postgresql 的pg_prewarm 對效能的影響 / test pg_prewarm in postgresql 11'>
+<meta property='og:description' content='老闆提到想要把新系統的 postgresql 資料庫都撈到記憶體裡面
+但是否決了我提出的ramdisk 作法(因為當機的話，資料就沒了)
+在找資料的時候，發現了這個postgresql 的 pg_prewarm extension
+好像有點意思？就來測試看看吧！
+只是目前還不知道該怎麼解讀測試的數據就是了&amp;hellip;
+幹！林北真的不是 DBA 啦 =.=
+'>
+<meta property='og:url' content='https://h.cowbay.org/p/%E7%AD%86%E8%A8%98-%E6%B8%AC%E8%A9%A6-postgresql-%E7%9A%84pg_prewarm-%E5%B0%8D%E6%95%88%E8%83%BD%E7%9A%84%E5%BD%B1%E9%9F%BF-/-test-pg_prewarm-in-postgresql-11/'>
+<meta property='og:site_name' content='MCの部落'>
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='postgresql' /><meta property='article:published_time' content='2019-12-20T14:31:42&#43;08:00'/><meta property='article:modified_time' content='2019-12-20T14:31:42&#43;08:00'/><meta property='og:image' content='https://h.cowbay.org/images/post-default-9.jpg' />
+<meta name="twitter:title" content="[筆記] 測試 postgresql 的pg_prewarm 對效能的影響 / test pg_prewarm in postgresql 11">
+<meta name="twitter:description" content="老闆提到想要把新系統的 postgresql 資料庫都撈到記憶體裡面
+但是否決了我提出的ramdisk 作法(因為當機的話，資料就沒了)
+在找資料的時候，發現了這個postgresql 的 pg_prewarm extension
+好像有點意思？就來測試看看吧！
+只是目前還不知道該怎麼解讀測試的數據就是了&amp;hellip;
+幹！林北真的不是 DBA 啦 =.=
+"><meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:image" content='https://h.cowbay.org/images/post-default-9.jpg' />
+<script type="application/javascript">
+var doNotTrack = false;
+if (!doNotTrack) {
+	(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+	(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+	m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+	})(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+	ga('create', 'UA-128770427-1', 'auto');
+	
+	ga('send', 'pageview');
+}
+</script>
+    </head>
+    <body class="
+    article-page
+    ">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "auto");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.documentElement.dataset.scheme = 'dark';
+        } else {
+            document.documentElement.dataset.scheme = 'light';
+        }
+    })();
+</script>
+<div class="container main-container flex on-phone--column extended"><aside class="sidebar left-sidebar sticky ">
+    <button class="hamburger hamburger--spin" type="button" id="toggle-menu" aria-label="切換選單">
+        <span class="hamburger-box">
+            <span class="hamburger-inner"></span>
+        </span>
+    </button>
+
+    <header>
+        
+            
+            <figure class="site-avatar">
+                <a href="/">
+                
+                    
+                    
+                    
+                        
+                        <img src="/img/avatar_hu85bfcf0e08404ecf606702eb99c7ed68_43560_300x0_resize_box_3.png" width="300"
+                            height="300" class="site-logo" loading="lazy" alt="Avatar">
+                    
+                
+                </a>
+                
+                    <span class="emoji">🍥</span>
+                
+            </figure>
+            
+        
+        
+        <div class="site-meta">
+            <h1 class="site-name"><a href="/">MCの部落</a></h1>
+            <h2 class="site-description">讀過兩年書，塵世中一個迷途小書僮</h2>
+        </div>
+    </header><ol class="social-menu">
+            
+                <li>
+                    <a 
+                        href='https://www.facebook.com'
+                        target="_blank"
+                        title="facebook"
+                        rel="me"
+                    >
+                        
+                        
+                            <?xml version="1.0" encoding="iso-8859-1"?>
+<!-- Uploaded to: SVG Repo, www.svgrepo.com, Generator: SVG Repo Mixer Tools -->
+<svg height="800px" width="800px" version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" 
+	 viewBox="0 0 512 512" xml:space="preserve">
+<path style="fill:#385C8E;" d="M134.941,272.691h56.123v231.051c0,4.562,3.696,8.258,8.258,8.258h95.159
+	c4.562,0,8.258-3.696,8.258-8.258V273.78h64.519c4.195,0,7.725-3.148,8.204-7.315l9.799-85.061c0.269-2.34-0.472-4.684-2.038-6.44
+	c-1.567-1.757-3.81-2.763-6.164-2.763h-74.316V118.88c0-16.073,8.654-24.224,25.726-24.224c2.433,0,48.59,0,48.59,0
+	c4.562,0,8.258-3.698,8.258-8.258V8.319c0-4.562-3.696-8.258-8.258-8.258h-66.965C309.622,0.038,308.573,0,307.027,0
+	c-11.619,0-52.006,2.281-83.909,31.63c-35.348,32.524-30.434,71.465-29.26,78.217v62.352h-58.918c-4.562,0-8.258,3.696-8.258,8.258
+	v83.975C126.683,268.993,130.379,272.691,134.941,272.691z"/>
+</svg>
+                        
+                    </a>
+                </li>
+            
+                <li>
+                    <a 
+                        href='https://github.com/CaiJimmy/hugo-theme-stack'
+                        target="_blank"
+                        title="GitHub"
+                        rel="me"
+                    >
+                        
+                        
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-github" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M9 19c-4.3 1.4 -4.3 -2.5 -6 -3m12 5v-3.5c0 -1 .1 -1.4 -.5 -2c2.8 -.3 5.5 -1.4 5.5 -6a4.6 4.6 0 0 0 -1.3 -3.2a4.2 4.2 0 0 0 -.1 -3.2s-1.1 -.3 -3.5 1.3a12.3 12.3 0 0 0 -6.2 0c-2.4 -1.6 -3.5 -1.3 -3.5 -1.3a4.2 4.2 0 0 0 -.1 3.2a4.6 4.6 0 0 0 -1.3 3.2c0 4.6 2.7 5.7 5.5 6c-.6 .6 -.6 1.2 -.5 2v3.5" />
+</svg>
+
+
+
+                        
+                    </a>
+                </li>
+            
+                <li>
+                    <a 
+                        href='https://twitter.com'
+                        target="_blank"
+                        title="Twitter"
+                        rel="me"
+                    >
+                        
+                        
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-twitter" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M22 4.01c-1 .49 -1.98 .689 -3 .99c-1.121 -1.265 -2.783 -1.335 -4.38 -.737s-2.643 2.06 -2.62 3.737v1c-3.245 .083 -6.135 -1.395 -8 -4c0 0 -4.182 7.433 4 11c-1.872 1.247 -3.739 2.088 -6 2c3.308 1.803 6.913 2.423 10.034 1.517c3.58 -1.04 6.522 -3.723 7.651 -7.742a13.84 13.84 0 0 0 .497 -3.753c-.002 -.249 1.51 -2.772 1.818 -4.013z" />
+</svg>
+
+
+
+                        
+                    </a>
+                </li>
+            
+        </ol><ol class="menu" id="main-menu">
+        
+        
+        
+        <li >
+            <a href='/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-home" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="5 12 3 12 12 3 21 12 19 12" />
+  <path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-7" />
+  <path d="M9 21v-6a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v6" />
+</svg>
+
+
+
+                
+                <span>Home</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/about/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-user" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="7" r="4" />
+  <path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2" />
+</svg>
+
+
+
+                
+                <span>About</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/archives/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-archive" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <rect x="3" y="4" width="18" height="4" rx="2" />
+  <path d="M5 8v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-10" />
+  <line x1="10" y1="12" x2="14" y2="12" />
+</svg>
+
+
+
+                
+                <span>Archives</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/search/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="10" cy="10" r="7" />
+  <line x1="21" y1="21" x2="15" y2="15" />
+</svg>
+
+
+
+                
+                <span>Search</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/links/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-link" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M10 14a3.5 3.5 0 0 0 5 0l4 -4a3.5 3.5 0 0 0 -5 -5l-.5 .5" />
+  <path d="M14 10a3.5 3.5 0 0 0 -5 0l-4 4a3.5 3.5 0 0 0 5 5l.5 -.5" />
+</svg>
+
+
+
+                
+                <span>Links</span>
+            </a>
+        </li>
+        
+
+        <div class="menu-bottom-section">
+                <li id="i18n-switch">  
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-language" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M4 5h7" />
+  <path d="M9 3v2c0 4.418 -2.239 8 -5 8" />
+  <path d="M5 9c-.003 2.144 2.952 3.908 6.7 4" />
+  <path d="M12 20l4 -9l4 9" />
+  <path d="M19.1 18h-6.2" />
+</svg>
+
+
+
+                    <select name="language" onchange="window.location.href = this.selectedOptions[0].value">
+                        
+                            <option value="https://h.cowbay.org/" selected>中文</option>
+                        
+                            <option value="https://h.cowbay.org/en/" >English</option>
+                        
+                    </select>
+                </li>
+            
+            
+            
+                <li id="dark-mode-toggle">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="8" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="16" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                    <span>夜晚模式</span>
+                </li>
+            
+        </div>
+    </ol>
+</aside>
+
+    <aside class="sidebar right-sidebar sticky">
+        
+            
+                
+    <section class="widget archives">
+        <div class="widget-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <line x1="5" y1="9" x2="19" y2="9" />
+  <line x1="5" y1="15" x2="19" y2="15" />
+  <line x1="11" y1="4" x2="7" y2="20" />
+  <line x1="17" y1="4" x2="13" y2="20" />
+</svg>
+
+
+
+        </div>
+        <h2 class="widget-title section-title">目錄</h2>
+        
+        <div class="widget--toc">
+            <nav id="TableOfContents">
+  <ol>
+    <li>
+      <ol>
+        <li>
+          <ol>
+            <li><a href="#修改-postgresqlconf">修改 postgresql.conf</a></li>
+            <li><a href="#建立測試資料庫">建立測試資料庫</a></li>
+            <li><a href="#連接測試資料庫建立pg_prewarm-extension">連接測試資料庫、建立pg_prewarm extension</a></li>
+            <li><a href="#建立測試資料表塞入500萬筆資料">建立測試資料表，塞入500萬筆資料</a></li>
+            <li><a href="#檢查看看剛剛建立的table-用了多少空間">檢查看看剛剛建立的table 用了多少空間</a></li>
+          </ol>
+        </li>
+      </ol>
+    </li>
+  </ol>
+</nav>
+        </div>
+    </section>
+
+            
+        
+    </aside>
+
+
+            <main class="main full-width">
+    <article class="has-image main-article">
+    <header class="article-header">
+        <div class="article-image">
+            <a href="/p/%E7%AD%86%E8%A8%98-%E6%B8%AC%E8%A9%A6-postgresql-%E7%9A%84pg_prewarm-%E5%B0%8D%E6%95%88%E8%83%BD%E7%9A%84%E5%BD%B1%E9%9F%BF-/-test-pg_prewarm-in-postgresql-11/">
+                
+                    <img src="https://h.cowbay.org/images/post-default-9.jpg" loading="lazy" alt="Featured image of post [筆記] 測試 postgresql 的pg_prewarm 對效能的影響 / test pg_prewarm in postgresql 11" />
+                
+            </a>
+        </div>
+    
+
+    <div class="article-details">
+    
+    <header class="article-category">
+        
+            <a href="/categories/%E7%AD%86%E8%A8%98/" >
+                筆記
+            </a>
+        
+    </header>
+    
+
+    <div class="article-title-wrapper">
+        <h2 class="article-title">
+            <a href="/p/%E7%AD%86%E8%A8%98-%E6%B8%AC%E8%A9%A6-postgresql-%E7%9A%84pg_prewarm-%E5%B0%8D%E6%95%88%E8%83%BD%E7%9A%84%E5%BD%B1%E9%9F%BF-/-test-pg_prewarm-in-postgresql-11/">[筆記] 測試 postgresql 的pg_prewarm 對效能的影響 / test pg_prewarm in postgresql 11</a>
+        </h2>
+    
+        
+    </div>
+
+    
+    
+    
+    
+    <footer class="article-time">
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M11.795 21h-6.795a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
+  <circle cx="18" cy="18" r="4" />
+  <path d="M15 3v4" />
+  <path d="M7 3v4" />
+  <path d="M3 11h16" />
+  <path d="M18 16.496v1.504l1 1" />
+</svg>
+                <time class="article-time--published">2019-12-12</time>
+            </div>
+        
+
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+                <time class="article-time--reading">
+                    閱讀時間: 5 分鐘
+                </time>
+            </div>
+        
+    </footer>
+    
+
+    
+</div>
+
+</header>
+
+    <section class="article-content">
+    
+    
+    <p>老闆提到想要把新系統的 postgresql 資料庫都撈到記憶體裡面</p>
+<p>但是否決了我提出的ramdisk 作法(因為當機的話，資料就沒了)</p>
+<p>在找資料的時候，發現了這個postgresql 的 pg_prewarm extension</p>
+<p>好像有點意思？就來測試看看吧！</p>
+<p>只是目前還不知道該怎麼解讀測試的數據就是了&hellip;</p>
+<p>幹！林北真的不是 DBA 啦 =.=</p>
+<p>安裝系統、postgresql 資料庫什麼的就不提了，那不是這次的重點</p>
+<h4 id="修改-postgresqlconf">修改 postgresql.conf</h4>
+<p>編輯postgresql.conf，開啟平行處理以及設定可用記憶體容量</p>
+<p>這台測試機的環境是一台三代i7 , 24G RAM , 240G SSD，安裝debian 10(buster)</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl"># load libiriaes
+</span></span><span class="line"><span class="cl"># 其實這次不會用到pg_stat_statements ，不過出於習慣，還是加入開機自動載入吧
+</span></span><span class="line"><span class="cl">shared_preload_libraries = &#39;pg_stat_statements&#39;
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">#------------------------------------------------------------------------------
+</span></span><span class="line"><span class="cl"># CUSTOMIZED OPTIONS
+</span></span><span class="line"><span class="cl">#------------------------------------------------------------------------------
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">max_connections = 20
+</span></span><span class="line"><span class="cl">shared_buffers = 6GB
+</span></span><span class="line"><span class="cl">effective_cache_size = 18GB
+</span></span><span class="line"><span class="cl">maintenance_work_mem = 1536MB
+</span></span><span class="line"><span class="cl">checkpoint_completion_target = 0.7
+</span></span><span class="line"><span class="cl">wal_buffers = 16MB
+</span></span><span class="line"><span class="cl">default_statistics_target = 100
+</span></span><span class="line"><span class="cl">random_page_cost = 1.1
+</span></span><span class="line"><span class="cl">effective_io_concurrency = 200
+</span></span><span class="line"><span class="cl">work_mem = 78643kB
+</span></span><span class="line"><span class="cl">min_wal_size = 1GB
+</span></span><span class="line"><span class="cl">max_wal_size = 2GB
+</span></span><span class="line"><span class="cl">max_worker_processes = 8
+</span></span><span class="line"><span class="cl">max_parallel_workers_per_gather = 4
+</span></span><span class="line"><span class="cl">max_parallel_workers = 8
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>重新啟動postgresql ，準備開始測試囉！</p>
+<p>轉換成 postgres 身份後，進入 psql</p>
+<h4 id="建立測試資料庫">建立測試資料庫</h4>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">postgres=# create database test;
+</span></span><span class="line"><span class="cl">CREATE DATABASE
+</span></span><span class="line"><span class="cl">postgres=#
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h4 id="連接測試資料庫建立pg_prewarm-extension">連接測試資料庫、建立pg_prewarm extension</h4>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">postgres=# \c test ;
+</span></span><span class="line"><span class="cl">You are now connected to database &#34;test&#34; as user &#34;postgres&#34;.
+</span></span><span class="line"><span class="cl">test=# CREATE EXTENSION pg_prewarm;
+</span></span><span class="line"><span class="cl">CREATE EXTENSION
+</span></span><span class="line"><span class="cl">test=# 
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h4 id="建立測試資料表塞入500萬筆資料">建立測試資料表，塞入500萬筆資料</h4>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">test=# \timing
+</span></span><span class="line"><span class="cl">Timing is on.
+</span></span><span class="line"><span class="cl">test=# CREATE TABLE test_tbl AS
+</span></span><span class="line"><span class="cl">SELECT floor(random() * (9923123) + 1)::int FROM generate_series(1, 5000000) AS id;
+</span></span><span class="line"><span class="cl">SELECT 5000000
+</span></span><span class="line"><span class="cl">Time: 2940.602 ms (00:02.941)
+</span></span><span class="line"><span class="cl">test=#
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h4 id="檢查看看剛剛建立的table-用了多少空間">檢查看看剛剛建立的table 用了多少空間</h4>
+<p>哎呀，看起來用得不多啊</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">test=# SELECT pg_size_pretty(pg_relation_size(&#39;test_tbl&#39;));
+</span></span><span class="line"><span class="cl"> 173 MB
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p><strong>玩大一點，塞個一億筆資料好了</strong></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">test=# drop table test_tbl;
+</span></span><span class="line"><span class="cl">Time: 0.361 ms
+</span></span><span class="line"><span class="cl">test=# CREATE TABLE test_tbl AS
+</span></span><span class="line"><span class="cl">SELECT floor(random() * (99343) + 1)::int FROM generate_series(1, 100000000) AS id;
+</span></span><span class="line"><span class="cl">SELECT 100000000
+</span></span><span class="line"><span class="cl">Time: 6321.415 ms (00:06.321)
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">test=# SELECT pg_size_pretty(pg_relation_size(&#39;test_tbl&#39;));
+</span></span><span class="line"><span class="cl">pg_size_pretty | 3457 MB
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">Time: 0.589 ms
+</span></span><span class="line"><span class="cl">test=#
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>好，現在資料庫長到3457MB了</p>
+<p>先來執行一些初步的取得基本數據</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">test=# explain (analyze,buffers) select count(*) from test_tbl;
+</span></span><span class="line"><span class="cl">                                   QUERY PLAN
+</span></span><span class="line"><span class="cl">------------------------------------------------------------------------------------------------------------------------
+</span></span><span class="line"><span class="cl"> Finalize Aggregate  (cost=755978.52..755978.53 rows=1 width=8) (actual time=3331.917..3331.918 rows=1 loops=1)
+</span></span><span class="line"><span class="cl">   Buffers: shared hit=160 read=442318
+</span></span><span class="line"><span class="cl">   -&gt;  Gather  (cost=755978.10..755978.51 rows=4 width=8) (actual time=3331.876..3333.674 rows=5 loops=1)
+</span></span><span class="line"><span class="cl">         Workers Planned: 4
+</span></span><span class="line"><span class="cl">         Workers Launched: 4
+</span></span><span class="line"><span class="cl">         Buffers: shared hit=160 read=442318
+</span></span><span class="line"><span class="cl">         -&gt;  Partial Aggregate  (cost=754978.10..754978.11 rows=1 width=8) (actual time=3329.279..3329.280 rows=1 loops=5)
+</span></span><span class="line"><span class="cl">               Buffers: shared hit=160 read=442318
+</span></span><span class="line"><span class="cl">               -&gt;  Parallel Seq Scan on test_tbl  (cost=0.00..692478.08 rows=25000008 width=0) (actual time=0.029..1924.601 rows=20000000 loops=5)
+</span></span><span class="line"><span class="cl">                     Buffers: shared hit=160 read=442318
+</span></span><span class="line"><span class="cl"> Planning Time: 0.040 ms
+</span></span><span class="line"><span class="cl"> Execution Time: 3333.729 ms
+</span></span><span class="line"><span class="cl">(12 rows)
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">(END)
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>可以看到打中buffer 的部份其實很少，只有 160 ，大部分都是讀進去buffer (442318)</p>
+<p>來看看 buffer 的使用狀況</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-zed" data-lang="zed"><span class="line"><span class="cl"><span class="n">test</span><span class="o">=</span><span class="err">#</span><span class="w"> </span><span class="n">CREATE</span><span class="w"> </span><span class="n">EXTENSION</span><span class="w"> </span><span class="n">pg_buffercache</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="n">CREATE</span><span class="w"> </span><span class="n">EXTENSION</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="n">test</span><span class="o">=</span><span class="err">#</span><span class="w"> </span><span class="n">select</span><span class="w"> </span><span class="n">c</span><span class="p">.</span><span class="n">relname</span><span class="p">,</span><span class="n">pg_size_pretty</span><span class="p">(</span><span class="n">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="err">8192</span><span class="p">)</span><span class="w"> </span><span class="n">as</span><span class="w"> </span><span class="n">buffered</span><span class="p">,</span><span class="w"> 
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="n">test</span><span class="o">-</span><span class="err">#</span><span class="w">         </span><span class="n">round</span><span class="p">(</span><span class="err">100</span><span class="p">.</span><span class="err">0</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="p">(</span><span class="w"> 
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="n">test</span><span class="p">(</span><span class="err">#</span><span class="w">            </span><span class="n">select</span><span class="w"> </span><span class="n">setting</span><span class="w"> </span><span class="n">from</span><span class="w"> </span><span class="n">pg_settings</span><span class="w"> 
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="n">test</span><span class="p">(</span><span class="err">#</span><span class="w">            </span><span class="n">where</span><span class="w"> </span><span class="n">name</span><span class="o">=</span><span class="err">&#39;</span><span class="n">shared_buffers</span><span class="err">&#39;</span><span class="p">)</span><span class="o">::</span><span class="n">integer</span><span class="p">,</span><span class="err">1</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="n">test</span><span class="o">-</span><span class="err">#</span><span class="w">         </span><span class="n">as</span><span class="w"> </span><span class="n">buffer_percent</span><span class="p">,</span><span class="w"> 
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="n">test</span><span class="o">-</span><span class="err">#</span><span class="w">         </span><span class="n">round</span><span class="p">(</span><span class="err">100</span><span class="p">.</span><span class="err">0</span><span class="o">*</span><span class="n">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="o">*</span><span class="err">8192</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">pg_table_size</span><span class="p">(</span><span class="n">c</span><span class="p">.</span><span class="n">oid</span><span class="p">),</span><span class="err">1</span><span class="p">)</span><span class="w"> </span><span class="n">as</span><span class="w"> </span><span class="n">percent_of_relation</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="n">test</span><span class="o">-</span><span class="err">#</span><span class="w"> </span><span class="n">from</span><span class="w"> </span><span class="n">pg_class</span><span class="w"> </span><span class="n">c</span><span class="w"> </span><span class="n">inner</span><span class="w"> </span><span class="n">join</span><span class="w"> </span><span class="n">pg_buffercache</span><span class="w"> </span><span class="n">b</span><span class="w"> </span><span class="n">on</span><span class="w"> </span><span class="n">b</span><span class="p">.</span><span class="n">relfilenode</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">c</span><span class="p">.</span><span class="n">relfilenode</span><span class="w"> </span><span class="n">inner</span><span class="w"> 
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="n">test</span><span class="o">-</span><span class="err">#</span><span class="w"> </span><span class="n">join</span><span class="w"> </span><span class="n">pg_database</span><span class="w"> </span><span class="n">d</span><span class="w"> </span><span class="n">on</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">b</span><span class="p">.</span><span class="n">reldatabase</span><span class="w"> </span><span class="o">=</span><span class="n">d</span><span class="p">.</span><span class="n">oid</span><span class="w"> </span><span class="n">and</span><span class="w"> </span><span class="n">d</span><span class="p">.</span><span class="n">datname</span><span class="w"> </span><span class="o">=</span><span class="n">current_database</span><span class="p">())</span><span class="w"> 
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="n">test</span><span class="o">-</span><span class="err">#</span><span class="w"> </span><span class="n">group</span><span class="w"> </span><span class="n">by</span><span class="w"> </span><span class="n">c</span><span class="p">.</span><span class="n">oid</span><span class="p">,</span><span class="n">c</span><span class="p">.</span><span class="n">relname</span><span class="w"> </span><span class="n">order</span><span class="w"> </span><span class="n">by</span><span class="w"> </span><span class="err">3</span><span class="w"> </span><span class="n">desc</span><span class="w"> </span><span class="n">limit</span><span class="w"> </span><span class="err">10</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">   </span><span class="n">relname</span><span class="w">    </span><span class="o">|</span><span class="w">  </span><span class="n">buffered</span><span class="w">  </span><span class="o">|</span><span class="w"> </span><span class="n">buffer_percent</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">percent_of_relation</span><span class="w"> 
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="o">--------------+------------+----------------+---------------------</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"> </span><span class="n">test_tbl</span><span class="w">     </span><span class="o">|</span><span class="w"> </span><span class="err">18</span><span class="w"> </span><span class="n">MB</span><span class="w">      </span><span class="o">|</span><span class="w">            </span><span class="err">0</span><span class="p">.</span><span class="err">3</span><span class="w"> </span><span class="o">|</span><span class="w">                 </span><span class="err">0</span><span class="p">.</span><span class="err">5</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"> </span><span class="n">pg_am</span><span class="w">        </span><span class="o">|</span><span class="w"> </span><span class="err">8192</span><span class="w"> </span><span class="n">bytes</span><span class="w"> </span><span class="o">|</span><span class="w">            </span><span class="err">0</span><span class="p">.</span><span class="err">0</span><span class="w"> </span><span class="o">|</span><span class="w">                </span><span class="err">20</span><span class="p">.</span><span class="err">0</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"> </span><span class="n">pg_index</span><span class="w">     </span><span class="o">|</span><span class="w"> </span><span class="err">24</span><span class="w"> </span><span class="n">kB</span><span class="w">      </span><span class="o">|</span><span class="w">            </span><span class="err">0</span><span class="p">.</span><span class="err">0</span><span class="w"> </span><span class="o">|</span><span class="w">                </span><span class="err">37</span><span class="p">.</span><span class="err">5</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"> </span><span class="n">pg_amproc</span><span class="w">    </span><span class="o">|</span><span class="w"> </span><span class="err">32</span><span class="w"> </span><span class="n">kB</span><span class="w">      </span><span class="o">|</span><span class="w">            </span><span class="err">0</span><span class="p">.</span><span class="err">0</span><span class="w"> </span><span class="o">|</span><span class="w">                </span><span class="err">50</span><span class="p">.</span><span class="err">0</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"> </span><span class="n">pg_cast</span><span class="w">      </span><span class="o">|</span><span class="w"> </span><span class="err">16</span><span class="w"> </span><span class="n">kB</span><span class="w">      </span><span class="o">|</span><span class="w">            </span><span class="err">0</span><span class="p">.</span><span class="err">0</span><span class="w"> </span><span class="o">|</span><span class="w">                </span><span class="err">33</span><span class="p">.</span><span class="err">3</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"> </span><span class="n">pg_depend</span><span class="w">    </span><span class="o">|</span><span class="w"> </span><span class="err">64</span><span class="w"> </span><span class="n">kB</span><span class="w">      </span><span class="o">|</span><span class="w">            </span><span class="err">0</span><span class="p">.</span><span class="err">0</span><span class="w"> </span><span class="o">|</span><span class="w">                </span><span class="err">13</span><span class="p">.</span><span class="err">3</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"> </span><span class="n">pg_amop</span><span class="w">      </span><span class="o">|</span><span class="w"> </span><span class="err">48</span><span class="w"> </span><span class="n">kB</span><span class="w">      </span><span class="o">|</span><span class="w">            </span><span class="err">0</span><span class="p">.</span><span class="err">0</span><span class="w"> </span><span class="o">|</span><span class="w">                </span><span class="err">54</span><span class="p">.</span><span class="err">5</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"> </span><span class="n">pg_namespace</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="err">8192</span><span class="w"> </span><span class="n">bytes</span><span class="w"> </span><span class="o">|</span><span class="w">            </span><span class="err">0</span><span class="p">.</span><span class="err">0</span><span class="w"> </span><span class="o">|</span><span class="w">                </span><span class="err">20</span><span class="p">.</span><span class="err">0</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"> </span><span class="n">pg_opclass</span><span class="w">   </span><span class="o">|</span><span class="w"> </span><span class="err">16</span><span class="w"> </span><span class="n">kB</span><span class="w">      </span><span class="o">|</span><span class="w">            </span><span class="err">0</span><span class="p">.</span><span class="err">0</span><span class="w"> </span><span class="o">|</span><span class="w">                </span><span class="err">28</span><span class="p">.</span><span class="err">6</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"> </span><span class="n">pg_aggregate</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="err">8192</span><span class="w"> </span><span class="n">bytes</span><span class="w"> </span><span class="o">|</span><span class="w">            </span><span class="err">0</span><span class="p">.</span><span class="err">0</span><span class="w"> </span><span class="o">|</span><span class="w">                </span><span class="err">16</span><span class="p">.</span><span class="err">7</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">(</span><span class="err">10</span><span class="w"> </span><span class="n">rows</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="n">Time</span><span class="o">:</span><span class="w"> </span><span class="err">148</span><span class="p">.</span><span class="err">719</span><span class="w"> </span><span class="n">ms</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="n">test</span><span class="o">=</span><span class="err">#</span><span class="w"> 
+</span></span></span></code></pre></td></tr></table>
+</div>
+</div><p>可以看到這個 test_tbl 只有0.5% 被撈到shared_buffers 裡面</p>
+<p>接下來就把這個table全部推到shared_buffers 裡面去</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">test=# select pg_prewarm(&#39;test_tbl&#39;,&#39;buffer&#39;);
+</span></span><span class="line"><span class="cl"> pg_prewarm 
+</span></span><span class="line"><span class="cl">------------
+</span></span><span class="line"><span class="cl">     442478
+</span></span><span class="line"><span class="cl">(1 row)
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">Time: 1938.043 ms (00:01.938)
+</span></span><span class="line"><span class="cl">test=#
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>然後再來看一次shared_buffers的使用狀況</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-zed" data-lang="zed"><span class="line"><span class="cl"><span class="n">test</span><span class="o">=</span><span class="err">#</span><span class="w"> </span><span class="n">select</span><span class="w"> </span><span class="n">c</span><span class="p">.</span><span class="n">relname</span><span class="p">,</span><span class="n">pg_size_pretty</span><span class="p">(</span><span class="n">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="err">8192</span><span class="p">)</span><span class="w"> </span><span class="n">as</span><span class="w"> </span><span class="n">buffered</span><span class="p">,</span><span class="w"> 
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="n">round</span><span class="p">(</span><span class="err">100</span><span class="p">.</span><span class="err">0</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="p">(</span><span class="w"> 
+</span></span></span><span class="line"><span class="cl"><span class="w">           </span><span class="n">select</span><span class="w"> </span><span class="n">setting</span><span class="w"> </span><span class="n">from</span><span class="w"> </span><span class="n">pg_settings</span><span class="w"> 
+</span></span></span><span class="line"><span class="cl"><span class="w">           </span><span class="n">where</span><span class="w"> </span><span class="n">name</span><span class="o">=</span><span class="err">&#39;</span><span class="n">shared_buffers</span><span class="err">&#39;</span><span class="p">)</span><span class="o">::</span><span class="n">integer</span><span class="p">,</span><span class="err">1</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="n">as</span><span class="w"> </span><span class="n">buffer_percent</span><span class="p">,</span><span class="w"> 
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="n">round</span><span class="p">(</span><span class="err">100</span><span class="p">.</span><span class="err">0</span><span class="o">*</span><span class="n">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="o">*</span><span class="err">8192</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">pg_table_size</span><span class="p">(</span><span class="n">c</span><span class="p">.</span><span class="n">oid</span><span class="p">),</span><span class="err">1</span><span class="p">)</span><span class="w"> </span><span class="n">as</span><span class="w"> </span><span class="n">percent_of_relation</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="n">from</span><span class="w"> </span><span class="n">pg_class</span><span class="w"> </span><span class="n">c</span><span class="w"> </span><span class="n">inner</span><span class="w"> </span><span class="n">join</span><span class="w"> </span><span class="n">pg_buffercache</span><span class="w"> </span><span class="n">b</span><span class="w"> </span><span class="n">on</span><span class="w"> </span><span class="n">b</span><span class="p">.</span><span class="n">relfilenode</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">c</span><span class="p">.</span><span class="n">relfilenode</span><span class="w"> </span><span class="n">inner</span><span class="w"> 
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="n">join</span><span class="w"> </span><span class="n">pg_database</span><span class="w"> </span><span class="n">d</span><span class="w"> </span><span class="n">on</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">b</span><span class="p">.</span><span class="n">reldatabase</span><span class="w"> </span><span class="o">=</span><span class="n">d</span><span class="p">.</span><span class="n">oid</span><span class="w"> </span><span class="n">and</span><span class="w"> </span><span class="n">d</span><span class="p">.</span><span class="n">datname</span><span class="w"> </span><span class="o">=</span><span class="n">current_database</span><span class="p">())</span><span class="w"> 
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="n">group</span><span class="w"> </span><span class="n">by</span><span class="w"> </span><span class="n">c</span><span class="p">.</span><span class="n">oid</span><span class="p">,</span><span class="n">c</span><span class="p">.</span><span class="n">relname</span><span class="w"> </span><span class="n">order</span><span class="w"> </span><span class="n">by</span><span class="w"> </span><span class="err">3</span><span class="w"> </span><span class="n">desc</span><span class="w"> </span><span class="n">limit</span><span class="w"> </span><span class="err">10</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">   </span><span class="n">relname</span><span class="w">    </span><span class="o">|</span><span class="w">  </span><span class="n">buffered</span><span class="w">  </span><span class="o">|</span><span class="w"> </span><span class="n">buffer_percent</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">percent_of_relation</span><span class="w"> 
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="o">--------------+------------+----------------+---------------------</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"> </span><span class="n">test_tbl</span><span class="w">     </span><span class="o">|</span><span class="w"> </span><span class="err">3457</span><span class="w"> </span><span class="n">MB</span><span class="w">    </span><span class="o">|</span><span class="w">           </span><span class="err">56</span><span class="p">.</span><span class="err">3</span><span class="w"> </span><span class="o">|</span><span class="w">               </span><span class="err">100</span><span class="p">.</span><span class="err">0</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"> </span><span class="n">pg_am</span><span class="w">        </span><span class="o">|</span><span class="w"> </span><span class="err">8192</span><span class="w"> </span><span class="n">bytes</span><span class="w"> </span><span class="o">|</span><span class="w">            </span><span class="err">0</span><span class="p">.</span><span class="err">0</span><span class="w"> </span><span class="o">|</span><span class="w">                </span><span class="err">20</span><span class="p">.</span><span class="err">0</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"> </span><span class="n">pg_index</span><span class="w">     </span><span class="o">|</span><span class="w"> </span><span class="err">24</span><span class="w"> </span><span class="n">kB</span><span class="w">      </span><span class="o">|</span><span class="w">            </span><span class="err">0</span><span class="p">.</span><span class="err">0</span><span class="w"> </span><span class="o">|</span><span class="w">                </span><span class="err">37</span><span class="p">.</span><span class="err">5</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"> </span><span class="n">pg_amproc</span><span class="w">    </span><span class="o">|</span><span class="w"> </span><span class="err">32</span><span class="w"> </span><span class="n">kB</span><span class="w">      </span><span class="o">|</span><span class="w">            </span><span class="err">0</span><span class="p">.</span><span class="err">0</span><span class="w"> </span><span class="o">|</span><span class="w">                </span><span class="err">50</span><span class="p">.</span><span class="err">0</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"> </span><span class="n">pg_cast</span><span class="w">      </span><span class="o">|</span><span class="w"> </span><span class="err">16</span><span class="w"> </span><span class="n">kB</span><span class="w">      </span><span class="o">|</span><span class="w">            </span><span class="err">0</span><span class="p">.</span><span class="err">0</span><span class="w"> </span><span class="o">|</span><span class="w">                </span><span class="err">33</span><span class="p">.</span><span class="err">3</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"> </span><span class="n">pg_depend</span><span class="w">    </span><span class="o">|</span><span class="w"> </span><span class="err">64</span><span class="w"> </span><span class="n">kB</span><span class="w">      </span><span class="o">|</span><span class="w">            </span><span class="err">0</span><span class="p">.</span><span class="err">0</span><span class="w"> </span><span class="o">|</span><span class="w">                </span><span class="err">13</span><span class="p">.</span><span class="err">3</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"> </span><span class="n">pg_amop</span><span class="w">      </span><span class="o">|</span><span class="w"> </span><span class="err">48</span><span class="w"> </span><span class="n">kB</span><span class="w">      </span><span class="o">|</span><span class="w">            </span><span class="err">0</span><span class="p">.</span><span class="err">0</span><span class="w"> </span><span class="o">|</span><span class="w">                </span><span class="err">54</span><span class="p">.</span><span class="err">5</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"> </span><span class="n">pg_namespace</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="err">8192</span><span class="w"> </span><span class="n">bytes</span><span class="w"> </span><span class="o">|</span><span class="w">            </span><span class="err">0</span><span class="p">.</span><span class="err">0</span><span class="w"> </span><span class="o">|</span><span class="w">                </span><span class="err">20</span><span class="p">.</span><span class="err">0</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"> </span><span class="n">pg_opclass</span><span class="w">   </span><span class="o">|</span><span class="w"> </span><span class="err">16</span><span class="w"> </span><span class="n">kB</span><span class="w">      </span><span class="o">|</span><span class="w">            </span><span class="err">0</span><span class="p">.</span><span class="err">0</span><span class="w"> </span><span class="o">|</span><span class="w">                </span><span class="err">28</span><span class="p">.</span><span class="err">6</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"> </span><span class="n">pg_aggregate</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="err">8192</span><span class="w"> </span><span class="n">bytes</span><span class="w"> </span><span class="o">|</span><span class="w">            </span><span class="err">0</span><span class="p">.</span><span class="err">0</span><span class="w"> </span><span class="o">|</span><span class="w">                </span><span class="err">16</span><span class="p">.</span><span class="err">7</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">(</span><span class="err">10</span><span class="w"> </span><span class="n">rows</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="n">Time</span><span class="o">:</span><span class="w"> </span><span class="err">2778</span><span class="p">.</span><span class="err">354</span><span class="w"> </span><span class="n">ms</span><span class="w"> </span><span class="p">(</span><span class="err">00</span><span class="o">:</span><span class="err">02</span><span class="p">.</span><span class="err">778</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="n">test</span><span class="o">=</span><span class="err">#</span><span class="w"> 
+</span></span></span></code></pre></td></tr></table>
+</div>
+</div><p>OK ，可以看到 test_tbl 已經通通被載入 shared_buffers 中</p>
+<p><strong>buffered 表示表格被載入shared_buffers的大小</strong></p>
+<p><strong>buffer_percent 表示這個表格佔用多少shared_buffers 的比例</strong></p>
+<p><strong>percent_of_relation 表示這個表格有多少比例被載入 shared_buffers</strong></p>
+<p>再來跑一次explain看看狀況</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">test=# explain (analyze,buffers) select count(*) from test_tbl;
+</span></span><span class="line"><span class="cl">Time: 3551.785 ms (00:03.552)
+</span></span><span class="line"><span class="cl"> Finalize Aggregate  (cost=755978.52..755978.53 rows=1 width=8) (actual time=3427.286..3427.287 rows=1 loops=1)
+</span></span><span class="line"><span class="cl">   Buffers: shared hit=442478
+</span></span><span class="line"><span class="cl">   -&gt;  Gather  (cost=755978.10..755978.51 rows=4 width=8) (actual time=3427.215..3551.326 rows=5 loops=1)
+</span></span><span class="line"><span class="cl">         Workers Planned: 4
+</span></span><span class="line"><span class="cl">         Workers Launched: 4
+</span></span><span class="line"><span class="cl">         Buffers: shared hit=442478
+</span></span><span class="line"><span class="cl">         -&gt;  Partial Aggregate  (cost=754978.10..754978.11 rows=1 width=8) (actual time=3423.659..3423.659 rows=1 loops=5)
+</span></span><span class="line"><span class="cl">               Buffers: shared hit=442478
+</span></span><span class="line"><span class="cl">               -&gt;  Parallel Seq Scan on test_tbl  (cost=0.00..692478.08 rows=25000008 width=0) (actual time=0.017..1976.744 rows=20000000 loops=5)
+</span></span><span class="line"><span class="cl">                     Buffers: shared hit=442478
+</span></span><span class="line"><span class="cl"> Planning Time: 0.039 ms
+</span></span><span class="line"><span class="cl"> Execution Time: 3551.365 ms
+</span></span><span class="line"><span class="cl">(12 rows)
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>這邊就可以看到都是從buffer 讀出來所以 hit=442478</p>
+<p>看樣子表格還是太小，所以沒有完全發揮？那再來把表格加大！</p>
+<p>先重開一次 postgresql 清除buffer</p>
+<p>然後重新建立表格</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">test=# drop table test_tbl;
+</span></span><span class="line"><span class="cl">DROP TABLE
+</span></span><span class="line"><span class="cl">Time: 297.493 ms
+</span></span><span class="line"><span class="cl">test=# CREATE TABLE test_tbl AS
+</span></span><span class="line"><span class="cl">test-# SELECT floor(random() * (993343) + 1)::int FROM generate_series(1, 300000000) AS id;
+</span></span><span class="line"><span class="cl">SELECT 300000000
+</span></span><span class="line"><span class="cl">Time: 290660.607 ms (04:50.661)
+</span></span><span class="line"><span class="cl">test=# 
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>一樣，看看用了多少容量</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">test=# SELECT pg_size_pretty(pg_relation_size(&#39;test_tbl&#39;));
+</span></span><span class="line"><span class="cl"> pg_size_pretty 
+</span></span><span class="line"><span class="cl">----------------
+</span></span><span class="line"><span class="cl"> 10 GB
+</span></span><span class="line"><span class="cl">(1 row)
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">Time: 0.474 ms
+</span></span><span class="line"><span class="cl">test=# 
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>哇哈哈，用了10G ，這次還不撐爆你！</p>
+<p>跑explain 看看狀況</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">test=# explain (analyze,buffers) select count(*) from test_tbl;
+</span></span><span class="line"><span class="cl">Time: 22909.065 ms (00:22.909)
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">                                              QUERY PLAN
+</span></span><span class="line"><span class="cl">---------------------------------------------------------------------------------------------------------------------------
+</span></span><span class="line"><span class="cl"> Finalize Aggregate  (cost=2265934.72..2265934.73 rows=1 width=8) (actual time=22906.045..22906.045 rows=1 loops=1)
+</span></span><span class="line"><span class="cl">   Buffers: shared hit=2080 read=1325354 dirtied=1295425 written=1295265
+</span></span><span class="line"><span class="cl">   -&gt;  Gather  (cost=2265934.30..2265934.71 rows=4 width=8) (actual time=22905.997..22908.522 rows=5 loops=1)
+</span></span><span class="line"><span class="cl">         Workers Planned: 4
+</span></span><span class="line"><span class="cl">         Workers Launched: 4
+</span></span><span class="line"><span class="cl">         Buffers: shared hit=2080 read=1325354 dirtied=1295425 written=1295265
+</span></span><span class="line"><span class="cl">         -&gt;  Partial Aggregate  (cost=2264934.30..2264934.31 rows=1 width=8) (actual time=22903.473..22903.474 rows=1 loops=5)
+</span></span><span class="line"><span class="cl">               Buffers: shared hit=2080 read=1325354 dirtied=1295425 written=1295265
+</span></span><span class="line"><span class="cl">               -&gt;  Parallel Seq Scan on test_tbl  (cost=0.00..2077434.24 rows=75000024 width=0) (actual time=0.040..18374.277 rows=60000000 loops=5)
+</span></span><span class="line"><span class="cl">                     Buffers: shared hit=2080 read=1325354 dirtied=1295425 written=1295265
+</span></span><span class="line"><span class="cl"> Planning Time: 0.094 ms
+</span></span><span class="line"><span class="cl"> Execution Time: 22908.571 ms
+</span></span><span class="line"><span class="cl">(12 rows)
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>看一下現在 shared_buffers 使用狀況</p>
+<p>可以看到這個 test_tbl 幾乎沒被放入 shared_buffers 中</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-zed" data-lang="zed"><span class="line"><span class="cl"><span class="n">test</span><span class="o">=</span><span class="err">#</span><span class="w"> </span><span class="n">select</span><span class="w"> </span><span class="n">c</span><span class="p">.</span><span class="n">relname</span><span class="p">,</span><span class="n">pg_size_pretty</span><span class="p">(</span><span class="n">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="err">8192</span><span class="p">)</span><span class="w"> </span><span class="n">as</span><span class="w"> </span><span class="n">buffered</span><span class="p">,</span><span class="w"> 
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="n">round</span><span class="p">(</span><span class="err">100</span><span class="p">.</span><span class="err">0</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="p">(</span><span class="w"> 
+</span></span></span><span class="line"><span class="cl"><span class="w">           </span><span class="n">select</span><span class="w"> </span><span class="n">setting</span><span class="w"> </span><span class="n">from</span><span class="w"> </span><span class="n">pg_settings</span><span class="w"> 
+</span></span></span><span class="line"><span class="cl"><span class="w">           </span><span class="n">where</span><span class="w"> </span><span class="n">name</span><span class="o">=</span><span class="err">&#39;</span><span class="n">shared_buffers</span><span class="err">&#39;</span><span class="p">)</span><span class="o">::</span><span class="n">integer</span><span class="p">,</span><span class="err">1</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="n">as</span><span class="w"> </span><span class="n">buffer_percent</span><span class="p">,</span><span class="w"> 
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="n">round</span><span class="p">(</span><span class="err">100</span><span class="p">.</span><span class="err">0</span><span class="o">*</span><span class="n">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="o">*</span><span class="err">8192</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">pg_table_size</span><span class="p">(</span><span class="n">c</span><span class="p">.</span><span class="n">oid</span><span class="p">),</span><span class="err">1</span><span class="p">)</span><span class="w"> </span><span class="n">as</span><span class="w"> </span><span class="n">percent_of_relation</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="n">from</span><span class="w"> </span><span class="n">pg_class</span><span class="w"> </span><span class="n">c</span><span class="w"> </span><span class="n">inner</span><span class="w"> </span><span class="n">join</span><span class="w"> </span><span class="n">pg_buffercache</span><span class="w"> </span><span class="n">b</span><span class="w"> </span><span class="n">on</span><span class="w"> </span><span class="n">b</span><span class="p">.</span><span class="n">relfilenode</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">c</span><span class="p">.</span><span class="n">relfilenode</span><span class="w"> </span><span class="n">inner</span><span class="w"> 
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="n">join</span><span class="w"> </span><span class="n">pg_database</span><span class="w"> </span><span class="n">d</span><span class="w"> </span><span class="n">on</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">b</span><span class="p">.</span><span class="n">reldatabase</span><span class="w"> </span><span class="o">=</span><span class="n">d</span><span class="p">.</span><span class="n">oid</span><span class="w"> </span><span class="n">and</span><span class="w"> </span><span class="n">d</span><span class="p">.</span><span class="n">datname</span><span class="w"> </span><span class="o">=</span><span class="n">current_database</span><span class="p">())</span><span class="w"> 
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="n">group</span><span class="w"> </span><span class="n">by</span><span class="w"> </span><span class="n">c</span><span class="p">.</span><span class="n">oid</span><span class="p">,</span><span class="n">c</span><span class="p">.</span><span class="n">relname</span><span class="w"> </span><span class="n">order</span><span class="w"> </span><span class="n">by</span><span class="w"> </span><span class="err">3</span><span class="w"> </span><span class="n">desc</span><span class="w"> </span><span class="n">limit</span><span class="w"> </span><span class="err">10</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">   </span><span class="n">relname</span><span class="w">    </span><span class="o">|</span><span class="w">  </span><span class="n">buffered</span><span class="w">  </span><span class="o">|</span><span class="w"> </span><span class="n">buffer_percent</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">percent_of_relation</span><span class="w"> 
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="o">--------------+------------+----------------+---------------------</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"> </span><span class="n">test_tbl</span><span class="w">     </span><span class="o">|</span><span class="w"> </span><span class="err">18</span><span class="w"> </span><span class="n">MB</span><span class="w">      </span><span class="o">|</span><span class="w">            </span><span class="err">0</span><span class="p">.</span><span class="err">3</span><span class="w"> </span><span class="o">|</span><span class="w">                 </span><span class="err">0</span><span class="p">.</span><span class="err">2</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"> </span><span class="n">pg_am</span><span class="w">        </span><span class="o">|</span><span class="w"> </span><span class="err">8192</span><span class="w"> </span><span class="n">bytes</span><span class="w"> </span><span class="o">|</span><span class="w">            </span><span class="err">0</span><span class="p">.</span><span class="err">0</span><span class="w"> </span><span class="o">|</span><span class="w">                </span><span class="err">20</span><span class="p">.</span><span class="err">0</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"> </span><span class="n">pg_index</span><span class="w">     </span><span class="o">|</span><span class="w"> </span><span class="err">24</span><span class="w"> </span><span class="n">kB</span><span class="w">      </span><span class="o">|</span><span class="w">            </span><span class="err">0</span><span class="p">.</span><span class="err">0</span><span class="w"> </span><span class="o">|</span><span class="w">                </span><span class="err">37</span><span class="p">.</span><span class="err">5</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"> </span><span class="n">pg_amproc</span><span class="w">    </span><span class="o">|</span><span class="w"> </span><span class="err">32</span><span class="w"> </span><span class="n">kB</span><span class="w">      </span><span class="o">|</span><span class="w">            </span><span class="err">0</span><span class="p">.</span><span class="err">0</span><span class="w"> </span><span class="o">|</span><span class="w">                </span><span class="err">50</span><span class="p">.</span><span class="err">0</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"> </span><span class="n">pg_cast</span><span class="w">      </span><span class="o">|</span><span class="w"> </span><span class="err">16</span><span class="w"> </span><span class="n">kB</span><span class="w">      </span><span class="o">|</span><span class="w">            </span><span class="err">0</span><span class="p">.</span><span class="err">0</span><span class="w"> </span><span class="o">|</span><span class="w">                </span><span class="err">33</span><span class="p">.</span><span class="err">3</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"> </span><span class="n">pg_depend</span><span class="w">    </span><span class="o">|</span><span class="w"> </span><span class="err">64</span><span class="w"> </span><span class="n">kB</span><span class="w">      </span><span class="o">|</span><span class="w">            </span><span class="err">0</span><span class="p">.</span><span class="err">0</span><span class="w"> </span><span class="o">|</span><span class="w">                </span><span class="err">13</span><span class="p">.</span><span class="err">3</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"> </span><span class="n">pg_amop</span><span class="w">      </span><span class="o">|</span><span class="w"> </span><span class="err">48</span><span class="w"> </span><span class="n">kB</span><span class="w">      </span><span class="o">|</span><span class="w">            </span><span class="err">0</span><span class="p">.</span><span class="err">0</span><span class="w"> </span><span class="o">|</span><span class="w">                </span><span class="err">54</span><span class="p">.</span><span class="err">5</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"> </span><span class="n">pg_namespace</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="err">8192</span><span class="w"> </span><span class="n">bytes</span><span class="w"> </span><span class="o">|</span><span class="w">            </span><span class="err">0</span><span class="p">.</span><span class="err">0</span><span class="w"> </span><span class="o">|</span><span class="w">                </span><span class="err">20</span><span class="p">.</span><span class="err">0</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"> </span><span class="n">pg_opclass</span><span class="w">   </span><span class="o">|</span><span class="w"> </span><span class="err">16</span><span class="w"> </span><span class="n">kB</span><span class="w">      </span><span class="o">|</span><span class="w">            </span><span class="err">0</span><span class="p">.</span><span class="err">0</span><span class="w"> </span><span class="o">|</span><span class="w">                </span><span class="err">28</span><span class="p">.</span><span class="err">6</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"> </span><span class="n">pg_aggregate</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="err">8192</span><span class="w"> </span><span class="n">bytes</span><span class="w"> </span><span class="o">|</span><span class="w">            </span><span class="err">0</span><span class="p">.</span><span class="err">0</span><span class="w"> </span><span class="o">|</span><span class="w">                </span><span class="err">16</span><span class="p">.</span><span class="err">7</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">(</span><span class="err">10</span><span class="w"> </span><span class="n">rows</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="n">Time</span><span class="o">:</span><span class="w"> </span><span class="err">163</span><span class="p">.</span><span class="err">936</span><span class="w"> </span><span class="n">ms</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="n">test</span><span class="o">=</span><span class="err">#</span><span class="w"> 
+</span></span></span></code></pre></td></tr></table>
+</div>
+</div><p>強制把test_tbl 全部塞進 shared_buffers</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">test=# select pg_prewarm(&#39;test_tbl&#39;,&#39;buffer&#39;);
+</span></span><span class="line"><span class="cl"> pg_prewarm 
+</span></span><span class="line"><span class="cl">------------
+</span></span><span class="line"><span class="cl">    1327434
+</span></span><span class="line"><span class="cl">(1 row)
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">Time: 7472.805 ms (00:07.473)
+</span></span><span class="line"><span class="cl">test=# 
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>確認一下test_tbl 有沒有被整個塞進去</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-zed" data-lang="zed"><span class="line"><span class="cl"><span class="n">test</span><span class="o">=</span><span class="err">#</span><span class="w"> </span><span class="n">select</span><span class="w"> </span><span class="n">c</span><span class="p">.</span><span class="n">relname</span><span class="p">,</span><span class="n">pg_size_pretty</span><span class="p">(</span><span class="n">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="err">8192</span><span class="p">)</span><span class="w"> </span><span class="n">as</span><span class="w"> </span><span class="n">buffered</span><span class="p">,</span><span class="w"> 
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="n">round</span><span class="p">(</span><span class="err">100</span><span class="p">.</span><span class="err">0</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="p">(</span><span class="w"> 
+</span></span></span><span class="line"><span class="cl"><span class="w">           </span><span class="n">select</span><span class="w"> </span><span class="n">setting</span><span class="w"> </span><span class="n">from</span><span class="w"> </span><span class="n">pg_settings</span><span class="w"> 
+</span></span></span><span class="line"><span class="cl"><span class="w">           </span><span class="n">where</span><span class="w"> </span><span class="n">name</span><span class="o">=</span><span class="err">&#39;</span><span class="n">shared_buffers</span><span class="err">&#39;</span><span class="p">)</span><span class="o">::</span><span class="n">integer</span><span class="p">,</span><span class="err">1</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="n">as</span><span class="w"> </span><span class="n">buffer_percent</span><span class="p">,</span><span class="w"> 
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="n">round</span><span class="p">(</span><span class="err">100</span><span class="p">.</span><span class="err">0</span><span class="o">*</span><span class="n">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="o">*</span><span class="err">8192</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">pg_table_size</span><span class="p">(</span><span class="n">c</span><span class="p">.</span><span class="n">oid</span><span class="p">),</span><span class="err">1</span><span class="p">)</span><span class="w"> </span><span class="n">as</span><span class="w"> </span><span class="n">percent_of_relation</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="n">from</span><span class="w"> </span><span class="n">pg_class</span><span class="w"> </span><span class="n">c</span><span class="w"> </span><span class="n">inner</span><span class="w"> </span><span class="n">join</span><span class="w"> </span><span class="n">pg_buffercache</span><span class="w"> </span><span class="n">b</span><span class="w"> </span><span class="n">on</span><span class="w"> </span><span class="n">b</span><span class="p">.</span><span class="n">relfilenode</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">c</span><span class="p">.</span><span class="n">relfilenode</span><span class="w"> </span><span class="n">inner</span><span class="w"> 
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="n">join</span><span class="w"> </span><span class="n">pg_database</span><span class="w"> </span><span class="n">d</span><span class="w"> </span><span class="n">on</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">b</span><span class="p">.</span><span class="n">reldatabase</span><span class="w"> </span><span class="o">=</span><span class="n">d</span><span class="p">.</span><span class="n">oid</span><span class="w"> </span><span class="n">and</span><span class="w"> </span><span class="n">d</span><span class="p">.</span><span class="n">datname</span><span class="w"> </span><span class="o">=</span><span class="n">current_database</span><span class="p">())</span><span class="w"> 
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="n">group</span><span class="w"> </span><span class="n">by</span><span class="w"> </span><span class="n">c</span><span class="p">.</span><span class="n">oid</span><span class="p">,</span><span class="n">c</span><span class="p">.</span><span class="n">relname</span><span class="w"> </span><span class="n">order</span><span class="w"> </span><span class="n">by</span><span class="w"> </span><span class="err">3</span><span class="w"> </span><span class="n">desc</span><span class="w"> </span><span class="n">limit</span><span class="w"> </span><span class="err">10</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">   </span><span class="n">relname</span><span class="w">    </span><span class="o">|</span><span class="w">  </span><span class="n">buffered</span><span class="w">  </span><span class="o">|</span><span class="w"> </span><span class="n">buffer_percent</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">percent_of_relation</span><span class="w"> 
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="o">--------------+------------+----------------+---------------------</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"> </span><span class="n">test_tbl</span><span class="w">     </span><span class="o">|</span><span class="w"> </span><span class="err">6142</span><span class="w"> </span><span class="n">MB</span><span class="w">    </span><span class="o">|</span><span class="w">          </span><span class="err">100</span><span class="p">.</span><span class="err">0</span><span class="w"> </span><span class="o">|</span><span class="w">                </span><span class="err">59</span><span class="p">.</span><span class="err">2</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"> </span><span class="n">pg_am</span><span class="w">        </span><span class="o">|</span><span class="w"> </span><span class="err">8192</span><span class="w"> </span><span class="n">bytes</span><span class="w"> </span><span class="o">|</span><span class="w">            </span><span class="err">0</span><span class="p">.</span><span class="err">0</span><span class="w"> </span><span class="o">|</span><span class="w">                </span><span class="err">20</span><span class="p">.</span><span class="err">0</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"> </span><span class="n">pg_index</span><span class="w">     </span><span class="o">|</span><span class="w"> </span><span class="err">24</span><span class="w"> </span><span class="n">kB</span><span class="w">      </span><span class="o">|</span><span class="w">            </span><span class="err">0</span><span class="p">.</span><span class="err">0</span><span class="w"> </span><span class="o">|</span><span class="w">                </span><span class="err">37</span><span class="p">.</span><span class="err">5</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"> </span><span class="n">pg_amproc</span><span class="w">    </span><span class="o">|</span><span class="w"> </span><span class="err">32</span><span class="w"> </span><span class="n">kB</span><span class="w">      </span><span class="o">|</span><span class="w">            </span><span class="err">0</span><span class="p">.</span><span class="err">0</span><span class="w"> </span><span class="o">|</span><span class="w">                </span><span class="err">50</span><span class="p">.</span><span class="err">0</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"> </span><span class="n">pg_cast</span><span class="w">      </span><span class="o">|</span><span class="w"> </span><span class="err">16</span><span class="w"> </span><span class="n">kB</span><span class="w">      </span><span class="o">|</span><span class="w">            </span><span class="err">0</span><span class="p">.</span><span class="err">0</span><span class="w"> </span><span class="o">|</span><span class="w">                </span><span class="err">33</span><span class="p">.</span><span class="err">3</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"> </span><span class="n">pg_depend</span><span class="w">    </span><span class="o">|</span><span class="w"> </span><span class="err">24</span><span class="w"> </span><span class="n">kB</span><span class="w">      </span><span class="o">|</span><span class="w">            </span><span class="err">0</span><span class="p">.</span><span class="err">0</span><span class="w"> </span><span class="o">|</span><span class="w">                 </span><span class="err">5</span><span class="p">.</span><span class="err">0</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"> </span><span class="n">pg_amop</span><span class="w">      </span><span class="o">|</span><span class="w"> </span><span class="err">40</span><span class="w"> </span><span class="n">kB</span><span class="w">      </span><span class="o">|</span><span class="w">            </span><span class="err">0</span><span class="p">.</span><span class="err">0</span><span class="w"> </span><span class="o">|</span><span class="w">                </span><span class="err">45</span><span class="p">.</span><span class="err">5</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"> </span><span class="n">pg_namespace</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="err">8192</span><span class="w"> </span><span class="n">bytes</span><span class="w"> </span><span class="o">|</span><span class="w">            </span><span class="err">0</span><span class="p">.</span><span class="err">0</span><span class="w"> </span><span class="o">|</span><span class="w">                </span><span class="err">20</span><span class="p">.</span><span class="err">0</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"> </span><span class="n">pg_opclass</span><span class="w">   </span><span class="o">|</span><span class="w"> </span><span class="err">16</span><span class="w"> </span><span class="n">kB</span><span class="w">      </span><span class="o">|</span><span class="w">            </span><span class="err">0</span><span class="p">.</span><span class="err">0</span><span class="w"> </span><span class="o">|</span><span class="w">                </span><span class="err">28</span><span class="p">.</span><span class="err">6</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"> </span><span class="n">pg_aggregate</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="err">8192</span><span class="w"> </span><span class="n">bytes</span><span class="w"> </span><span class="o">|</span><span class="w">            </span><span class="err">0</span><span class="p">.</span><span class="err">0</span><span class="w"> </span><span class="o">|</span><span class="w">                </span><span class="err">16</span><span class="p">.</span><span class="err">7</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">(</span><span class="err">10</span><span class="w"> </span><span class="n">rows</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="n">Time</span><span class="o">:</span><span class="w"> </span><span class="err">4985</span><span class="p">.</span><span class="err">366</span><span class="w"> </span><span class="n">ms</span><span class="w"> </span><span class="p">(</span><span class="err">00</span><span class="o">:</span><span class="err">04</span><span class="p">.</span><span class="err">985</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="n">test</span><span class="o">=</span><span class="err">#</span><span class="w">
+</span></span></span></code></pre></td></tr></table>
+</div>
+</div><p>GOOD ！ let&rsquo;s do explain again !</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">test=# explain (analyze,buffers) select count(*) from test_tbl;
+</span></span><span class="line"><span class="cl">Time: 11451.188 ms (00:11.451)
+</span></span><span class="line"><span class="cl">                             QUERY PLAN
+</span></span><span class="line"><span class="cl">--------------------------------------------------------------------------------------------------------------------
+</span></span><span class="line"><span class="cl"> Finalize Aggregate  (cost=2265934.72..2265934.73 rows=1 width=8) (actual time=11231.664..11231.664 rows=1 loops=1)
+</span></span><span class="line"><span class="cl">   Buffers: shared hit=785963 read=541471
+</span></span><span class="line"><span class="cl">   -&gt;  Gather  (cost=2265934.30..2265934.71 rows=4 width=8) (actual time=11231.606..11450.719 rows=5 loops=1)
+</span></span><span class="line"><span class="cl">         Workers Planned: 4
+</span></span><span class="line"><span class="cl">         Workers Launched: 4
+</span></span><span class="line"><span class="cl">         Buffers: shared hit=785963 read=541471
+</span></span><span class="line"><span class="cl">         -&gt;  Partial Aggregate  (cost=2264934.30..2264934.31 rows=1 width=8) (actual time=11228.829..11228.830 rows=1 loops=5)
+</span></span><span class="line"><span class="cl">               Buffers: shared hit=785963 read=541471
+</span></span><span class="line"><span class="cl">               -&gt;  Parallel Seq Scan on test_tbl  (cost=0.00..2077434.24 rows=75000024 width=0) (actual time=0.037..6414.711 rows=60000000 loops=5)
+</span></span><span class="line"><span class="cl">                     Buffers: shared hit=785963 read=541471
+</span></span><span class="line"><span class="cl"> Planning Time: 0.039 ms
+</span></span><span class="line"><span class="cl"> Execution Time: 11450.781 ms
+</span></span><span class="line"><span class="cl">(12 rows)
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>確認一下，果然大部分都打到cache 了，但是因為shared_buffers 不夠大，所以還會從磁碟讀取一部分</p>
+<p>而且時間也比之前還沒塞進shared_buffers 的時候要快了不少</p>
+<p>22908.571 &ndash;&gt; 11450.781 ms</p>
+<hr>
+<p>從這次的測試看來，我想如果有足夠大的記憶體，能夠把資料表都塞入shared_buffers 中</p>
+<p>應該可以帶來不錯的效能增幅！</p>
+</section>
+
+
+    <footer class="article-footer">
+    
+    <section class="article-tags">
+        
+            <a href="/tags/postgresql/">postgresql</a>
+        
+    </section>
+
+
+    
+    <section class="article-copyright">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <path d="M14.5 9a3.5 4 0 1 0 0 6" />
+</svg>
+
+
+
+        <span>Licensed under CC BY-NC-SA 4.0</span>
+    </section>
+    </footer>
+
+
+    
+</article>
+
+    
+
+    
+
+<aside class="related-content--wrapper">
+    <h2 class="section-title">相關文章</h2>
+    <div class="related-content">
+        <div class="flex article-list--tile">
+            
+                
+<article class="has-image">
+    <a href="/p/ubuntu-20.04-install-nvidia-driver-/-cuda-/-postgresql-/-pg_strom/">
+        
+        
+            <div class="article-image">
+                
+                    <img src="https://h.cowbay.org/images/post-default-3.jpg" loading="lazy" data-key="" data-hash="https://h.cowbay.org/images/post-default-3.jpg"/>
+                
+            </div>
+        
+
+        <div class="article-details">
+            <h2 class="article-title">ubuntu 20.04 install nvidia driver / CUDA / postgresql / pg_strom</h2>
+        </div>
+    </a>
+</article>
+
+            
+                
+<article class="has-image">
+    <a href="/p/%E7%AD%86%E8%A8%98-postgresql-%E6%95%88%E8%83%BD%E6%B8%AC%E8%A9%A6-/-postgresql-benchmakr-using-pgbench/">
+        
+        
+            <div class="article-image">
+                
+                    <img src="https://h.cowbay.org/images/post-default-17.jpg" loading="lazy" data-key="" data-hash="https://h.cowbay.org/images/post-default-17.jpg"/>
+                
+            </div>
+        
+
+        <div class="article-details">
+            <h2 class="article-title">[筆記] postgresql 效能測試 / postgresql benchmakr using pgbench</h2>
+        </div>
+    </a>
+</article>
+
+            
+                
+<article class="">
+    <a href="/p/%E7%AD%86%E8%A8%98-%E5%9C%A8ubuntu-18.04%E5%AE%89%E8%A3%9Dpsql-11-%E4%BB%A5%E5%8F%8A-pg_auto_failover-/-install-psql-11-and-pg_auto_failover-in-ubuntu-18.04/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">[筆記] 在ubuntu 18.04安裝psql 11 以及 pg_auto_failover / install psql 11 and pg_auto_failover in ubuntu 18.04</h2>
+        </div>
+    </a>
+</article>
+
+            
+                
+<article class="">
+    <a href="/p/%E7%AD%86%E8%A8%98-%E6%B8%AC%E8%A9%A6-usb-3.1-gen2-nvme-ssd-%E5%A4%96%E6%8E%A5%E7%9B%92-%E5%85%A7%E5%BB%BApci-e-ssd-%E5%A4%96%E6%8E%A5sata-ssd-/-bencmark-with-external-internal-nvme-ssd-and-external-sata-ssd/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">[筆記] 測試 USB 3.1 Gen2 NVME SSD 外接盒 &amp; 內建pci-e ssd &amp; 外接SATA SSD / Bencmark With External Internal Nvme Ssd and External Sata Ssd</h2>
+        </div>
+    </a>
+</article>
+
+            
+                
+<article class="">
+    <a href="/p/%E7%AD%86%E8%A8%98-%E7%94%A8zfs%E7%9A%84snapshot-%E5%BF%AB%E7%85%A7%E5%8A%9F%E8%83%BD%E4%BE%86%E5%81%9A-postgresql-%E7%9A%84%E5%82%99%E4%BB%BD%E9%82%84%E5%8E%9F-/-postgresql-backup-restore-using-zfs-snapshot/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">[筆記] 用zfs的snapshot 快照功能來做 postgresql 的備份還原 / Postgresql Backup Restore Using Zfs Snapshot</h2>
+        </div>
+    </a>
+</article>
+
+            
+        </div>
+    </div>
+</aside>
+
+     
+    
+        
+    <div class="disqus-container">
+    <div id="disqus_thread"></div>
+<script type="application/javascript">
+    window.disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "h-cowbay-org" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+</div>
+
+<style>
+    .disqus-container {
+        background-color: var(--card-background);
+        border-radius: var(--card-border-radius);
+        box-shadow: var(--shadow-l1);
+        padding: var(--card-padding);
+    }
+</style>
+
+<script>
+    window.addEventListener('onColorSchemeChange', (e) => {
+        if (typeof DISQUS == 'object') {
+            DISQUS.reset({
+                reload: true
+            });
+        }
+    })
+</script>
+
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+            2020 - 
+        
+        2023 MCの部落
+    </section>
+    
+    <section class="powerby">
+        
+            鮮衣怒馬少年時 不負韶華行且知 <br/>
+        使用 <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> 建立 <br />
+        主題 <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.16.0">Stack</a></b> 由 <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a> 設計
+    </section>
+</footer>
+
+
+    
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.min.css"crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css"crossorigin="anonymous"
+            >
+
+            </main>
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.6/dist/vibrant.min.js"integrity="sha256-awcR2jno4kI5X0zL8ex0vi2z&#43;KMkF24hUW8WePSA9HM="crossorigin="anonymous"
+                
+                >
+            </script><script type="text/javascript" src="/ts/main.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>

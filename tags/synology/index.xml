@@ -1,0 +1,723 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+    <channel>
+        <title>synology on MCの部落</title>
+        <link>https://h.cowbay.org/tags/synology/</link>
+        <description>Recent content in synology on MCの部落</description>
+        <generator>Hugo -- gohugo.io</generator>
+        <language>en-us</language>
+        <lastBuildDate>Fri, 17 Jan 2020 12:20:33 +0800</lastBuildDate><atom:link href="https://h.cowbay.org/tags/synology/index.xml" rel="self" type="application/rss+xml" /><item>
+        <title>[筆記] 測試 proxmox 存取由 synology HA cluster 分享的NFS 目錄 / Proxmox With Synology High Availability</title>
+        <link>https://h.cowbay.org/p/%E7%AD%86%E8%A8%98-%E6%B8%AC%E8%A9%A6-proxmox-%E5%AD%98%E5%8F%96%E7%94%B1-synology-ha-cluster-%E5%88%86%E4%BA%AB%E7%9A%84nfs-%E7%9B%AE%E9%8C%84-/-proxmox-with-synology-high-availability/</link>
+        <pubDate>Fri, 17 Jan 2020 12:20:33 +0800</pubDate>
+        
+        <guid>https://h.cowbay.org/p/%E7%AD%86%E8%A8%98-%E6%B8%AC%E8%A9%A6-proxmox-%E5%AD%98%E5%8F%96%E7%94%B1-synology-ha-cluster-%E5%88%86%E4%BA%AB%E7%9A%84nfs-%E7%9B%AE%E9%8C%84-/-proxmox-with-synology-high-availability/</guid>
+        <description>&lt;img src="https://h.cowbay.org/images/post-default-18.jpg" alt="Featured image of post [筆記] 測試 proxmox 存取由 synology HA cluster 分享的NFS 目錄 / Proxmox With Synology High Availability" /&gt;&lt;p&gt;前幾天修復了因為intel cpu bug 導致無法使用的 synology DS415+&lt;/p&gt;
+&lt;p&gt;詳情請看 &lt;a class=&#34;link&#34; href=&#34;https://h.cowbay.org/post/first-try-synology-ha/&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;https://h.cowbay.org/post/first-try-synology-ha/&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;今天趁尾牙前夕，手邊沒啥要緊事&lt;/p&gt;
+&lt;p&gt;就來玩玩看promox 加上 synology high availability 再加上 NFS share 的環境&lt;/p&gt;
+&lt;p&gt;先上架構圖&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://i.imgur.com/k7IDZ4Y.png&#34;
+	
+	
+	
+	loading=&#34;lazy&#34;
+	
+	
+&gt;&lt;/p&gt;
+&lt;p&gt;架構很簡單，NAS設定一組NFS share， proxmox mount 進來，然後開一台VM在NFS 上&lt;/p&gt;
+&lt;p&gt;主要來談談proxmox 在碰到synology high availability 切換狀態、遇上腦裂(brain split)時候的狀況&lt;/p&gt;
+&lt;p&gt;觸發 brain split (說真的，我覺得腦裂很難聽 &amp;hellip;)的情況，在上面連結那篇文章裡面有提到，就不多說了&lt;/p&gt;
+&lt;p&gt;來講講後續的狀況&lt;/p&gt;
+&lt;p&gt;發生 brain split 時，可以預期管理者會登入管理界面去修復&lt;/p&gt;
+&lt;p&gt;關於修復brain split 可以看看群暉的這篇文章&lt;/p&gt;
+&lt;p&gt;&lt;a class=&#34;link&#34; href=&#34;https://www.synology.com/zh-tw/knowledgebase/DSM/help/HighAvailability/split_brain&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;https://www.synology.com/zh-tw/knowledgebase/DSM/help/HighAvailability/split_brain&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;而我選擇的是 [將兩台伺服器一同保留於叢集中]&lt;/p&gt;
+&lt;p&gt;在進行修復的過程中，會發現VM這邊會變成 read only&lt;/p&gt;
+&lt;p&gt;聽起來很合理，畢竟在修復時，所有服務幾乎都是停擺&lt;/p&gt;
+&lt;p&gt;但是呢，等到修復完成後，VM還是read only ，這就有點奇怪了&lt;/p&gt;
+&lt;p&gt;有跟群暉客服反應過這個狀況&lt;/p&gt;
+&lt;p&gt;所以在修復完成之後，在proxmox server 這邊直接對NFS 存取做測試&lt;/p&gt;
+&lt;p&gt;去下載一個template 是 OK 的，在console 裡面直接在NFS touch file 也是可以的&lt;/p&gt;
+&lt;p&gt;所以Synology high availability 是有正常發揮作用&lt;/p&gt;
+&lt;p&gt;而promox 這邊，在synology恢復之後，也可以正常存取NFS ，所以也沒有問題&lt;/p&gt;
+&lt;p&gt;&lt;del&gt;那問題就是在VM裡面了，當發生了某些狀況，讓系統進入read only ，就必須透過reboot 才能解決&lt;/del&gt;&lt;/p&gt;
+&lt;p&gt;&lt;del&gt;或者是看看這個指令用fsck去檢查filesystem 看看有沒有幫助&lt;/del&gt;&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
+&lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt;1
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-fallback&#34; data-lang=&#34;fallback&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;sudo fsck -Af -M
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;p&gt;UPDATE:&lt;/p&gt;
+&lt;p&gt;在proxmox 論壇上提出了這個問題，有回覆說要用 NFS Version 4.1&lt;/p&gt;
+&lt;p&gt;經過測試，在掛載NFS share folder 時，如果有指定 NFS Version 4.1&lt;/p&gt;
+&lt;p&gt;那在HA Cluster 恢復之後，VM也就跟著恢復正常&lt;/p&gt;
+&lt;p&gt;不必再重開機了！&lt;/p&gt;
+&lt;p&gt;所以這問題算是解決了！&lt;/p&gt;</description>
+        </item>
+        <item>
+        <title>[筆記] 第一次玩 Synology High Availability / first try synology high availability</title>
+        <link>https://h.cowbay.org/p/%E7%AD%86%E8%A8%98-%E7%AC%AC%E4%B8%80%E6%AC%A1%E7%8E%A9-synology-high-availability-/-first-try-synology-high-availability/</link>
+        <pubDate>Fri, 10 Jan 2020 09:48:18 +0800</pubDate>
+        
+        <guid>https://h.cowbay.org/p/%E7%AD%86%E8%A8%98-%E7%AC%AC%E4%B8%80%E6%AC%A1%E7%8E%A9-synology-high-availability-/-first-try-synology-high-availability/</guid>
+        <description>&lt;img src="https://h.cowbay.org/images/post-default-13.jpg" alt="Featured image of post [筆記] 第一次玩 Synology High Availability / first try synology high availability" /&gt;&lt;p&gt;上禮拜，原本擔任 proxmox cluster 的主要 storage 的 ds415+ 掛點了&lt;/p&gt;
+&lt;p&gt;原因應該就是之前的 intel c2000 series cpu 的 bug&lt;/p&gt;
+&lt;p&gt;只是不知道為什麼這台兩三年來都沒有關機的NAS&lt;/p&gt;
+&lt;p&gt;比其他三台多撐了那麼久 (已經有兩台送修回來，一台也是同樣症狀，被放在一邊)&lt;/p&gt;
+&lt;p&gt;趁著這次機會，看看網路上說的換電阻大法有沒有用！&lt;/p&gt;
+&lt;p&gt;如果有用，就拿這兩台來玩玩 synology high availability !&lt;/p&gt;
+&lt;p&gt;先要感謝這一篇的作者！&lt;/p&gt;
+&lt;p&gt;&lt;a class=&#34;link&#34; href=&#34;https://www.mobile01.com/topicdetail.php?f=494&amp;amp;t=5600042&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;https://www.mobile01.com/topicdetail.php?f=494&amp;t=5600042&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;在網路上訂了一大包的 1/4 w 100Ω 的電阻 (100個才70塊，運費都要60了)&lt;/p&gt;
+&lt;p&gt;照著上面那篇的作法，把電阻焊上去，NAS就順利開機了！&lt;/p&gt;
+&lt;p&gt;__&lt;/p&gt;
+&lt;p&gt;架構圖很簡單，只是在做測試而已，又是第一次玩，先不要搞得太複雜&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://i.imgur.com/k7IDZ4Y.png&#34;
+	
+	
+	
+	loading=&#34;lazy&#34;
+	
+	
+&gt;&lt;/p&gt;
+&lt;p&gt;流程大致如下&lt;/p&gt;
+&lt;p&gt;設定好NAS Cluster 之後，建立NFS 服務&lt;/p&gt;
+&lt;p&gt;然後在proxmox 主機上掛載這個NFS 空間&lt;/p&gt;
+&lt;p&gt;接著在proxmox 上建立一台 VM ，存放在NFS 空間上&lt;/p&gt;
+&lt;p&gt;在這台VM裡面持續 ping NAS cluster VIP 192.168.11.85&lt;/p&gt;
+&lt;p&gt;接著拔掉 192.168.11.87 的兩條網路線，模擬NAS cluster 的主伺服器掛點的狀況&lt;/p&gt;
+&lt;p&gt;這時候VM 還活著，可以正常建立、刪除、檢視檔案，然後 ping 192.168.11.85 也還持續著&lt;/p&gt;
+&lt;p&gt;NAS的告警信件也正常發出&lt;/p&gt;
+&lt;p&gt;08:53 NAS High Availability 叢集 ds415cluster 已執行自動故障轉移。 [詳細資訊：無法偵測到 hqs087 (主伺服器)]
+08:58 NAS High Availability 叢集 ds415cluster 狀態異常 [詳細資訊：無法偵測到 hqs087 (副伺服器)]&lt;/p&gt;
+&lt;p&gt;9:08 接回hqs087的網路線&lt;/p&gt;
+&lt;p&gt;9:09 收到信件 NAS High Availability 叢集 ds415cluster 停止正常運作 [詳細資訊：Split-brain 錯誤]&lt;/p&gt;
+&lt;p&gt;登入管理界面(192.168.11.85:5000) ，操作 HA ，選擇恢復&lt;/p&gt;
+&lt;p&gt;這時候開始，VM 的檔案系統變成是 read only&lt;/p&gt;
+&lt;p&gt;雖然還活著，但是已經無法建立、刪除檔案，連 cat /var/log/syslog 也會卡住&lt;/p&gt;
+&lt;p&gt;9:14 VIP NAS cluster 恢復連線，本來卡住的 cat /var/log/syslog 也可以正常顯示內容了&lt;/p&gt;
+&lt;p&gt;但是系統還是 read only，reboot VM 之後才恢復正常。&lt;/p&gt;
+&lt;p&gt;有幾個問題&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;split brain 錯誤&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;這個問題我想應該是因為只有兩台組成clsuter 造成的&lt;/p&gt;
+&lt;p&gt;如果有第三臺加入，應該就不會有這個split brain 的問題&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;VM變成 read only&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;這個我就不知道為什麼了，照理說NAS Cluster 已經開始在恢復&lt;/p&gt;
+&lt;p&gt;在我的觀念裡，應該要能夠「正常」的持續服務&lt;/p&gt;
+&lt;p&gt;但是VM變成 read only ，而且必須要重新開機才能解決&lt;/p&gt;
+&lt;p&gt;那這樣NAS Cluster 等於沒有太大作用呀..&lt;/p&gt;
+&lt;p&gt;來問問看群暉客服好了&lt;/p&gt;</description>
+        </item>
+        <item>
+        <title>[筆記] 用ubuntu livecd 救援群暉 synology NAS內的資料 / rescue synology nas with ubuntu livecd</title>
+        <link>https://h.cowbay.org/p/%E7%AD%86%E8%A8%98-%E7%94%A8ubuntu-livecd-%E6%95%91%E6%8F%B4%E7%BE%A4%E6%9A%89-synology-nas%E5%85%A7%E7%9A%84%E8%B3%87%E6%96%99-/-rescue-synology-nas-with-ubuntu-livecd/</link>
+        <pubDate>Fri, 03 Jan 2020 15:43:45 +0800</pubDate>
+        
+        <guid>https://h.cowbay.org/p/%E7%AD%86%E8%A8%98-%E7%94%A8ubuntu-livecd-%E6%95%91%E6%8F%B4%E7%BE%A4%E6%9A%89-synology-nas%E5%85%A7%E7%9A%84%E8%B3%87%E6%96%99-/-rescue-synology-nas-with-ubuntu-livecd/</guid>
+        <description>&lt;img src="https://h.cowbay.org/images/post-default-11.jpg" alt="Featured image of post [筆記] 用ubuntu livecd 救援群暉 synology NAS內的資料 / rescue synology nas with ubuntu livecd" /&gt;&lt;p&gt;2020/01/02 , 2020年上工的第一天，群暉的 DS415+ NAS 掛了！&lt;/p&gt;
+&lt;p&gt;因為群暉的文件在最關鍵的一步寫得亂七八糟！&lt;/p&gt;
+&lt;p&gt;所以在這邊紀錄一下我操作的步驟！&lt;/p&gt;
+&lt;h4 id=&#34;建立可開機的ubuntu-隨身碟&#34;&gt;建立可開機的ubuntu 隨身碟&lt;/h4&gt;
+&lt;p&gt;建立 bootable ubuntu flash 的步驟，請參考底下網頁介紹，這邊就不多說了&lt;/p&gt;
+&lt;p&gt;&lt;a class=&#34;link&#34; href=&#34;https://tutorials.ubuntu.com/tutorial/tutorial-create-a-usb-stick-on-ubuntu#0&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;https://tutorials.ubuntu.com/tutorial/tutorial-create-a-usb-stick-on-ubuntu#0&lt;/a&gt;&lt;/p&gt;
+&lt;h4 id=&#34;把nas上的硬碟接上pc&#34;&gt;把NAS上的硬碟接上PC&lt;/h4&gt;
+&lt;p&gt;還好這次的NAS只有四顆，如果有八顆，我去哪裡生可以接八顆硬碟的主機&amp;hellip;&lt;/p&gt;
+&lt;h4 id=&#34;用隨身碟開機進入ubuntu-live-環境&#34;&gt;用隨身碟開機進入ubuntu Live 環境&lt;/h4&gt;
+&lt;p&gt;懶人沒截圖&lt;/p&gt;
+&lt;h4 id=&#34;安裝必要套件&#34;&gt;安裝必要套件&lt;/h4&gt;
+&lt;p&gt;進入 ubuntu Live 之後，按 ctal + alt + t&lt;/p&gt;
+&lt;p&gt;開啟 terminal ，然後先安裝 mdadm &amp;amp; lvm2&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
+&lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt; 1
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 2
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 3
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 4
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 5
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 6
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 7
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 8
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 9
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;10
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;11
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;12
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;13
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;14
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;15
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;16
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;17
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;18
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;19
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;20
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-go&#34; data-lang=&#34;go&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;nx&#34;&gt;ubuntu&lt;/span&gt;&lt;span class=&#34;err&#34;&gt;@&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;ubuntu&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt;&lt;span class=&#34;err&#34;&gt;~$&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;sudo&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;apt&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;install&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;mdadm&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;lvm2&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;nx&#34;&gt;Reading&lt;/span&gt; &lt;span class=&#34;kn&#34;&gt;package&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;lists&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;...&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;Done&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;nx&#34;&gt;Building&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;dependency&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;tree&lt;/span&gt;       
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;nx&#34;&gt;Reading&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;state&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;information&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;...&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;Done&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;nx&#34;&gt;Suggested&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;packages&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;  &lt;span class=&#34;nx&#34;&gt;thin&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;-&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;provisioning&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;-&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;tools&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;default&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;-&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;mta&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;|&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;mail&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;-&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;transport&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;-&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;agent&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;dracut&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;-&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;core&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;nx&#34;&gt;The&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;following&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;NEW&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;packages&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;will&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;be&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;installed&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;  &lt;span class=&#34;nx&#34;&gt;mdadm&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;nx&#34;&gt;The&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;following&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;packages&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;will&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;be&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;upgraded&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;  &lt;span class=&#34;nx&#34;&gt;lvm2&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;mi&#34;&gt;1&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;upgraded&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;mi&#34;&gt;1&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;newly&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;installed&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;mi&#34;&gt;0&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;to&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;remove&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;and&lt;/span&gt; &lt;span class=&#34;mi&#34;&gt;780&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;not&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;upgraded&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;nx&#34;&gt;Need&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;to&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;get&lt;/span&gt; &lt;span class=&#34;mi&#34;&gt;1&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt;&lt;span class=&#34;mi&#34;&gt;346&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;kB&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;of&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;archives&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;nx&#34;&gt;After&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;this&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;operation&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;mi&#34;&gt;1&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt;&lt;span class=&#34;mi&#34;&gt;237&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;kB&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;of&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;additional&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;disk&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;space&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;will&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;be&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;used&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;nx&#34;&gt;Get&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt;&lt;span class=&#34;mi&#34;&gt;1&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;http&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt;&lt;span class=&#34;c1&#34;&gt;//archive.ubuntu.com/ubuntu bionic-updates/main amd64 lvm2 amd64 2.02.176-4.1ubuntu3.18.04.2 [930 kB]
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;c1&#34;&gt;&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;Get&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt;&lt;span class=&#34;mi&#34;&gt;2&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;http&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt;&lt;span class=&#34;c1&#34;&gt;//archive.ubuntu.com/ubuntu bionic-updates/main amd64 mdadm amd64 4.1~rc1-3~ubuntu18.04.2 [416 kB]
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;c1&#34;&gt;&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;Fetched&lt;/span&gt; &lt;span class=&#34;mi&#34;&gt;1&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt;&lt;span class=&#34;mi&#34;&gt;346&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;kB&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;in&lt;/span&gt; &lt;span class=&#34;mi&#34;&gt;3&lt;/span&gt;&lt;span class=&#34;nf&#34;&gt;s&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;mi&#34;&gt;501&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;kB&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;/&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;s&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;o&#34;&gt;...&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;o&#34;&gt;...&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;o&#34;&gt;...&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;err&#34;&gt;以下省略&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;h4 id=&#34;scan-raid-and-lvm&#34;&gt;scan raid and lvm&lt;/h4&gt;
+&lt;p&gt;接下來先換成 root 操作&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
+&lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt;1
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-fallback&#34; data-lang=&#34;fallback&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;ubuntu@ubuntu:~$ sudo su -
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;p&gt;然後掃描 raid &amp;amp; LVM&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
+&lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt;1
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;2
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;3
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-fallback&#34; data-lang=&#34;fallback&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;root@ubuntu:~# mdadm -Asf &amp;amp;&amp;amp; vgchange -ay
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;mdadm: /dev/md/2 has been started with 4 drives.
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;  2 logical volume(s) in volume group &amp;#34;vg1&amp;#34; now active
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;p&gt;COOL！ 原本的VG出現了！&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
+&lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt; 1
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 2
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 3
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 4
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 5
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 6
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 7
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 8
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 9
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;10
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;11
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;12
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;13
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;14
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;15
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;16
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;17
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;18
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;19
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;20
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;21
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-fallback&#34; data-lang=&#34;fallback&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;root@ubuntu:~# vgdisplay
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;  --- Volume group ---
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;  VG Name               vg1
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;  System ID             
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;  Format                lvm2
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;  Metadata Areas        1
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;  Metadata Sequence No  3
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;  VG Access             read/write
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;  VG Status             resizable
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;  MAX LV                0
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;  Cur LV                2
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;  Open LV               0
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;  Max PV                0
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;  Cur PV                1
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;  Act PV                1
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;  VG Size               5.44 TiB
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;  PE Size               4.00 MiB
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;  Total PE              1427264
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;  Alloc PE / Size       1427264 / 5.44 TiB
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;  Free  PE / Size       0 / 0   
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;  VG UUID               O1c8Uw-JmKy-EiKt-92OB-3K3y-roMi-9NUZ6H
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;p&gt;也可以看到 RAID 資訊了！&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
+&lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt; 1
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 2
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 3
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 4
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 5
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 6
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 7
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 8
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 9
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;10
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;11
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;12
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;13
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;14
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;15
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;16
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;17
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;18
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;19
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;20
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;21
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;22
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;23
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;24
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;25
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;26
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;27
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;28
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;29
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;30
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;31
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;32
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-fallback&#34; data-lang=&#34;fallback&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;root@ubuntu:~# mdadm -D /dev/md2
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;/dev/md2:
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;           Version : 1.2
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;     Creation Time : Thu Oct 13 07:26:12 2016
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;        Raid Level : raid5
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;        Array Size : 5846077632 (5575.25 GiB 5986.38 GB)
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;     Used Dev Size : 1948692544 (1858.42 GiB 1995.46 GB)
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;      Raid Devices : 4
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;     Total Devices : 4
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;       Persistence : Superblock is persistent
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;       Update Time : Thu Jan  2 01:48:34 2020
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;             State : clean
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;    Active Devices : 4
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;   Working Devices : 4
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;    Failed Devices : 0
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;     Spare Devices : 0
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;            Layout : left-symmetric
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;        Chunk Size : 64K
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;Consistency Policy : resync
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;              Name : video:2
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;              UUID : 18f6706d:91eaaec9:5b0ba8da:e32481e3
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;            Events : 96
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;    Number   Major   Minor   RaidDevice State
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;       0       8       51        0      active sync   /dev/sdd3
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;       1       8       35        1      active sync   /dev/sdc3
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;       2       8       19        2      active sync   /dev/sdb3
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;       3       8        3        3      active sync   /dev/sda3
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;p&gt;然後就會發生我之前寫的這篇的狀況&lt;/p&gt;
+&lt;p&gt;&lt;a class=&#34;link&#34; href=&#34;https://h.cowbay.org/post/what-a-piss-in-synology-document/&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;https://h.cowbay.org/post/what-a-piss-in-synology-document/&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;問題發生了，總是要想辦法解決&lt;/p&gt;
+&lt;h4 id=&#34;scan-lv&#34;&gt;scan lv&lt;/h4&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
+&lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt;1
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;2
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;3
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-fallback&#34; data-lang=&#34;fallback&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;root@ubuntu:~# lvscan
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;  ACTIVE            &amp;#39;/dev/vg1/syno_vg_reserved_area&amp;#39; [12.00 MiB] inherit
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;  ACTIVE            &amp;#39;/dev/vg1/volume_1&amp;#39; [5.44 TiB] inherit
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;p&gt;OK ，在 vg1 底下有兩個 volume ，看大小來判斷，第二個是我們要的&lt;/p&gt;
+&lt;p&gt;用底下的指令就可以掛載了&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
+&lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt;1
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-fallback&#34; data-lang=&#34;fallback&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;mount /dev/vg1/volume_1 /mnt
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;p&gt;請依照自己的環境，把第一個路徑改掉，如果要掛載到別的目錄，那也把第二個 /mnt 改掉&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
+&lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt;1
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;2
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;3
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;4
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;5
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;6
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;7
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-fallback&#34; data-lang=&#34;fallback&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;root@ubuntu:/dev# mount /dev/vg1/volume_1 /mnt
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;root@ubuntu:/dev# cd /mnt
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;root@ubuntu:/mnt# ls
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;@appstore     @database  @EP_trash   @MailScanner  @S2S
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;aquota.group  @download  @iSCSITrg   music         synoquota.db
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;aquota.user   @eaDir     lost+found  nfsforprox    @tmp
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;@clamav       @EP        @maillog    photo         video
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;p&gt;OK，可以看到原本NAS 下的目錄了，接下來就可以進行檔案複製了！&lt;/p&gt;</description>
+        </item>
+        <item>
+        <title>[碎念] Synology 群暉的文件不知道在工三小 / what a piss in synology document</title>
+        <link>https://h.cowbay.org/p/%E7%A2%8E%E5%BF%B5-synology-%E7%BE%A4%E6%9A%89%E7%9A%84%E6%96%87%E4%BB%B6%E4%B8%8D%E7%9F%A5%E9%81%93%E5%9C%A8%E5%B7%A5%E4%B8%89%E5%B0%8F-/-what-a-piss-in-synology-document/</link>
+        <pubDate>Fri, 03 Jan 2020 11:45:56 +0800</pubDate>
+        
+        <guid>https://h.cowbay.org/p/%E7%A2%8E%E5%BF%B5-synology-%E7%BE%A4%E6%9A%89%E7%9A%84%E6%96%87%E4%BB%B6%E4%B8%8D%E7%9F%A5%E9%81%93%E5%9C%A8%E5%B7%A5%E4%B8%89%E5%B0%8F-/-what-a-piss-in-synology-document/</guid>
+        <description>&lt;img src="https://h.cowbay.org/images/post-default-16.jpg" alt="Featured image of post [碎念] Synology 群暉的文件不知道在工三小 / what a piss in synology document" /&gt;&lt;p&gt;2020/01/02  2020 上工的第一天，公司碩果僅存的唯一一台 Synology DS415+ 也終於掛了&lt;/p&gt;
+&lt;p&gt;開機沒多久就連不上，反覆幾次之後，出現了開機時所有燈號都狂閃的狀況&lt;/p&gt;
+&lt;p&gt;終於宣告不治&lt;/p&gt;
+&lt;p&gt;問題很明顯的就是Intel C2000 系列 CPU 的瑕疵&lt;/p&gt;
+&lt;p&gt;總之，機器老早就過保了，上面放的是 proxmox 的 vm 檔案&lt;/p&gt;
+&lt;p&gt;在NAS掛點之後，就從備份檔把這些VM還原回來了&lt;/p&gt;
+&lt;p&gt;想說網路上很多文章說只要焊一個電阻上去就可以修復&lt;/p&gt;
+&lt;p&gt;就把機器和硬碟先放著，等有空再去買電阻回來玩玩看&lt;/p&gt;
+&lt;p&gt;結果user今天早上就在靠腰，說上面有一台開發用的VM上面的歷史紀錄很重要&lt;/p&gt;
+&lt;p&gt;幹，很重要是不會自己備份逆？&lt;/p&gt;
+&lt;p&gt;又不跟我說很重要，要備份，然後自己也不做備份&lt;/p&gt;
+&lt;p&gt;然後現在VM 不見了，再來靠腰？？&lt;/p&gt;
+&lt;p&gt;幹！真的不要以為資訊公司的員工就比較有sense ，屁！&lt;/p&gt;
+&lt;p&gt;不過呢，人微言輕，還是只好鼻子摸摸，想辦法救出來&lt;/p&gt;
+&lt;p&gt;然後就找到了群暉的這篇文章&lt;/p&gt;
+&lt;p&gt;&lt;a class=&#34;link&#34; href=&#34;https://www.synology.com/zh-tw/knowledgebase/DSM/tutorial/Storage/How_can_I_recover_data_from_my_DiskStation_using_a_PC&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;https://www.synology.com/zh-tw/knowledgebase/DSM/tutorial/Storage/How_can_I_recover_data_from_my_DiskStation_using_a_PC&lt;/a&gt;&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
+&lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt; 1
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 2
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 3
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 4
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 5
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 6
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 7
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 8
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 9
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;10
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;11
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;12
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;13
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;14
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;15
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;16
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;17
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;18
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;19
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;20
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;21
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;22
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;23
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;24
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;25
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;26
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-fallback&#34; data-lang=&#34;fallback&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;如何使用電腦復原存放在 Synology NAS 上的資料？
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;若您的 Synology NAS 故障，可以輕鬆透過電腦與 Ubuntu Live CD 復原資料。請確認 Synology NAS 硬碟上運行的檔案系統是 EXT4 或 Btrfs，並依照下列步驟來復原資料。此處將以 Ubuntu 18.04 版本作為範例：
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;1.準備一台電腦，該電腦必須具備足夠的硬碟插槽以安裝從 Synology NAS 取出的硬碟。
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;2.將硬碟從 Synology NAS 取出，並安裝到電腦。若使用 RAID 或 SHR 配置，您必須將所有硬碟 (Hot Spare 硬碟除外) 同時安裝到電腦。
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;3.按照此教學 Create a bootable USB stick on Windows 來建立 Ubuntu 環境。
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;4.前往左下角的顯示應用程式選單。
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;5.在搜尋欄位輸入 Terminal 並選擇終端機。
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;6.若 Synology NAS 上的磁碟配置為 RAID 或 SHR，請依照步驟 7 到 10 操作；若您想復原的檔案位於僅使用一顆硬碟的基本儲存類型機種，請跳至步驟 10。
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;7.輸入以下指令 (sudo 會將執行權限轉換為 root )。
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;    Ubuntu@ubuntu:~$ sudo -i
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;8.輸入以下指令來安裝 mdadm 和 lvm2 (皆為 RAID 管理工具)。若沒有安裝 lvm2，vgchange 將無法運作。
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;    root@ubuntu:~$ apt-get update
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;    root@ubuntu:~$ apt-get install -y mdadm lvm2
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;9.輸入以下指令來掛載所有從 Synology NAS 取出的硬碟，結果可能會因 Synology NAS 上的儲存集區配置而有所不同。
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;    root@ubuntu:~$ mdadm -Asf &amp;amp;&amp;amp; vgchange -ay
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;10.輸入以下指令來將所有硬碟掛載為唯讀以存取資料。在 ${device_path} 輸入裝置路徑，${mount_point} 輸入掛載點，您的資料將會被置於掛載點的路徑。
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;    $ mount ${device_path} ${mount_point} -o ro
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;p&gt;好， 1-9 都沒什麼問題，但是有人可以幫忙翻譯翻譯 10 是在工三小？&lt;/p&gt;
+&lt;p&gt;當然，我能理解因為每一臺NAS的環境不同，所以會有一些不同的變數&lt;/p&gt;
+&lt;p&gt;但是假如你是一個單純的user ，只是想要救資料，好不容易找了臺電腦&lt;/p&gt;
+&lt;p&gt;把硬碟都接上去，用ubuntu liveCD 開機，乖乖做了1-9的步驟&lt;/p&gt;
+&lt;p&gt;接著一定會傻眼， 什麼是 ${device_path} ?? 什麼是 ${mount_point} ???&lt;/p&gt;
+&lt;p&gt;寫文件的人你就不能配合個圖片，去說明應該要怎麼辨別 device_path ? mount_point 又是什麼？&lt;/p&gt;
+&lt;p&gt;這很簡單呀！&lt;/p&gt;
+&lt;p&gt;做完 9 的指令，其實就會回復你 NAS 分割區的名稱&lt;/p&gt;
+&lt;p&gt;好像叫什麼 vg1 的 &amp;lt;&amp;mdash;這個就是變數，可能每一臺都不同，但是你起碼做個範例給人家看啊！&lt;/p&gt;
+&lt;p&gt;然後會在 /dev/vg1 底下看到當初建立的磁區 (我的叫 volume_1)&lt;/p&gt;
+&lt;p&gt;至於 mount_point 就是看你要掛載到系統的哪個目錄底下&lt;/p&gt;
+&lt;p&gt;所以我就要執行&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
+&lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt;1
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-fallback&#34; data-lang=&#34;fallback&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;mount /dev/vg1/volume_1 /mnt
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;p&gt;這樣就可以把NAS上的分割給掛進liveCD ，就可以進行資料複製了！&lt;/p&gt;
+&lt;p&gt;連一份文件都做不好，真的是服了這些據說很高薪的「工程師」..&lt;/p&gt;</description>
+        </item>
+        <item>
+        <title>[雜念] 群暉 Synology NAS DS 415&#43; 誇張的維修費用</title>
+        <link>https://h.cowbay.org/p/%E9%9B%9C%E5%BF%B5-%E7%BE%A4%E6%9A%89-synology-nas-ds-415-%E8%AA%87%E5%BC%B5%E7%9A%84%E7%B6%AD%E4%BF%AE%E8%B2%BB%E7%94%A8/</link>
+        <pubDate>Tue, 04 Dec 2018 10:25:19 +0800</pubDate>
+        
+        <guid>https://h.cowbay.org/p/%E9%9B%9C%E5%BF%B5-%E7%BE%A4%E6%9A%89-synology-nas-ds-415-%E8%AA%87%E5%BC%B5%E7%9A%84%E7%B6%AD%E4%BF%AE%E8%B2%BB%E7%94%A8/</guid>
+        <description>&lt;p&gt;前幾天公司的一台 Synology DS 415+ 發生異常&lt;/p&gt;
+&lt;p&gt;注意到的時候，四顆硬碟燈號都不斷的在閃爍&lt;/p&gt;
+&lt;p&gt;但是已經無法登入系統&lt;/p&gt;
+&lt;p&gt;重開機之後更慘，四顆硬碟燈號全部橘燈恆亮&lt;/p&gt;
+&lt;p&gt;底下的電源藍燈不斷的在閃爍&lt;/p&gt;
+&lt;p&gt;雖然我一再表示不希望送修了&lt;/p&gt;
+&lt;p&gt;一來是已經過保，二來是DS415+ 本身就有intel bug，三來是因為對synology的NAS 實在沒有愛&amp;hellip;&lt;/p&gt;
+&lt;p&gt;不過主管還是希望能夠先問群暉維修的費用多少&lt;/p&gt;
+&lt;p&gt;登入 account.synology.com 之後，早上10:40 發了一張ticket&lt;/p&gt;
+&lt;p&gt;請群暉提供RMA 流程&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
+&lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt;1
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;2
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;3
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;4
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;5
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;6
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-fallback&#34; data-lang=&#34;fallback&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;線上運作時，發現四個硬碟燈號同時都在快速閃爍，重新開機後，STATUS 藍燈持續閃爍，四個硬碟燈號都是橘燈恆亮。
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;進線客服詢問，把硬碟拔出來，空機開機還是一樣的狀況。
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;請協助提供RMA 流程，謝謝！
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;p&gt;然後「當天」下午 17:40 ，客服回信了&lt;/p&gt;
+&lt;p&gt;嗯，一封郵件要等七個小時才回信&amp;hellip;效率真是高啊！&lt;/p&gt;
+&lt;p&gt;客服表示&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
+&lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt;1
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;2
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;3
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;4
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;5
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;6
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;7
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-fallback&#34; data-lang=&#34;fallback&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;DS415提供原廠保固2年，Synology針對此型號有額外增加1年的保固期限，因此產品為3年保固產品．
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;根據產品的序號目前機器是過保的狀態，為確認目前產品是否仍在保固內，請問您是否還保有當初的購買證明呢？
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;若產品還在保固內我會儘速替您申請機器RMA的程序．
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;若產品確認是過保狀態，我會替您查詢目前最新更換DS415+主機板的報價供您參考
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;p&gt;產品已經過保了，就算用手邊的購買證明去算保固日期也是一樣&lt;/p&gt;
+&lt;p&gt;所以請群暉客服直接提供維修主機板的報價&lt;/p&gt;
+&lt;p&gt;然後隔天收到回信了&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
+&lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt;1
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;2
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;3
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;4
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;5
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-fallback&#34; data-lang=&#34;fallback&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;稍早跟物料人同仁確認目前DS415+的PCBA是還有庫存的．主板報價是新台幣 $15,232(郵寄費 $100NTD)
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;由於主機板是整項產品單價最高的零件，一般我們會建議使用者若有更換的需求，轉考慮同等級新機種其實會比較划算．
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;以上資訊供您參考，非常感謝您對Synology產品的支持．
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;p&gt;嗯哼，一台當初購買價格不過&lt;strong&gt;一萬七千多&lt;/strong&gt;的設備，維修報價是&lt;!-- raw HTML omitted --&gt; 15232&lt;!-- raw HTML omitted --&gt; ，還有什麼好說呢？&lt;/p&gt;
+&lt;p&gt;這個客服也很直接說了，&lt;!-- raw HTML omitted --&gt;考慮換新機種比較划算&lt;!-- raw HTML omitted --&gt;，所以就不維修了&lt;/p&gt;
+&lt;p&gt;只是這個型號(DS-415+)的NAS ，當初一共採購了四台&lt;/p&gt;
+&lt;p&gt;我到這邊不到一年，維修了兩台，更換了兩次硬碟，重建了三次RAID&lt;/p&gt;
+&lt;p&gt;群暉吶&amp;hellip; Synology 吶&amp;hellip;本來以為可以是真正的「台灣之光」的廠商吶..&lt;/p&gt;
+&lt;p&gt;只是這將近十年下來的經驗&amp;hellip;&lt;/p&gt;
+&lt;p&gt;我以後如果不是用「國際」大廠的NAS，不然就是會自己搞 FREENAS 之類的opensource 系統了吧&amp;hellip;&lt;/p&gt;</description>
+        </item>
+        <item>
+        <title>筆記- 啟用群暉NAS (Synology NAS)的SSH Server  透過Publickey 認證免密碼登入</title>
+        <link>https://h.cowbay.org/p/%E7%AD%86%E8%A8%98-%E5%95%9F%E7%94%A8%E7%BE%A4%E6%9A%89nas-synology-nas%E7%9A%84ssh-server-%E9%80%8F%E9%81%8Epublickey-%E8%AA%8D%E8%AD%89%E5%85%8D%E5%AF%86%E7%A2%BC%E7%99%BB%E5%85%A5/</link>
+        <pubDate>Mon, 05 Nov 2018 14:16:54 +0800</pubDate>
+        
+        <guid>https://h.cowbay.org/p/%E7%AD%86%E8%A8%98-%E5%95%9F%E7%94%A8%E7%BE%A4%E6%9A%89nas-synology-nas%E7%9A%84ssh-server-%E9%80%8F%E9%81%8Epublickey-%E8%AA%8D%E8%AD%89%E5%85%8D%E5%AF%86%E7%A2%BC%E7%99%BB%E5%85%A5/</guid>
+        <description>&lt;p&gt;公司內有幾台NAS，其中有一台用來放開發人員的postgresql dump file
+之前都是主要的開發人員上傳到google drive，分享出來 ，然後其他人去抓回來&lt;/p&gt;
+&lt;p&gt;這樣子有個問題是，當server要存取這些檔案時，就沒辦法了，除非透過一些 3rd party的軟體
+像是這篇&lt;/p&gt;
+&lt;p&gt;&lt;a class=&#34;link&#34; href=&#34;https://www.omgubuntu.co.uk/2017/04/mount-google-drive-ocamlfuse-linux&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;https://www.omgubuntu.co.uk/2017/04/mount-google-drive-ocamlfuse-linux&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;或者是這篇&lt;/p&gt;
+&lt;p&gt;&lt;a class=&#34;link&#34; href=&#34;https://www.maketecheasier.com/mount-google-drive-ubuntu/&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;https://www.maketecheasier.com/mount-google-drive-ubuntu/&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;但是手邊的伺服器，原則上除非有必要，不然都沒有開放internet
+所以導致明明檔案就在那邊，但是要取得就是很麻煩&lt;/p&gt;
+&lt;p&gt;Dev_A upload to google drive &amp;mdash;&amp;gt; Dev_B Download from google drive &amp;mdash;&amp;gt; Dev_B scp download file to me &amp;mdash;&amp;gt; I upload to server.&lt;/p&gt;
+&lt;p&gt;有沒有？是不是很stupid (講話一定要烙英文)&lt;/p&gt;
+&lt;p&gt;既然有現成的NAS在那邊，幹嘛不用呢？(攤手)&lt;/p&gt;
+&lt;p&gt;聽說之前的人一直沒成功弄出來，讓Server可以直接去NAS存取檔案的方式，我記得這個不是很難啊
+就順手整理一下&lt;/p&gt;
+&lt;h3 id=&#34;新增使用者帳號-確認家目錄存在&#34;&gt;新增使用者帳號/ 確認家目錄存在&lt;/h3&gt;
+&lt;p&gt;在NAS 的管理界面上新增一個帳號，假設叫 eric 好了&lt;/p&gt;
+&lt;p&gt;&lt;del&gt;建立時，注意一下要指定家目錄路徑&lt;/del&gt;&lt;/p&gt;
+&lt;p&gt;更正： 群暉的界面好像不能指定家目錄&lt;/p&gt;
+&lt;p&gt;預設的路徑如下&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
+&lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt;1
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-fallback&#34; data-lang=&#34;fallback&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;eric:x:1071:100::/var/services/homes/eric:/sbin/nologin
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;p&gt;不過我覺得怪怪的，因為在我手邊的幾台NAS底下 /var/services/homes 都切不過去
+確認一下路徑，發現那個 &lt;code&gt;@fake_home_link&lt;/code&gt; 根本就不存在啊！&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
+&lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt;1
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;2
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;3
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-fallback&#34; data-lang=&#34;fallback&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;admin@storage:/volume1$ ls -lart /var/services/homes 
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;lrwxrwxrwx 1 root root 24 May 23 14:14 /var/services/homes -&amp;gt; /volume1/@fake_home_link
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;admin@storage:/volume1$
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;p&gt;我在想是不是之前的人有改過什麼..
+anyway ，反正先不管這邊，直接修改 /etc/passwd檔案&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
+&lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt;1
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-fallback&#34; data-lang=&#34;fallback&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;sudo vim /etc/passwd
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;p&gt;修正到正確的路徑，順便把shell 也改掉，不然不能登入&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
+&lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt;1
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-fallback&#34; data-lang=&#34;fallback&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;eric:x:1071:100::/volume1/homes/eric:/bin/sh
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;h3 id=&#34;修改-etcsshsshd_config&#34;&gt;修改 /etc/ssh/sshd_config&lt;/h3&gt;
+&lt;p&gt;再來修正預設沒有啟用 Publickey 驗證的 ssh&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
+&lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt;1
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-fallback&#34; data-lang=&#34;fallback&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;sudo vim /etc/ssh/sshd_config
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;p&gt;確認底下三行存在&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
+&lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt;1
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;2
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;3
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-fallback&#34; data-lang=&#34;fallback&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;RSAAuthentication yes
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;PubkeyAuthentication yes
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;AuthorizedKeysFile	.ssh/authorized_keys
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;h3 id=&#34;將key傳到-nas上&#34;&gt;將KEY傳到 NAS上&lt;/h3&gt;
+&lt;p&gt;先建立相關目錄，順便修正一下目錄權限&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
+&lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt;1
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;2
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;3
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-fallback&#34; data-lang=&#34;fallback&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;chmod 755 /volume1/homes/eric
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;mkdir -p /volume1/homes/eric/.ssh
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;chmod 700 /volume1/homes/eric/.ssh
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;p&gt;再來把Publickey 傳到NAS，複製貼上也好，ssh-copy-id也可以，同時修正權限&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
+&lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt;1
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;2
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-fallback&#34; data-lang=&#34;fallback&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;vim /volume1/homes/eric/.ssh/authorized_keys 
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;chmod 0600 /volume1/eric/.ssh/authorized_keys
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;h3 id=&#34;重啟ssh&#34;&gt;重啟SSH&lt;/h3&gt;
+&lt;p&gt;本來這個步驟應該可以用&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
+&lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt;1
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-fallback&#34; data-lang=&#34;fallback&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;synoservicectl --restart sshd
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;p&gt;來解決
+但是實際上這個指令只會把你踢出 SSH session &amp;hellip;.( WTF!!! )&lt;/p&gt;
+&lt;p&gt;所以還是要去NAS的管理界面，去關閉再打開SSH (有點蠢..)
+&lt;img src=&#34;https://i.imgur.com/jcDQmI1.png&#34;
+	
+	
+	
+	loading=&#34;lazy&#34;
+	
+		alt=&#34;Synology WEB UI&#34;
+	
+	
+&gt;&lt;/p&gt;
+&lt;p&gt;然後就可以測試用Publickey 來登入NAS了&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
+&lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt;1
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;2
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-fallback&#34; data-lang=&#34;fallback&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;2018-11-05 14:47:12 [mini@s009 ansiblecontrol]$ ssh admin@storage 
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;admin@storage:~$ 
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;p&gt;確認免密碼登入無誤了！&lt;/p&gt;</description>
+        </item>
+        
+    </channel>
+</rss>
